@@ -1,0 +1,11 @@
+case: Append
+input: >
+    <div>
+        <section><a></a></section>
+    </div>
+output: >
+    <div>
+        <section><a></a>#text</section>
+    </div>
+
+---

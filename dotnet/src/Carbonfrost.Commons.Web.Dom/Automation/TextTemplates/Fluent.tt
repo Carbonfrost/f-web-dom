@@ -1,0 +1,87 @@
+﻿<#@ template language="C#" #>
+<#@ output extension=".g.cs" #>
+
+using System;
+using System.Collections.Generic;
+
+// File generated at <#= DateTime.Now #>
+
+<#
+
+    string[] NodeTypes = {
+        "DomAttribute",
+        "DomCDataSection",
+        "DomComment",
+        "DomContainer",
+        "DomDocument",
+        "DomDocumentFragment",
+        "DomDocumentType",
+        "DomElement",
+        "DomEntity",
+        "DomEntityReference",
+        "DomNotation",
+        "DomProcessingInstruction",
+        "DomText",
+    };
+
+#>
+namespace Carbonfrost.Commons.Web.Dom {
+
+<# foreach (var type in NodeTypes) {
+
+    bool notAttribute = type != "DomAttribute";
+#>
+
+   partial class <#= type #> {
+
+        public new <#= type #> AddAnnotation(object annotation) {
+            base.AddAnnotation(annotation);
+            return this;
+        }
+
+        public new <#= type #> AddAnnotations(IEnumerable<object> annotations) {
+            base.AddAnnotations(annotations);
+            return this;
+        }
+
+        public new <#= type #> RemoveAnnotations<T>() where T : class {
+            base.RemoveAnnotations<T>();
+            return this;
+        }
+
+        public new <#= type #> RemoveAnnotations(Type type) {
+            base.RemoveAnnotation(type);
+            return this;
+        }
+
+        public new <#= type #> RemoveAnnotation(object value) {
+            base.RemoveAnnotation(value);
+            return this;
+        }
+
+        public new <#= type #> SetName(string name) {
+            return (<#= type #>) base.SetName(name);
+        }
+
+    <# if (notAttribute) { #>
+
+        public new <#= type #> CompressWhitespace() {
+            return (<#= type #>) base.CompressWhitespace();
+        }
+
+        public new <#= type #> Wrap(string element) {
+            return (<#= type #>) base.Wrap(element);
+        }
+
+        public new <#= type #> Wrap(DomNode newParent) {
+            return (<#= type #>) base.Wrap(newParent);
+        }
+
+    <# } #>
+
+   }
+
+<# } #>
+
+
+}
