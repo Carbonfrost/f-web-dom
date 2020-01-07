@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, srgen, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, srgen, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </resheader>
+  <data name="AttributeWithGivenNameExists" xml:space="preserve">
+    <value>An attribute with the specified name `{0}' already exists.</value>
+  </data>
+  <data name="CannotAppendChildNode" xml:space="preserve">
+    <value>Cannot append a child node to this node.</value>
+  </data>
+  <data name="CannotAppendChildNodeWithType" xml:space="preserve">
+    <value>Cannot append a node with the given type, `{0}'.</value>
+  </data>
+  <data name="CannotAppendNonWSText" xml:space="preserve">
+    <value>Cannot append text with non-whitespace characters to the document outside of the document element.</value>
+  </data>
+  <data name="CannotContainWhitespace" xml:space="preserve">
+    <value>Token cannot itself contain whitespace characters.</value>
+  </data>
+  <data name="CannotGenerateName" xml:space="preserve">
+    <value>Cannot generate the default name for type `{0}'.  Specify the constructor with the name set explicitly or check that the provider factory supports generating the name.</value>
+  </data>
+  <data name="CannotHaveMultipleRoots" xml:space="preserve">
+    <value>Cannot append element to document that already has a root element.</value>
+  </data>
+  <data name="CannotReplaceDocument" xml:space="preserve">
+    <value>Cannot replace the document node.</value>
+  </data>
+  <data name="CannotSetName" xml:space="preserve">
+    <value>Cannot set name on the current node</value>
+  </data>
+  <data name="CannotUnwrapWouldCreateMalformedDocument" xml:space="preserve">
+    <value>Cannot unwrap node because it would create a document with multiple roots.</value>
+  </data>
+  <data name="CannotUseAddWithDomObjects" xml:space="preserve">
+    <value>DOM objects can be arguments using this method.  Use the Append or ReplaceWith methods instead.</value>
+  </data>
+  <data name="CanReplaceOnlyWithAttribute" xml:space="preserve">
+    <value>Attributes can only be replaced with other attributes.</value>
+  </data>
+  <data name="NoItemCanContainWhitespace" xml:space="preserve">
+    <value>No item in the collection can contain whitespace</value>
+  </data>
+  <data name="ParentNodeRequired" xml:space="preserve">
+    <value>Node must have a parent for this operation.</value>
+  </data>
+  <data name="TargetCannotBeAllWhitepace" xml:space="preserve">
+    <value>Processing instruction target can be the empty string or contain whitespace characters.</value>
+  </data>
+</root>
