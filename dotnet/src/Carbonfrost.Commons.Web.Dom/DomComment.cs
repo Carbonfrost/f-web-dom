@@ -1,7 +1,5 @@
 //
-// - DomComment.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2019 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,18 +14,16 @@
 // limitations under the License.
 //
 
-using System;
-
 namespace Carbonfrost.Commons.Web.Dom {
 
     public partial class DomComment : DomCharacterData {
 
         public string Text {
             get {
-                return this.Data;
+                return Data;
             }
             set {
-                this.Data = value;
+                Data = value;
             }
         }
 
@@ -44,20 +40,26 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string TextContent {
-            get { return this.Data; }
+            get { return Data; }
             set {
-                this.Data = value;
+                Data = value;
             }
         }
 
         public override string NodeName {
-            get { return "#comment"; } }
+            get {
+                return "#comment";
+            }
+        }
 
         protected internal DomComment() : base() {
         }
 
         public override DomNodeType NodeType {
-            get { return DomNodeType.Comment; } }
+            get {
+                return DomNodeType.Comment;
+            }
+        }
 
         internal override void AcceptVisitor(IDomNodeVisitor visitor) {
             visitor.Visit(this);

@@ -25,7 +25,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public abstract class DomObject {
 
-        private AnnotationList annotations = AnnotationList.Empty;
+        private AnnotationList _annotations = AnnotationList.Empty;
         private IDomNodeCollection siblingsContent;
 
         // Purely for the sake of reducing memory required by DomNode
@@ -33,6 +33,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         //   DomCharacterData => string
         //   DomContainer = > DomNodeCollection corresponding to children
         internal object content;
+
+        // Only for tests
+        internal AnnotationList AnnotationList {
+            get {
+                return _annotations;
+            }
+        }
 
         public virtual string LocalName {
             get {
@@ -92,13 +99,13 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public bool IsText {
             get {
-                return this.NodeType == DomNodeType.Text;
+                return NodeType == DomNodeType.Text;
             }
         }
 
         public bool IsCDataSection {
             get {
-                return this.NodeType == DomNodeType.CDataSection;
+                return NodeType == DomNodeType.CDataSection;
             }
         }
 
@@ -110,7 +117,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public bool IsElement {
             get {
-                return this.NodeType == DomNodeType.Element;
+                return NodeType == DomNodeType.Element;
             }
         }
 
@@ -166,44 +173,47 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public int LinePosition {
             get {
-                if (OwnerDocument == null)
+                if (OwnerDocument == null) {
                     return -1;
+                }
                 return OwnerDocument.GetLinePosition(this);
             }
         }
 
         public int LineNumber {
             get {
-                if (OwnerDocument == null)
+                if (OwnerDocument == null) {
                     return -1;
+                }
                 return OwnerDocument.GetLineNumber(this);
             }
         }
 
         public Uri BaseUri {
             get {
-                var uc = this.Annotation<BaseUriAnnotation>();
-                if (uc == null)
+                var uc = Annotation<BaseUriAnnotation>();
+                if (uc == null) {
                     return ParentNode == null ? null: ParentNode.BaseUri;
-                else
-                    return uc.uri;
+                }
+                return uc.uri;
             }
             set {
-                this.RemoveAnnotations<BaseUriAnnotation>();
-                this.AddAnnotation(new BaseUriAnnotation(value));
+                RemoveAnnotations<BaseUriAnnotation>();
+                AddAnnotation(new BaseUriAnnotation(value));
             }
         }
 
         public DomDocument OwnerDocument {
             get {
-                if (this.OwnerNode == null)
+                if (OwnerNode == null) {
                     return null;
-
-                if (this.OwnerNode.NodeType == DomNodeType.Document) {
-                    return (DomDocument) this.OwnerNode;
                 }
 
-                return this.OwnerNode.OwnerDocument;
+                if (OwnerNode.NodeType == DomNodeType.Document) {
+                    return (DomDocument) OwnerNode;
+                }
+
+                return OwnerNode.OwnerDocument;
             }
         }
 
@@ -266,36 +276,39 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObject AddAnnotation(object annotation) {
-            if (annotation == null)
+            if (annotation == null) {
                 throw new ArgumentNullException("annotation");
+            }
 
-            this.annotations = this.annotations.Add(annotation);
+            _annotations = _annotations.Add(annotation);
             return this;
         }
 
         public bool HasAnnotation<T>() where T : class {
-            return annotations.OfType<T>().Any();
+            return _annotations.OfType<T>().Any();
         }
 
         public bool HasAnnotation(object instance) {
-            return annotations.Contains(instance);
+            return _annotations.Contains(instance);
         }
 
         public T Annotation<T>() where T : class {
-            return annotations.OfType<T>().FirstOrDefault();
+            return _annotations.OfType<T>().FirstOrDefault();
         }
 
         public object Annotation(Type type) {
-            if (type == null)
+            if (type == null) {
                 throw new ArgumentNullException("type");
+            }
 
-            return annotations.OfType(type).FirstOrDefault();
+            return _annotations.OfType(type).FirstOrDefault();
         }
 
         public DomObject AddAnnotations(IEnumerable<object> annotations) {
             if (annotations != null) {
-                foreach (var anno in annotations)
+                foreach (var anno in annotations) {
                     AddAnnotation(anno);
+                }
             }
             return this;
         }
@@ -305,31 +318,33 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public IEnumerable<T> Annotations<T>() where T : class {
-            return annotations.OfType<T>();
+            return _annotations.OfType<T>();
         }
 
         public IEnumerable<object> Annotations(Type type) {
-            return annotations.OfType(type);
+            return _annotations.OfType(type);
         }
 
         public DomObject RemoveAnnotations<T>() where T : class {
-            this.annotations = this.annotations.RemoveOfType(typeof(T));
+            _annotations = _annotations.RemoveOfType(typeof(T));
             return this;
         }
 
         public DomObject RemoveAnnotations(Type type) {
-            if (type == null)
+            if (type == null) {
                 throw new ArgumentNullException("type");
+            }
 
-            this.annotations = this.annotations.RemoveOfType(type);
+            _annotations = _annotations.RemoveOfType(type);
             return this;
         }
 
         public DomObject RemoveAnnotation(object value) {
-            if (value == null)
+            if (value == null) {
                 throw new ArgumentNullException("value");
+            }
 
-            this.annotations = this.annotations.Remove(value);
+            _annotations = _annotations.Remove(value);
             return this;
         }
 
@@ -369,12 +384,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
 
             return this;
-        }
-
-        void AssertSiblings(IDomNodeCollection newSiblings) {
-            if (this.siblingsContent != null && newSiblings != null && newSiblings != this.siblingsContent)
-                throw new Exception("Already has siblings " + this.siblingsContent);
-            this.siblingsContent = newSiblings;
         }
 
         private sealed class BaseUriAnnotation {

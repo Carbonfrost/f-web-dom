@@ -48,34 +48,30 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public static string ConvertToString(object value) {
             var str = value as string;
-            if (str != null)
+            if (str != null) {
                 return str;
+            }
 
-            if (value is double)
-                return XmlConvert.ToString((double) value);
-
-            if (value is float)
-                return XmlConvert.ToString((float) value);
-
-            if (value is decimal)
-                return XmlConvert.ToString((decimal) value);
-
-            if (value is bool)
-                return XmlConvert.ToString((bool) value);
-
-            if (value is DateTime)
-                return XmlConvert.ToString((DateTime) value, XmlDateTimeSerializationMode.Utc);
-
-            if (value is DateTimeOffset)
-                return XmlConvert.ToString((DateTimeOffset) value);
-
-            if (value is TimeSpan)
-                return XmlConvert.ToString((TimeSpan) value);
-
-            if (value is DomObject)
-                throw DomFailure.CannotUseAddWithDomObjects("value");
-
-            return Convert.ToString(value);
+            switch (value) {
+                case double _:
+                    return XmlConvert.ToString((double) value);
+                case float _:
+                    return XmlConvert.ToString((float) value);
+                case decimal _:
+                    return XmlConvert.ToString((decimal) value);
+                case bool _:
+                    return XmlConvert.ToString((bool) value);
+                case DateTime _:
+                    return XmlConvert.ToString((DateTime) value, XmlDateTimeSerializationMode.Utc);
+                case DateTimeOffset _:
+                    return XmlConvert.ToString((DateTimeOffset) value);
+                case TimeSpan _:
+                    return XmlConvert.ToString((TimeSpan) value);
+                case DomObject _:
+                    throw DomFailure.CannotUseAddWithDomObjects("value");
+                default:
+                    return Convert.ToString(value);
+            }
         }
     }
 }

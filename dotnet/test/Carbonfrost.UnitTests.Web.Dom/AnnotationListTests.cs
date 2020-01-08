@@ -1,7 +1,5 @@
 //
-// - AnnotationListTests.cs -
-//
-// Copyright 2014 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2014, 2019 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,10 +15,10 @@
 //
 
 using System;
-using System.Linq;
 using Carbonfrost.Commons.Core;
 using Carbonfrost.Commons.Web.Dom;
 using Carbonfrost.Commons.Spec;
+using System.Linq;
 
 namespace Carbonfrost.UnitTests.Web.Dom {
 
@@ -31,9 +29,10 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void test_add_annotation_nominal() {
+        public void AddAnnotation_nominal() {
             DomDocument d = new DomDocument();
             d.AddAnnotation(AnnotationClass.Value);
+
             Assert.True(d.HasAnnotation<AnnotationClass>());
             Assert.NotEmpty(d.Annotations<AnnotationClass>());
             Assert.Empty(d.Annotations<Uri>());
@@ -45,6 +44,19 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             DomDocument d = new DomDocument();
             d.AddAnnotations(new object [] { AnnotationClass.Value, Glob.Anything, string.Empty });
             Assert.SetEqual(new object [] { AnnotationClass.Value, Glob.Anything, string.Empty }, d.Annotations());
+        }
+
+        [Theory]
+        [InlineData(0, typeof(EmptyAnnotationList))]
+        [InlineData(1, typeof(SingletonAnnotationList))]
+        [InlineData(2, typeof(DefaultAnnotationList))]
+        public void AnnotationList_should_have_correct_type(int count, Type expected) {
+            DomDocument d = new DomDocument();
+            for (int i = 0; i < count; i++) {
+                d.AddAnnotation(new AnnotationClass());
+            }
+
+            Assert.IsInstanceOf(expected, d.AnnotationList);
         }
     }
 }

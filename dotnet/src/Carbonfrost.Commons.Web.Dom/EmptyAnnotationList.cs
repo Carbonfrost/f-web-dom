@@ -1,5 +1,5 @@
 //
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2019 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -27,12 +26,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override IEnumerable<T> OfType<T>() {
-            return Empty<T>.Array;
+            return Array.Empty<T>();
         }
 
         public override AnnotationList RemoveOfType(Type type) {
-            if (type == null)
+            if (type == null) {
                 throw new ArgumentNullException("type");
+            }
 
             return this;
         }
@@ -42,17 +42,19 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override AnnotationList Remove(object annotation) {
-            if (annotation == null)
+            if (annotation == null) {
                 throw new ArgumentNullException("annotation");
+            }
 
             return this;
         }
 
         public override IEnumerable<object> OfType(Type type) {
-            if (type == null)
+            if (type == null) {
                 throw new ArgumentNullException("type");
+            }
 
-            return Empty<object>.Array;
+            return Array.Empty<object>();
         }
     }
 }

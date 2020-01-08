@@ -114,6 +114,18 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void CreateAttribute_requires_name_argument() {
+            DomDocument doc = new DomDocument();
+            Assert.Throws<ArgumentNullException>(() => doc.CreateAttribute(null));
+        }
+
+        [Fact]
+        public void CreateAttribute_requires_name_argument_nonempty() {
+            DomDocument doc = new DomDocument();
+            Assert.Throws<ArgumentException>(() => doc.CreateAttribute(""));
+        }
+
+        [Fact]
         public void Append_should_append_multiple_noncontent_nodes() {
             DomDocument doc = new DomDocument();
             var docType = doc.CreateDocumentType("html");
@@ -181,6 +193,18 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             DomDocument doc = new DomDocument();
             doc.AppendElement("a");
             Assert.Null(doc.InnerText);
+        }
+
+        [Fact]
+        public void IsContainer_should_be_true() {
+            DomDocument doc = new DomDocument();
+            Assert.True(doc.IsContainer);
+        }
+
+        [Fact]
+        public void IsDocument_should_be_true() {
+            DomDocument doc = new DomDocument();
+            Assert.True(doc.IsDocument);
         }
 
         [Fact]

@@ -1,5 +1,5 @@
 //
-// Copyright 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2019 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,10 +14,8 @@
 // limitations under the License.
 //
 
-using System;
+
 using System.Collections.Generic;
-using Carbonfrost.Commons.Web.Dom;
-using Carbonfrost.Commons.Web.Dom.Query;
 
 namespace Carbonfrost.Commons.Web.Dom.Query {
 
@@ -25,31 +23,16 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
 
         public static DomObjectQuery Collect(Evaluator eval, DomContainer root) {
             var elements = new List<DomNode>();
-            new AccumulatorVisitor(root, elements, eval).Visit(root);
-            return new DomObjectQuery(elements);
-        }
 
-        private class AccumulatorVisitor : DomNodeVisitor {
-
-            private readonly List<DomNode> _elements;
-            private readonly Evaluator _eval;
-            private readonly DomContainer _root;
-
-            public AccumulatorVisitor(DomContainer root, List<DomNode> elements, Evaluator eval) {
-                _root = root;
-                _elements = elements;
-                _eval = eval;
-            }
-
-            protected override void DefaultVisit(DomObject node) {
+            DomNodeVisitor.Visit(root, node => {
                 DomElement el = node as DomElement;
                 if (el != null) {
-                    if (_eval.Matches(_root, el)) {
-                        _elements.Add(el);
+                    if (eval.Matches(root, el)) {
+                        elements.Add(el);
                     }
                 }
-                base.DefaultVisit(node);
-            }
+            });
+            return new DomObjectQuery(elements);
         }
     }
 }

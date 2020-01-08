@@ -1,7 +1,5 @@
 //
-// - SingletonAnnotationList.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Carbonfrost.Commons.Web.Dom {
@@ -34,10 +31,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         public override IEnumerable<T> OfType<T>() {
             var t = value as T;
 
-            if (t == null)
-                return Empty<T>.Array;
-            else
-                return new T[] { t };
+            if (t == null) {
+                return Array.Empty<T>();
+            }
+
+            return new T[] { t };
         }
 
         public override bool Contains(object annotation) {
@@ -76,10 +74,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (type == null)
                 throw new ArgumentNullException("type");
 
-            if (type.GetTypeInfo().IsInstanceOfType(this.value))
+            if (type.GetTypeInfo().IsInstanceOfType(this.value)) {
                 return new object[] { this.value };
-            else
-                return Empty<object>.Array;
+            }
+            return Array.Empty<object>();
 
         }
     }

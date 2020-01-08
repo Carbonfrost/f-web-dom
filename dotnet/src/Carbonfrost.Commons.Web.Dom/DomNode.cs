@@ -27,7 +27,10 @@ namespace Carbonfrost.Commons.Web.Dom {
     public abstract partial class DomNode : DomObject {
 
         public int NodePosition {
-            get { return this.SiblingIndex; } }
+            get {
+                return SiblingIndex;
+            }
+        }
 
         public int NodeDepth {
             get {
@@ -42,21 +45,23 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomAttribute AppendAttribute(string name, object value) {
-            return this.Attributes.AddNew(name).SetTypedValue(value);
+            return Attributes.AddNew(name).SetTypedValue(value);
         }
 
         public string Attribute(string name) {
-            if (name == null)
+            if (name == null) {
                 throw new ArgumentNullException("name");
-            if (name.Length == 0)
+            }
+            if (name.Length == 0) {
                 throw Failure.EmptyString("name");
+            }
 
-            if (this.Attributes == null) {
+            if (Attributes == null) {
                 Traceables.IgnoredAttributes();
                 return null;
+            }
 
-            } else
-                return this.Attributes[name];
+            return Attributes[name];
         }
 
         public bool HasClass(string name) {
@@ -69,18 +74,15 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode ChildNode(int index) {
-            return this.ChildNodes[index];
+            return ChildNodes[index];
         }
 
         public DomNode Empty() {
-            this.DomChildNodes.Clear();
+            DomChildNodes.Clear();
             return this;
         }
 
         public bool HasAttribute(string name) {
-            if (name == null)
-                throw new ArgumentNullException("name");
-
             return HasAttributes && Attributes.Contains(name);
         }
 
@@ -92,18 +94,18 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string ToString() {
-            return this.NodeValue;
+            return NodeValue;
         }
 
         public bool HasAttributes {
             get {
-                return this.DomAttributes != null;
+                return DomAttributes != null;
             }
         }
 
         public DomAttributeCollection Attributes {
             get {
-                return this.DomAttributes;
+                return DomAttributes;
             }
         }
 
@@ -221,10 +223,11 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public IReadOnlyList<DomNode> SiblingNodes {
             get {
-                if (this.ParentNode == null)
-                    return Empty<DomNode>.Array;
+                if (ParentNode == null) {
+                    return Array.Empty<DomNode>();
+                }
 
-                return (IReadOnlyList<DomNode>) this.Siblings;
+                return (IReadOnlyList<DomNode>) Siblings;
             }
         }
 
