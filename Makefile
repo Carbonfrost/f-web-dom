@@ -25,7 +25,8 @@ dotnet/cover: dotnet/publish -check-command-coverlet
 	coverlet \
 		--target "make" \
 		--targetargs "-- -dotnet/test" \
-		--format cobertura \
+		--format lcov \
+		--output lcov.info \
 		--exclude-by-attribute 'Obsolete' \
 		--exclude-by-attribute 'GeneratedCode' \
 		--exclude-by-attribute 'CompilerGenerated' \
