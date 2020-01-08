@@ -53,7 +53,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             // TODO This is an incomplete list, possible DomNode/DomContainer shouldn't be used since non-leaf types
         };
 
-        internal static IEnumerable<DomProviderFactory> All {
+        private static IEnumerable<DomProviderFactory> All {
             get {
                 return App.GetProviders<DomProviderFactory>();
             }
@@ -120,7 +120,8 @@ namespace Carbonfrost.Commons.Web.Dom {
             return App.GetProviders<DomProviderFactory>(
                 new {
                     Assembly = providerObjectType.GetTypeInfo().Assembly,
-                }).Concat(App.GetProviders<DomProviderFactory>());
+                }
+            ).Concat(All);
         }
 
         public DomNodeWriter CreateWriter(DomNode node, DomNodeWriterSettings settings) {

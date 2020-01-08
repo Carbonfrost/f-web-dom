@@ -87,6 +87,17 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void Constructor_requires_name_argument() {
+            Assert.Throws<ArgumentNullException>(() => new DomAttribute(null));
+        }
+
+        [Fact]
+        public void Constructor_requires_name_argument_nonempty() {
+            DomDocument doc = new DomDocument();
+            Assert.Throws<ArgumentException>(() => new DomAttribute(""));
+        }
+
+        [Fact]
         public void RemoveSelf_implies_parent_and_owner() {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html");
@@ -111,6 +122,15 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Equal(1, html.Attributes.Count);
             Assert.Equal("en", html.Attribute("lang"));
             Assert.Same(doc, attr.OwnerDocument);
+        }
+
+        [Fact]
+        public void ChildNodes_is_a_empty_collection() {
+            DomDocument doc = new DomDocument();
+            var attr = doc.CreateAttribute("lang", "en");
+
+            Assert.True(attr.ChildNodes.IsReadOnly);
+            Assert.Empty(attr.ChildNodes);
         }
 
         [Fact]
@@ -180,6 +200,17 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void ReplaceWith_using_null_deletes_the_attribute() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html").Attribute("lang", "en");
+            var attr = html.Attributes[0];
+            attr.ReplaceWith(null);
+
+            Assert.Equal(0, html.Attributes.Count);
+        }
+
+
+        [Fact]
         public void NextAttribute_attribute_adjacent_nominal() {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html");
@@ -202,6 +233,15 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             html.Attribute("lang", "en");
 
             DomAttribute attr = html.Attributes[0];
+            Assert.Null(attr.NextAttribute);
+            Assert.Null(attr.PreviousAttribute);
+        }
+
+        [Fact]
+        public void NextAttribute_and_PreviousAttribute_adjacent_unlinkd() {
+            DomDocument doc = new DomDocument();
+            var attr = doc.CreateAttribute("att");
+
             Assert.Null(attr.NextAttribute);
             Assert.Null(attr.PreviousAttribute);
         }
@@ -261,5 +301,31 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             attr.Value = "en-us";
             Assert.Equal("en-us", attr.NodeValue);
         }
+
+        [Fact]
+        public void ToString_nominal() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html").Attribute("lang", "en");
+
+            Assert.Equal("lang=\"en\"", html.Attributes[0].ToString());
+        }
+
+        [Fact]
+        public void ToString_will_encode_html_entities() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html").Attribute("lang", "<> &");
+
+            Assert.Equal("lang=\"&lt;&gt; &amp;\"", html.Attributes[0].ToString());
+        }
+
+        [Fact]
+        public void TextContent_gets_and_sets_text() {
+            DomDocument doc = new DomDocument();
+            var attr = doc.CreateAttribute("s");
+            attr.TextContent = "text";
+
+            Assert.Equal("text", attr.TextContent);
+        }
+
     }
 }

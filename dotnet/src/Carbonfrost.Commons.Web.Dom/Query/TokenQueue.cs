@@ -1,6 +1,4 @@
 //
-// - TokenQueue.cs -
-//
 // Copyright 2012 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -52,8 +50,9 @@ namespace Carbonfrost.Commons.Html.Parser {
         private const char ESC = '\\'; // escape char for chomp balanced.
 
         public TokenQueue(string data) {
-            if (data == null)
+            if (data == null) {
                 throw new ArgumentNullException("data");
+            }
 
             queue = data;
         }
@@ -101,12 +100,14 @@ namespace Carbonfrost.Commons.Html.Parser {
         }
 
         public bool MatchesAny(params char[] seq) {
-            if (IsEmpty)
+            if (IsEmpty) {
                 return false;
+            }
 
             foreach (char c in seq) {
-                if (queue[pos] == c)
+                if (queue[pos] == c) {
                     return true;
+                }
             }
             return false;
         }
@@ -134,7 +135,9 @@ namespace Carbonfrost.Commons.Html.Parser {
         }
 
         public void Advance() {
-            if (!IsEmpty) pos++;
+            if (!IsEmpty) {
+                pos++;
+            }
         }
 
         public char Consume() {
@@ -142,12 +145,14 @@ namespace Carbonfrost.Commons.Html.Parser {
         }
 
         public void Consume(string seq) {
-            if (!Matches(seq))
+            if (!Matches(seq)) {
                 throw DomFailure.QueueDidNotMatch();
+            }
 
             int len = seq.Length;
-            if (len > RemainingLength)
+            if (len > RemainingLength) {
                 throw DomFailure.QueueNotLongEnoughToConsumeSequence();
+            }
 
             pos += len;
         }
@@ -168,8 +173,9 @@ namespace Carbonfrost.Commons.Html.Parser {
             string first = seq.Substring(0, 1);
             bool canScan = first.ToLower().Equals(first.ToUpper()); // if first is not cased, use index of
             while (!IsEmpty) {
-                if (Matches(seq))
+                if (Matches(seq)) {
                     break;
+                }
 
                 if (canScan) {
                     int skip = queue.IndexOf(first, pos) - pos;

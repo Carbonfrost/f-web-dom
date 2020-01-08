@@ -53,6 +53,16 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Equal("head", html.Elements[1].NodeName);
         }
 
+        [Theory]
+        [InlineData("")]
+        public void Attribute_illegal_arguments(string attr) {
+            DomDocument doc = new DomDocument();
+            var html = doc.CreateElement("html");
+            Assert.Throws<ArgumentException>(() => {
+                html.Attribute(attr);
+            });
+        }
+
         [Fact]
         public void BaseUri_should_inherit() {
             DomDocument doc = new DomDocument();
@@ -91,6 +101,16 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             root.AppendElement("c");
             root.AppendText("d");
             Assert.Equal("bc#text", string.Concat(a.FollowingSiblingNodes.Select(n => n.NodeName)));
+        }
+
+        [Theory]
+        [InlineData("")]
+        public void HasAttribute_illegal_arguments(string attr) {
+            DomDocument doc = new DomDocument();
+            var html = doc.CreateElement("html");
+            Assert.Throws<ArgumentException>(() => {
+                html.HasAttribute(attr);
+            });
         }
 
         [Fact]

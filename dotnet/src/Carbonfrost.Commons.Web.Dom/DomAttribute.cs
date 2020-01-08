@@ -1,5 +1,5 @@
 //
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2019 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,17 +16,19 @@
 
 using System;
 using System.Net;
-using System.Xml;
 using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
     public partial class DomAttribute : DomObject, IEquatable<DomAttribute> {
 
-        private readonly string name;
+        private readonly string _name;
 
         public int AttributePosition {
-            get { return this.SiblingIndex; } }
+            get {
+                return SiblingIndex;
+            }
+        }
 
         public override DomNode ParentNode {
             get {
@@ -36,31 +38,31 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomElement OwnerElement {
             get {
-                return (this.SiblingAttributes == null)
+                return (SiblingAttributes == null)
                     ? null
-                    : this.SiblingAttributes.OwnerElement;
+                    : SiblingAttributes.OwnerElement;
             }
         }
 
         public DomAttribute PreviousAttribute {
             get {
-                if (this.SiblingAttributes == null)
+                if (SiblingAttributes == null)
                     return null;
-                if (this.AttributePosition == 0)
+                if (AttributePosition == 0)
                     return null;
                 else
-                    return this.SiblingAttributes[this.AttributePosition - 1];
+                    return SiblingAttributes[AttributePosition - 1];
             }
         }
 
         public DomAttribute NextAttribute {
             get {
-                if (this.SiblingAttributes == null)
+                if (SiblingAttributes == null)
                     return null;
-                if (this.AttributePosition == this.SiblingAttributes.Count - 1)
+                if (AttributePosition == SiblingAttributes.Count - 1)
                     return null;
                 else
-                    return this.SiblingAttributes[this.AttributePosition + 1];
+                    return SiblingAttributes[AttributePosition + 1];
             }
         }
 
@@ -72,7 +74,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public string Name {
             get {
-                return this.name;
+                return _name;
             }
         }
 
@@ -83,8 +85,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             get { return DomNodeType.Attribute; } }
 
         public override string TextContent {
-            get { return this.Value; }
-            set { this.Value = value; } }
+            get { return Value; }
+            set { Value = value; }
+        }
 
         internal IDomValue DomValue {
             get {
@@ -103,7 +106,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected internal DomAttribute() {
-            this.name = RequireFactoryGeneratedName(GetType());
+            _name = RequireFactoryGeneratedName(GetType());
             this.content = new BasicDomValue();
         }
 
@@ -116,7 +119,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw Failure.EmptyString("name");
             }
 
-            this.name = name.Trim();
+            _name = name.Trim();
             this.content = new BasicDomValue();
         }
 
@@ -125,8 +128,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected virtual DomAttribute CloneCore() {
-            var result = this.OwnerDocument.CreateAttribute(this.Name,
-                                                            this.Value);
+            var result = this.OwnerDocument.CreateAttribute(Name, Value);
             // TODO Previously, we required that the value be cloned
             result.DomValue = this.DomValue;
             return result;
@@ -137,11 +139,12 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomAttribute ReplaceWith(DomAttribute other) {
-            if (other == null)
-                throw new ArgumentNullException("other");
+            if (other == null) {
+                return RemoveSelf();
+            }
 
-            var oldParent = this.OwnerElement;
-            this.RemoveSelf();
+            var oldParent = OwnerElement;
+            RemoveSelf();
             oldParent.Attributes.Add(other);
             return other;
         }
@@ -179,26 +182,28 @@ namespace Carbonfrost.Commons.Web.Dom {
         public override int GetHashCode() {
             int hashCode = 0;
             unchecked {
-                hashCode += 37 * this.name.GetHashCode();
+                hashCode += 37 * Name.GetHashCode();
             }
             return hashCode;
         }
 
         private static bool StaticEquals(DomAttribute lhs, DomAttribute rhs) {
-            if (object.ReferenceEquals(lhs, rhs))
+            if (object.ReferenceEquals(lhs, rhs)) {
                 return true;
+            }
 
-            if (object.ReferenceEquals(lhs, null) || object.ReferenceEquals(rhs, null))
+            if (object.ReferenceEquals(lhs, null) || object.ReferenceEquals(rhs, null)) {
                 return false;
+            }
 
-            return lhs.name == rhs.name && lhs.content == rhs.content;
+            return lhs.Name == rhs.Name && lhs.content == rhs.content;
         }
 
         public override string ToString() {
             return string.Format("{0}={1}{2}{1}",
-                                 this.name,
+                                 _name,
                                  '"',
-                                 WebUtility.HtmlEncode(this.Value));
+                                 WebUtility.HtmlEncode(Value));
         }
 
         sealed class BasicDomValue : IDomValue {

@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -27,6 +28,9 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public partial class DomDocument : DomContainer, IDomNodeFactory {
 
+        private static readonly IReadOnlyList<DomElement> EMPTY = new ReadOnlyCollection<DomElement>(
+            Array.Empty<DomElement>()
+        );
         private readonly IDomUnlinkedNodeCollection unlinked;
 
         public DomElement DocumentElement {
@@ -61,8 +65,9 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override IReadOnlyList<DomElement> Elements {
             get {
-                if (DocumentElement == null)
-                    return Empty<DomElement>.ReadOnly;
+                if (DocumentElement == null) {
+                    return EMPTY;
+                }
 
                 return DocumentElement.Elements;
             }

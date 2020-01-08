@@ -26,136 +26,153 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         [CLSCompliant(false)]
         public static explicit operator DateTime?(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return DateTime.Parse(attribute.Value, CultureInfo.CurrentCulture, DateTimeStyles.RoundtripKind);
         }
 
         [CLSCompliant(false)]
         public static explicit operator bool(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
+            }
 
             return XmlConvert.ToBoolean(attribute.Value.ToLowerInvariant());
         }
 
         [CLSCompliant(false)]
         public static explicit operator Guid(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
+            }
 
             return XmlConvert.ToGuid(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator bool?(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return XmlConvert.ToBoolean(attribute.Value.ToLowerInvariant());
         }
 
         [CLSCompliant(false)]
         public static explicit operator int(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
+            }
 
             return XmlConvert.ToInt32(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator Guid?(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return XmlConvert.ToGuid(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator int?(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return XmlConvert.ToInt32(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator TimeSpan?(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return XmlConvert.ToTimeSpan(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator DateTime(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
+            }
 
             return DateTime.Parse(attribute.Value, CultureInfo.CurrentCulture, DateTimeStyles.RoundtripKind);
         }
 
         [CLSCompliant(false)]
         public static explicit operator DateTimeOffset?(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return XmlConvert.ToDateTimeOffset(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator long?(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return XmlConvert.ToInt64(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator ulong?(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return XmlConvert.ToUInt64(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator DateTimeOffset(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
+            }
 
             return XmlConvert.ToDateTimeOffset(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator float?(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return XmlConvert.ToSingle(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator decimal(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
+            }
 
             return XmlConvert.ToDecimal(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator double?(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return XmlConvert.ToDouble(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator double(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
+            }
 
             return XmlConvert.ToDouble(attribute.Value);
         }
@@ -163,56 +180,63 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         [CLSCompliant(false)]
         public static explicit operator decimal?(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return XmlConvert.ToDecimal(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator long(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
+            }
 
             return XmlConvert.ToInt64(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator uint?(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return XmlConvert.ToUInt32(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator float(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
+            }
 
             return XmlConvert.ToSingle(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator string(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 return null;
+            }
 
             return attribute.Value;
         }
 
         [CLSCompliant(false)]
         public static explicit operator TimeSpan(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
+            }
 
             return XmlConvert.ToTimeSpan(attribute.Value);
         }
 
         [CLSCompliant(false)]
         public static explicit operator uint(DomAttribute attribute) {
-            if (attribute == null)
+            if (attribute == null) {
                 throw new ArgumentNullException("attribute");
+            }
 
             return XmlConvert.ToUInt32(attribute.Value);
         }

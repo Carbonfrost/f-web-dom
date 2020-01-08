@@ -1,5 +1,5 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2019 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 //
 
 using System;
-using System.Linq;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
@@ -61,6 +60,67 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Same(doc, attr1.OwnerDocument);
             Assert.Null(attr1.OwnerElement); // spec
             Assert.Null(attr1.ParentElement);
+        }
+
+        [Fact]
+        public void ReadOnly_is_read_only() {
+            Assert.True(DomAttributeCollection.ReadOnly.IsReadOnly);
+        }
+
+        [Fact]
+        public void ReadOnly_cannot_add_or_clear() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            var attr = html.AppendAttribute("lang", "en");
+
+            Assert.Throws<NotSupportedException>(() => {
+                DomAttributeCollection.ReadOnly.Add(attr);
+            });
+
+            Assert.Throws<NotSupportedException>(() => {
+                DomAttributeCollection.ReadOnly.Clear();
+            });
+        }
+
+        [Fact]
+        public void Indexer_can_set_by_name_and_retrieve_by_name() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            html.Attributes["class"] = "hello";
+
+            Assert.Equal("hello", html.Attributes["class"]);
+        }
+
+        [Fact]
+        public void Indexer_can_set_by_name_and_create_attribute() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            html.Attributes["class"] = "hello";
+
+            Assert.HasCount(1, html.Attributes);
+            Assert.Equal("class", html.Attributes[0].Name);
+        }
+
+        [Fact]
+        public void Remove_supports_removing_by_name() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            html.Attribute("class", "a").Attribute("id", "b").Attribute("lang", "en");
+
+            Assert.True(html.Attributes.Remove("class"));
+            Assert.Equal("id", html.Attributes[0].Name);
+            Assert.Equal("lang", html.Attributes[1].Name);
+        }
+
+        [Fact]
+        public void RemoveAt_supports_removing_by_index() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            html.Attribute("class", "a").Attribute("id", "b").Attribute("lang", "en");
+
+            html.Attributes.RemoveAt(1);
+            Assert.Equal("class", html.Attributes[0].Name);
+            Assert.Equal("lang", html.Attributes[1].Name);
         }
     }
 }

@@ -1,6 +1,4 @@
 //
-// - StructuralEvaluator.cs -
-//
 // Copyright 2012 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,8 +36,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using Carbonfrost.Commons.Web.Dom;
 
 namespace Carbonfrost.Commons.Web.Dom.Query {
 

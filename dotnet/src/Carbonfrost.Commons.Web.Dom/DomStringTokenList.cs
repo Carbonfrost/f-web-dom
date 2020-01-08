@@ -82,7 +82,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         static string[] ParseItems(string text) {
-            return text == null ? Empty<string>.Array : Regex.Split(text, "\\s+");
+            if (text == null) {
+                return Array.Empty<string>();
+            }
+            return Regex.Split(text, "\\s+");
         }
 
         public static implicit operator DomStringTokenList(string text) {

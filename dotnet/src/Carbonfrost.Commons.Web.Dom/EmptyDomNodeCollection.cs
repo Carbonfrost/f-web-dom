@@ -14,10 +14,7 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
@@ -39,7 +36,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override IEnumerator<DomNode> GetEnumerator() {
-            return Empty<DomNode>.List.GetEnumerator();
+            yield break;
         }
 
         public override int IndexOf(DomNode node) {

@@ -1,5 +1,5 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,9 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Xml;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
@@ -135,6 +133,20 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void NodeName_equals_special_name() {
+            DomDocument doc = new DomDocument();
+            var pi = doc.CreateText("hello");
+            Assert.Equal("#text", pi.NodeName);
+        }
+
+        [Fact]
+        public void NodeValue_equals_text() {
+            DomDocument doc = new DomDocument();
+            var pi = doc.CreateText("hello");
+            Assert.Equal("hello", pi.NodeValue);
+        }
+
+        [Fact]
         public void SplitText_should_split_on_index_follower_is_rest_of_text() {
             const string xml = @"<e>this is some text</e>";
             DomDocument doc = new DomDocument();
@@ -164,30 +176,12 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             doc.LoadXml(xml);
             var text = ((DomText) doc.DocumentElement.ChildNodes[0]);
             text.SplitText(new Regex("(this|null|false|true)"));
-            var items = NextSiblingNodesAndSelf(text).Select(t => t.NodeValue).ToArray();
+            var items = new [] { text.NodeValue }.Concat(
+                text.FollowingSiblingNodes.Select(t => t.NodeValue).ToArray()
+            );
             // N.B.: that regex split would usually lead to "" at beginning and end, but
             // we drop that
             Assert.Equal<string>(new string[] { "this", " ", "null", " ", "false", " and ", "true", " splits" }, items);
-        }
-
-        [Fact]
-        public void NodeName_equals_special_name() {
-            DomDocument doc = new DomDocument();
-            var pi = doc.CreateText("hello");
-            Assert.Equal("#text", pi.NodeName);
-        }
-
-        [Fact]
-        public void NodeValue_equals_text() {
-            DomDocument doc = new DomDocument();
-            var pi = doc.CreateText("hello");
-            Assert.Equal("hello", pi.NodeValue);
-        }
-
-        private static IEnumerable<DomNode> NextSiblingNodesAndSelf(DomNode node) {
-            for (; node != null; node = node.NextSiblingNode) {
-                yield return node;
-            }
         }
     }
 }

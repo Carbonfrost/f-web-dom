@@ -1,5 +1,5 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections.ObjectModel;
 
 using Carbonfrost.Commons.Core;
 
@@ -24,19 +24,24 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public class DomAttributeCollection : IList<DomAttribute>, IDomNodeCollection {
 
-        internal static readonly DomAttributeCollection ReadOnly = new DomAttributeCollection(null, Empty<DomAttribute>.List);
+        internal static readonly DomAttributeCollection ReadOnly = new DomAttributeCollection(
+            null,
+            new ReadOnlyCollection<DomAttribute>(Array.Empty<DomAttribute>())
+        );
 
-        private readonly DomElement owner;
+        private readonly DomElement _owner;
         private readonly IDictionary<string, DomAttribute> _map;
         private readonly IList<DomAttribute> _items;
 
         protected internal DomElement OwnerElement {
-            get { return owner; }
+            get {
+                return _owner;
+            }
         }
 
         protected IList<DomAttribute> Items {
             get {
-                return this._items;
+                return _items;
             }
         }
 
@@ -45,12 +50,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         internal DomAttributeCollection(DomElement owner, IList<DomAttribute> items) {
-            if (items == null)
+            if (items == null) {
                 throw new ArgumentNullException("items");
+            }
 
-            this.owner = owner;
-            this._items = items;
-            this._map = new Dictionary<string, DomAttribute>();
+            _owner = owner;
+            _items = items;
+            _map = new Dictionary<string, DomAttribute>();
         }
 
         public virtual bool IsReadOnly {
@@ -61,19 +67,14 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public string this[string name] {
             get {
-                DomAttribute result;
-                if (TryGetValue(RequireName(name), out result))
-                    return result.Value;
-                else
+                DomAttribute result = GetByName(name);
+                if (result == null) {
                     return null;
+                }
+                return result.Value;
             }
             set {
-                int index = IndexOf(RequireName(name));
-                if (index < 0) {
-                    var attr = this.OwnerElement.OwnerDocument.CreateAttribute(RequireName(name), value);
-                    Items.Add(attr);
-                } else
-                    Items[index].Value = value;
+                GetOrAdd(name).Value = value;
             }
         }
 
@@ -125,10 +126,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (attr == null) {
                 // Owner doc could be null (rare)
                 var doc = OwnerElement.OwnerDocument;
-                if (doc == null)
-                    attr = DomProviderFactory.ForProviderObject(this.OwnerElement).NodeFactory.CreateAttribute(name);
-                else
+                if (doc == null) {
+                    attr = DomProviderFactory.ForProviderObject(OwnerElement).NodeFactory.CreateAttribute(name);
+                } else {
                     attr = doc.CreateAttribute(name);
+                }
                 Add(attr);
             }
 
@@ -140,8 +142,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public virtual void InsertRange(int index, IEnumerable<DomAttribute> items) {
-            if (items == null)
+            if (items == null) {
                 throw new ArgumentNullException("items");
+            }
 
             foreach (var element in items) {
                 Insert(index++, element);
@@ -152,21 +155,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             return IndexOf(name) >= 0;
         }
 
-        static DomAttribute RequireAttribute(DomObject item) {
-            if (item == null)
-                throw new ArgumentNullException("item");
-
-            DomAttribute node = item as DomAttribute;
-            if (node == null)
-                throw Failure.NotInstanceOf("item", item, typeof(DomAttribute));
-            return node;
-        }
-
         internal static string RequireName(string name) {
-            if (name == null)
+            if (name == null) {
                 throw new ArgumentNullException("name");
-            if (name.Length == 0)
+            }
+            if (name.Length == 0) {
                 throw Failure.EmptyString("name");
+            }
 
             return name;
         }
@@ -175,19 +170,21 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         void IDomNodeCollection.UnsafeRemove(DomObject node) {
             var attr = node as DomAttribute;
-            if (attr != null)
-                this.Items.Remove(attr);
+            if (attr != null) {
+                Items.Remove(attr);
+            }
         }
 
         void IDomNodeCollection.UnsafeAdd(DomObject node) {
             var attr = node as DomAttribute;
-            if (attr != null)
-                this.Items.Add(attr);
+            if (attr != null) {
+                Items.Add(attr);
+            }
         }
 
         bool IDomNodeCollection.Remove(DomObject node) {
             var attr = node as DomAttribute;
-            if (attr != null && this.Items.Remove(attr)) {
+            if (attr != null && Items.Remove(attr)) {
                 attr.Unlinked();
                 return true;
             }
@@ -204,7 +201,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         DomNode IDomNodeCollection.OwnerNode {
             get {
-                return this.OwnerElement;
+                return OwnerElement;
             }
         }
 
@@ -258,8 +255,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public int IndexOf(DomAttribute item) {
-            if (item == null)
+            if (item == null) {
                 throw new ArgumentNullException("item");
+            }
 
             if (item.SiblingAttributes != this) {
                 return -1;
@@ -268,15 +266,17 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public void Insert(int index, DomAttribute item) {
-            if (item == null)
+            if (item == null) {
                 throw new ArgumentNullException("item");
+            }
 
             InsertItem(index, item);
         }
 
         public void RemoveAt(int index) {
-            if (index < 0 || index >= Count)
+            if (index < 0 || index >= Count) {
                 throw Failure.IndexOutOfRange("index", index, 0, Count - 1);
+            }
 
             RemoveItem(index);
         }
@@ -286,16 +286,18 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return _items[index];
             }
             set {
-                if (value == null)
+                if (value == null) {
                     throw new ArgumentNullException("value");
+                }
 
                 SetItem(index, value);
             }
         }
 
         public void Add(DomAttribute item) {
-            if (item == null)
+            if (item == null) {
                 throw new ArgumentNullException("item");
+            }
 
             InsertItem(Count, item);
         }
@@ -313,8 +315,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public bool Remove(DomAttribute item) {
-            if (item == null)
+            if (item == null) {
                 throw new ArgumentNullException("item");
+            }
 
             int index = IndexOf(item);
             bool bounds = index >= 0;
