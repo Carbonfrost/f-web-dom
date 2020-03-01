@@ -1,11 +1,11 @@
 //
-// Copyright 2014, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2014, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,6 +29,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         public static readonly DomProviderFactory Default
             = new DefaultDomProviderFactory();
 
+        internal static readonly Assembly THIS_ASSEMBLY = typeof(DefaultDomProviderFactory).GetTypeInfo().Assembly;
         static readonly HashSet<Type> PROVIDER_TYPES = new HashSet<Type> {
             typeof(DomNode),
             typeof(DomElement),
@@ -43,12 +44,16 @@ namespace Carbonfrost.Commons.Web.Dom {
             typeof(DomEntity),
             typeof(DomEntityReference),
             typeof(DomNotation),
+            typeof(DomEscaper),
 
             typeof(DomAttributeDefinition),
             typeof(DomElementDefinition),
 
             typeof(DomWriter),
             typeof(DomReader),
+
+            typeof(DomSelector),
+            typeof(CssSelector),
 
             // TODO This is an incomplete list, possible DomNode/DomContainer shouldn't be used since non-leaf types
         };
@@ -92,30 +97,42 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         internal static bool ConsideredProviderObject(Type pot) {
             var providerObjectType = pot.GetTypeInfo();
-            if (providerObjectType.IsEnum || providerObjectType.IsArray || providerObjectType.IsPointer || providerObjectType.IsPrimitive || providerObjectType.IsGenericParameter)
+            if (providerObjectType.IsEnum || providerObjectType.IsArray || providerObjectType.IsPointer || providerObjectType.IsPrimitive || providerObjectType.IsGenericParameter) {
                 return false;
-            if (!Utility.GetAncestorTypes(pot).Any(PROVIDER_TYPES.Contains))
+            }
+            if (!Utility.GetAncestorTypes(pot).Any(PROVIDER_TYPES.Contains)) {
                 return false;
+            }
 
             return true;
         }
 
         public bool IsProviderObject(object providerObject) {
-            if (providerObject == null)
+            if (providerObject == null) {
                 throw new ArgumentNullException("providerObject");
+            }
 
             return IsProviderObject(providerObject.GetType());
         }
 
         public static DomProviderFactory ForProviderObject(Type providerObjectType) {
-            if (providerObjectType == null)
+            if (providerObjectType == null) {
                 throw new ArgumentNullException("providerObjectType");
+            }
 
             var e = GetProvidersByLikelihood(providerObjectType);
             return e.FirstOrDefault(t => t.IsProviderObject(providerObjectType));
         }
 
         static IEnumerable<DomProviderFactory> GetProvidersByLikelihood(Type providerObjectType) {
+            if (providerObjectType == null) {
+                throw new ArgumentNullException(nameof(providerObjectType));
+            }
+
+            if (providerObjectType.Assembly == THIS_ASSEMBLY) {
+                return new [] { Default };
+            }
+
             // TODO Some providers are checked twice (performance, rare)
             return App.GetProviders<DomProviderFactory>(
                 new {
@@ -133,15 +150,17 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected virtual DomNodeWriter CreateDomWriter(DomNode node) {
-            if (node == null)
+            if (node == null) {
                 throw new ArgumentNullException("node");
+            }
 
             return new DomNodeWriter(node);
         }
 
         protected virtual DomNodeReader CreateDomReader(DomNode node) {
-            if (node == null)
+            if (node == null) {
                 throw new ArgumentNullException("node");
+            }
 
             return new DomNodeReader(node, null);
         }
@@ -159,14 +178,23 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomReader CreateReader(TextReader reader, DomReaderSettings settings) {
-            if (reader == null)
+            if (reader == null) {
                 throw new ArgumentNullException("reader");
+            }
 
             return CreateDomReader(reader, settings);
         }
 
         protected virtual DomReader CreateDomReader(TextReader reader, DomReaderSettings settings) {
             return DomReader.CreateXml(reader);
+        }
+
+        public DomSelector CreateSelector(string selector) {
+            return CreateDomSelector(selector);
+        }
+
+        protected virtual DomSelector CreateDomSelector(string selector) {
+            return CssSelector.Parse(selector);
         }
     }
 }

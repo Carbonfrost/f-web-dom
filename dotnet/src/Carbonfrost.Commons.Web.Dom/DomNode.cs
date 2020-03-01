@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Carbonfrost.Commons.Core;
 using Carbonfrost.Commons.Core.Runtime.Expressions;
-using Carbonfrost.Commons.Web.Dom.Query;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -330,13 +329,8 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObjectQuery Select(string selector) {
-            // TODO Revisit semantics of selecting on attributes, text, etc.
-            var e = this as DomContainer;
-            if (e == null) {
-                return DomObjectQuery._Empty;
-            } else {
-                return new CssSelector(selector).Select(e);
-            }
+            var sl = FindProviderFactory().CreateSelector(selector);
+            return sl.Select(this);
         }
 
         public DomNode CompressWhitespace() {

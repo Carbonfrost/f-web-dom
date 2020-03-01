@@ -53,16 +53,18 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
         private readonly static string[] combinators = { ",", ">", "+", "~", " " };
 
         private readonly TokenQueue tq;
+        private readonly QueryParserOptions _options;
         private string query;
         private readonly List<Evaluator> evals = new List<Evaluator>();
 
-        private QueryParser(string query) {
+        private QueryParser(string query, QueryParserOptions options) {
             this.query = query;
             this.tq = new TokenQueue(query);
+            _options = options;
         }
 
-        public static Evaluator Parse(string query) {
-            QueryParser p = new QueryParser(query);
+        public static Evaluator Parse(string query, QueryParserOptions options) {
+            QueryParser p = new QueryParser(query, options);
             return p.Parse();
         }
 
@@ -102,7 +104,7 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
 
             Evaluator rootEval; // the new topmost evaluator
             Evaluator currentEval; // the evaluator the new eval will be combined to. could be root, or rightmost or.
-            Evaluator newEval = Parse(subQuery); // the evaluator to add into target evaluator
+            Evaluator newEval = Parse(subQuery, _options); // the evaluator to add into target evaluator
             bool replaceRightMost = false;
 
             if (evals.Count == 1) {
@@ -180,51 +182,59 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
         }
 
         private void FindElements() {
-            if (tq.MatchChomp("#"))
+            if (tq.MatchChomp("#")) {
                 ById();
+                return;
+            }
 
-            else if (tq.MatchChomp("."))
+            if (tq.MatchChomp(".")) {
                 ByClass();
+                return;
+            }
 
-            else if (tq.MatchesWord())
+            if (tq.MatchesWord()) {
                 ByTag();
+                return;
+            }
 
-            else if (tq.Matches("["))
-                byAttribute();
+            if (tq.Matches("[")) {
+                ByAttribute();
+                return;
+            }
 
-            else if (tq.MatchChomp("*"))
+            if (tq.MatchChomp("*")) {
                 AllElements();
+                return;
+            }
 
-            else if (tq.MatchChomp(":lt("))
-                IndexLessThan();
-
-            else if (tq.MatchChomp(":gt("))
-                IndexGreaterThan();
-
-            else if (tq.MatchChomp(":eq("))
-                IndexEquals();
-
-            else if (tq.Matches(":has("))
-                Has();
-
-            else if (tq.Matches(":contains("))
-                Contains(false);
-
-            else if (tq.Matches(":containsOwn("))
-                Contains(true);
-
-            else if (tq.Matches(":matches("))
-                Matches(false);
-
-            else if (tq.Matches(":matchesOwn("))
-                Matches(true);
-
-            else if (tq.Matches(":not("))
+            if (tq.Matches(":not(")) {
                 Not();
+                return;
+            }
 
-            else // unhandled
-                throw DomFailure.CouldNotParseQuery(query, tq.Remainder());
+            if (tq.Matches(":has(")) {
+                Has();
+                return;
+            }
 
+            foreach (var exp in _options.Expressions) {
+                if (!tq.Matches(exp.MatchToken)) {
+                    continue;
+                }
+                if (exp.HasArguments) {
+                    tq.Consume(exp.Token);
+                    string cq = tq.ChompBalanced('(', ')');
+                    var eval = exp.CreateEvaluator(cq);
+                    evals.Add(eval);
+                    return;
+
+                } else {
+                    throw new NotImplementedException();
+                }
+            }
+
+            // unhandled
+            throw DomFailure.CouldNotParseQuery(query, tq.Remainder());
         }
 
         private void ById() {
@@ -255,7 +265,7 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
             evals.Add(new Evaluator.Tag(tagName.Trim().ToLower()));
         }
 
-        private void byAttribute() {
+        private void ByAttribute() {
             TokenQueue cq = new TokenQueue(tq.ChompBalanced('[', ']')); // content queue
             string key = cq.ConsumeToAny("=", "!=", "^=", "$=", "*=", "~="); // eq, not, start, end, contain, match, (no val)
 
@@ -296,24 +306,6 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
             evals.Add(new Evaluator.AllElements());
         }
 
-        // pseudo selectors :lt, :gt, :eq
-        private void IndexLessThan() {
-            evals.Add(new Evaluator.IndexLessThan(ConsumeIndex()));
-        }
-
-        private void IndexGreaterThan() {
-            evals.Add(new Evaluator.IndexGreaterThan(ConsumeIndex()));
-        }
-
-        private void IndexEquals() {
-            evals.Add(new Evaluator.IndexEquals(ConsumeIndex()));
-        }
-
-        private int ConsumeIndex() {
-            string indexS = tq.ChompTo(")").Trim();
-            return int.Parse(indexS);
-        }
-
         // pseudo selector :has(el)
         private void Has() {
             tq.Consume(":has");
@@ -323,37 +315,7 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
             if (subQuery.Length == 0)
                 throw DomFailure.HasSelectorCannotBeEmpty();
 
-            evals.Add(new StructuralEvaluator.Has(Parse(subQuery)));
-        }
-
-        // TODO Consider these non-standard selectors
-
-        // pseudo selector :contains(text), containsOwn(text)
-        private void Contains(bool own) {
-            tq.Consume(own ? ":containsOwn" : ":contains");
-            string searchText = TokenQueue.Unescape(tq.ChompBalanced('(', ')'));
-
-            if (searchText.Length == 0)
-                throw DomFailure.ContainsSelectorCannotBeEmpty();
-
-            if (own)
-                evals.Add(new Evaluator.ContainsOwnText(searchText));
-            else
-                evals.Add(new Evaluator.ContainsText(searchText));
-        }
-
-        // :matches(regex), matchesOwn(regex)
-        private void Matches(bool own) {
-            tq.Consume(own ? ":matchesOwn" : ":matches");
-            string regex = tq.ChompBalanced('(', ')'); // don't unescape, as regex bits will be escaped
-
-            if  (string.IsNullOrEmpty(regex))
-                throw DomFailure.MatchesSelectorCannotBeEmpty();
-
-            if (own)
-                evals.Add(new Evaluator.MatchesOwn(new Regex(regex)));
-            else
-                evals.Add(new Evaluator.MatchesImpl(new Regex(regex)));
+            evals.Add(new StructuralEvaluator.Has(Parse(subQuery, _options)));
         }
 
         // :not(selector)
@@ -364,7 +326,7 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
             if (subQuery.Length == 0)
                 throw DomFailure.NotSelectorSelectionCannotBeEmpty();
 
-            evals.Add(new StructuralEvaluator.Not(Parse(subQuery)));
+            evals.Add(new StructuralEvaluator.Not(Parse(subQuery, _options)));
         }
     }
 

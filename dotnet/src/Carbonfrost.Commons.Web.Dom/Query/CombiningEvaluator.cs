@@ -1,13 +1,11 @@
 //
-// - CombiningEvaluator.cs -
-//
-// Copyright 2012 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2012, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,7 +38,6 @@
 
 using System;
 using System.Collections.Generic;
-using Carbonfrost.Commons.Web.Dom;
 
 namespace Carbonfrost.Commons.Web.Dom.Query {
 
@@ -74,14 +71,15 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
 
             public override bool Matches(DomContainer root, DomElement element) {
                 foreach (Evaluator s in evaluators) {
-                    if (!s.Matches(root, element))
+                    if (!s.Matches(root, element)) {
                         return false;
+                    }
                 }
                 return true;
             }
 
             public override string ToString() {
-                return string.Join(" ", evaluators);
+                return string.Concat(evaluators);
             }
         }
 

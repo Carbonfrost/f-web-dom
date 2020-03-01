@@ -1,11 +1,11 @@
 //
-// Copyright 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,10 +15,7 @@
 //
 
 using System;
-using System.Linq;
 using Carbonfrost.Commons.Core;
-using Carbonfrost.Commons.Core.Runtime.Expressions;
-using Carbonfrost.Commons.Web.Dom.Query;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -43,14 +40,12 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         private static Exception _TryParse(string text, out DomSelector result) {
             result = null;
-
-            try {
-                result = new CssSelector(text);
+            if (CssSelector.TryParse(text, out CssSelector css)) {
+                result = css;
                 return null;
-            } catch (Exception ex) {
-                return Failure.NotParsable("text", typeof(DomSelector), ex);
             }
+
+            return Failure.NotParsable("text", typeof(DomSelector));
         }
     }
-
 }

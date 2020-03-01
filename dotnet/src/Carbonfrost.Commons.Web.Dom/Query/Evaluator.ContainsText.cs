@@ -58,7 +58,7 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
             }
 
             public override string ToString() {
-                return string.Format(":contains({0}", searchText);
+                return string.Format(":contains({0})", searchText);
             }
         }
 

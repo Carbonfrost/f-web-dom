@@ -39,7 +39,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public virtual DomProviderFactory ProviderFactory {
+        public DomProviderFactory ProviderFactory {
+            get {
+                return DomProviderFactory;
+            }
+        }
+
+        protected virtual DomProviderFactory DomProviderFactory {
             get {
                 return DomProviderFactory.Default;
             }
