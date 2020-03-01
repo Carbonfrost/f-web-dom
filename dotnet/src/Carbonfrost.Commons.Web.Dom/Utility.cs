@@ -73,5 +73,23 @@ namespace Carbonfrost.Commons.Web.Dom {
                     return Convert.ToString(value);
             }
         }
+
+        public static T OptimalComposite<T>(IEnumerable<T> items, Func<T[], T> compositeFactory, T nullInstance)
+            where T : class
+        {
+            if (items == null) {
+                return nullInstance;
+            }
+
+            items = items.Where(t => t != null && !object.ReferenceEquals(t, nullInstance));
+            if (!items.Any()) {
+                return nullInstance;
+            }
+            if (items.Skip(1).Any()) { // 2 or more
+                return compositeFactory(items.ToArray());
+            }
+
+            return items.First();
+        }
     }
 }

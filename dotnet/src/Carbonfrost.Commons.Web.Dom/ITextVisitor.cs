@@ -1,5 +1,5 @@
 //
-// Copyright 2013, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
 // limitations under the License.
 //
 
+using System.Text;
+
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public interface IDomValue  {
-        bool IsReadOnly { get; }
-        string Value { get; set; }
-        void Initialize(DomAttribute attribute);
-        void AppendValue(object value);
-        IDomValue Clone();
+    interface ITextVisitor : IDomNodeVisitor {
+        void SetBuffer(StringBuilder stringBuilder);
     }
+
 }

@@ -23,37 +23,28 @@ using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
+    [Providers]
     public class DomNodeFactory : IDomNodeFactory {
 
+        [DomNodeFactoryUsage]
         public static readonly IDomNodeFactory Null = new NullDomNodeFactory();
 
+        [DomNodeFactoryUsage]
         public static readonly IDomNodeFactory Default = new DomNodeFactory();
 
         public static IDomNodeFactory FromName(string name) {
             return App.GetProvider<IDomNodeFactory>(name);
         }
 
+        [DomNodeFactoryUsage]
         public static IDomNodeFactory Compose(params IDomNodeFactory[] items) {
-            if (items == null || items.Length == 0)
-                return Null;
-
-            if (items.Any(t => t == null))
-                throw Failure.CollectionContainsNullElement("items");
-
-            if (items.Length == 1)
-                return items[0];
-
-            else
-                return new CompositeDomNodeFactory(items);
+            return Compose((IEnumerable<IDomNodeFactory>) items);
         }
 
         public static IDomNodeFactory Compose(IEnumerable<IDomNodeFactory> items) {
-            if (items == null)
-                throw new ArgumentNullException("items");
-
-            // TODO This ToArray() causes full AppDomain loading to be processed (performance)
-            // It'd be better if the enumeration could be allowed to complete within CompositeDomNodeFactory
-            return Compose(items.ToArray());
+            return Utility.OptimalComposite(
+                items, m => new CompositeDomNodeFactory(m), Null
+            );
         }
 
         public DomComment CreateComment(string data) {

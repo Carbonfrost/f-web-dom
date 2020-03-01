@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
@@ -27,6 +28,28 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         public void Add_cannot_contain_whitespace_in_tokens() {
             DomStringTokenList list = new DomStringTokenList();
             Assert.Throws<ArgumentException>(() => list.Add("cannot\tws"));
+        }
+
+        [Fact]
+        public void Clone_produces_shallow_copy() {
+            IDomValue list = new DomStringTokenList { "a", "b", "c" };
+            Assert.NotSame(list, list.Clone());
+            Assert.Equal(list, list.Clone());
+        }
+
+        [Fact]
+        public void AppendValue_will_add_the_item_as_text() {
+            var list = new DomStringTokenList { "a" };
+            ((IDomValue) list).AppendValue(500);
+            Assert.Equal(new [] { "a", "500" }, list);
+        }
+
+        [Fact]
+        public void AppendValue_will_add_range_of_items() {
+            var list = new DomStringTokenList { "a" };
+            var other = new DomStringTokenList { "a", "b" };
+            ((IDomValue) list).AppendValue(other);
+            Assert.Equal(new [] { "a", "b" }, list);
         }
 
         [Fact]
@@ -144,6 +167,42 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [Fact]
         public void Empty_should_be_read_only() {
             Assert.True(DomStringTokenList.Empty.IsReadOnly);
+        }
+
+        [Fact]
+        public void UnionWith_should_apply_to_other() {
+            var list = (DomStringTokenList) "a b c d";
+            var other = (DomStringTokenList) "d e a";
+            list.UnionWith(other);
+
+            Assert.Equal("a b c d e", list.ToString());
+        }
+
+        [Fact]
+        public void IntersectWith_should_apply_to_other() {
+            var list = (DomStringTokenList) "a b c d";
+            var other = (DomStringTokenList) "d a";
+            list.IntersectWith(other);
+
+            Assert.Equal("a d", list.ToString());
+        }
+
+        [Fact]
+        public void ExceptWith_should_apply_to_other() {
+            var list = (DomStringTokenList) "a b c d";
+            var other = (DomStringTokenList) "a d e";
+            list.ExceptWith(other);
+
+            Assert.Equal("b c", list.ToString());
+        }
+
+        [Fact]
+        public void SymmetricExceptWith_should_apply_to_other() {
+            var list = (DomStringTokenList) "a b c d";
+            var other = (DomStringTokenList) "a d e";
+            list.SymmetricExceptWith(other);
+
+            Assert.Equal("b c e", list.ToString());
         }
     }
 }

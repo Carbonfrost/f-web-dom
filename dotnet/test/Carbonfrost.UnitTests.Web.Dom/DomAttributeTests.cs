@@ -148,10 +148,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var attr = html.AppendAttribute("lang", "en");
 
             Assert.Throws<ArgumentException>(() => {
-                html.AppendAttribute("lang", "fr");
-            });
-
-            Assert.Throws<ArgumentException>(() => {
                 html.Append(doc.CreateAttribute("lang", "fr"));
             });
 
@@ -307,15 +303,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html").Attribute("lang", "en");
 
-            Assert.Equal("lang=\"en\"", html.Attributes[0].ToString());
-        }
-
-        [Fact]
-        public void ToString_will_encode_html_entities() {
-            DomDocument doc = new DomDocument();
-            var html = doc.AppendElement("html").Attribute("lang", "<> &");
-
-            Assert.Equal("lang=\"&lt;&gt; &amp;\"", html.Attributes[0].ToString());
+            Assert.Equal("lang", html.Attributes[0].ToString());
         }
 
         [Fact]

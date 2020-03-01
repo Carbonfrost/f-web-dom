@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,16 +14,35 @@
 // limitations under the License.
 //
 
-using System;
-using System.IO;
 using System.Linq;
-using System.Xml;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
 namespace Carbonfrost.UnitTests.Web.Dom {
 
     public partial class DomElementTests {
+
+        [Fact]
+        public void AppendAttribute_creates_attribute_if_necessary() {
+            DomDocument doc = new DomDocument();
+            var e = doc.AppendElement("t");
+            var attr = e.AppendAttribute("class", "me");
+
+            Assert.NotNull(attr);
+            Assert.Same(attr, e.Attributes[0]);
+        }
+
+        [Fact]
+        public void AppendAttribute_appends_to_existing_attribute() {
+            DomDocument doc = new DomDocument();
+            var e = doc.AppendElement("t");
+            var attr = doc.CreateAttribute("class", "me");
+            e.Attributes.Add(attr);
+            e.AppendAttribute("class", "you");
+
+            Assert.Same(attr, e.Attributes[0]);
+            Assert.Equal("meyou", e.Attributes[0].Value);
+        }
 
         [Fact]
         public void IsDocumentElement_should_be_true_for_root() {
@@ -316,8 +335,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             Assert.True(clone.Attributes.Contains("a"));
             Assert.True(clone.Attributes.Contains("c"));
-            Assert.NotSame(e.Attributes.GetByName("a"),
-                           clone.Attributes.GetByName("a"));
+            Assert.NotSame(e.Attributes["a"],
+                           clone.Attributes["a"]);
         }
 
         [Fact]
