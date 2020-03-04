@@ -107,7 +107,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 // Owner doc could be null (rare)
                 var doc = OwnerElement.OwnerDocument;
                 if (doc == null) {
-                    attr = DomProviderFactory.ForProviderObject(OwnerElement).NodeFactory.CreateAttribute(name);
+                    attr = DomProviderFactory.ForProviderObject(OwnerElement).CreateNodeFactory(null).CreateAttribute(name);
                 } else {
                     attr = doc.CreateAttribute(name);
                 }

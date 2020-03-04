@@ -14,39 +14,35 @@
 // limitations under the License.
 //
 
-using System;
-
 using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
     [Composable]
-    public interface IDomNodeFactory {
-
+    public interface IDomNodeFactory : IDomNodeTypeProvider {
         DomAttribute CreateAttribute(string name);
-        DomAttribute CreateAttribute(string name, IDomValue value);
-        DomAttribute CreateAttribute(string name, string value);
         DomCDataSection CreateCDataSection();
-        DomCDataSection CreateCDataSection(string data);
         DomComment CreateComment();
-        DomComment CreateComment(string data);
-
-        DomDocumentType CreateDocumentType(string name, string publicId, string systemId);
+        DomDocumentFragment CreateDocumentFragment();
+        DomDocumentType CreateDocumentType(string name);
         DomElement CreateElement(string name);
-
+        DomEntity CreateEntity(string name);
+        DomNotation CreateNotation(string name);
         DomEntityReference CreateEntityReference(string name);
         DomProcessingInstruction CreateProcessingInstruction(string target);
-        DomProcessingInstruction CreateProcessingInstruction(string target, string data);
         DomText CreateText();
-        DomText CreateText(string data);
+    }
 
-        Type GetAttributeNodeType(string name);
-        Type GetCommentNodeType(string name);
-        Type GetElementNodeType(string name);
-        Type GetEntityReferenceNodeType(string name);
-        Type GetEntityNodeType(string name);
-        Type GetNotationNodeType(string name);
-        Type GetProcessingInstructionNodeType(string name);
-        Type GetTextNodeType(string name);
+    interface IDomNodeFactoryApiConventions : IDomNodeFactory {
+        // Provides glue for contentions on the IDomNodeFactory implemented in this
+        // assembly
+
+        DomAttribute CreateAttribute(string name, IDomValue value);
+        DomAttribute CreateAttribute(string name, string value);
+        DomCDataSection CreateCDataSection(string data);
+        DomComment CreateComment(string data);
+        DomDocumentType CreateDocumentType(string name, string publicId, string systemId);
+        DomProcessingInstruction CreateProcessingInstruction(string target, string data);
+        DomText CreateText(string data);
     }
 }

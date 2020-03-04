@@ -24,7 +24,7 @@ using Carbonfrost.Commons.Core.Runtime;
 namespace Carbonfrost.Commons.Web.Dom {
 
     [Providers]
-    public abstract class DomProviderFactory {
+    public abstract class DomProviderFactory : IDomDocumentFactory {
 
         public static readonly DomProviderFactory Default
             = new DefaultDomProviderFactory();
@@ -61,12 +61,6 @@ namespace Carbonfrost.Commons.Web.Dom {
         private static IEnumerable<DomProviderFactory> All {
             get {
                 return App.GetProviders<DomProviderFactory>();
-            }
-        }
-
-        public virtual IDomNodeFactory NodeFactory {
-            get {
-                return DomNodeFactory.Default;
             }
         }
 
@@ -141,6 +135,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             ).Concat(All);
         }
 
+        public virtual IDomNodeFactory CreateNodeFactory(IDomNodeTypeProvider nodeTypeProvider) {
+            return new DomNodeFactory(nodeTypeProvider);
+        }
+
         public DomNodeWriter CreateWriter(DomNode node, DomNodeWriterSettings settings) {
             return CreateDomWriter(node);
         }
@@ -195,6 +193,14 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected virtual DomSelector CreateDomSelector(string selector) {
             return CssSelector.Parse(selector);
+        }
+
+        public DomDocument CreateDocument() {
+            return CreateDomDocument();
+        }
+
+        protected virtual DomDocument CreateDomDocument() {
+            return new DomDocument();
         }
     }
 }

@@ -88,6 +88,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (document == null)
                 throw new ArgumentNullException("document");
 
+            // Don't generate an empty document
+            if (document.ChildNodes.Count == 0) {
+                return;
+            }
             WriteStartDocument();
             Visit(document.ChildNodes);
             WriteEndDocument();

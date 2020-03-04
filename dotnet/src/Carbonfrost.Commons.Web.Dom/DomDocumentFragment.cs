@@ -15,16 +15,14 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Xml;
 
 using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public partial class DomDocumentFragment : DomContainer {
+    public partial class DomDocumentFragment : DomContainer, IDomDocumentLoaderApiConventions {
 
         public override DomNodeType NodeType {
             get {

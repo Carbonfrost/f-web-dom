@@ -111,11 +111,10 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected internal DomAttribute(string name) {
             if (name == null) {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
-
-            if (name.Length == 0) {
-                throw Failure.EmptyString("name");
+            if (string.IsNullOrEmpty(name)) {
+                throw Failure.EmptyString(nameof(name));
             }
 
             _name = name.Trim();

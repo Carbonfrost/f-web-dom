@@ -14,23 +14,20 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public class DomAttributeDefinitionCollection : IDomNodeDefinitionCollection<DomAttributeDefinition> {
+    public class DomProcessingInstructionDefinitionCollection : IDomNodeDefinitionCollection<DomProcessingInstructionDefinition> {
 
-        private readonly DomElementDefinition _owner;
-        private readonly DomNodeDefinitionCollection<DomAttributeDefinition> _items;
+        private readonly DomNodeDefinitionCollection<DomProcessingInstructionDefinition> _items;
 
-        protected internal DomAttributeDefinitionCollection(DomElementDefinition owner) {
-            _owner = owner;
-            _items = new DomNodeDefinitionCollection<DomAttributeDefinition>(s => new DomAttributeDefinition(s));
+        protected internal DomProcessingInstructionDefinitionCollection() {
+            _items = new DomNodeDefinitionCollection<DomProcessingInstructionDefinition>(s => new DomProcessingInstructionDefinition(s));
         }
 
-        public DomAttributeDefinition this[string name] {
+        public DomProcessingInstructionDefinition this[string name] {
             get {
                 return _items[name];
             }
@@ -52,11 +49,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             _items.MakeReadOnly();
         }
 
-        public void Add(DomAttributeDefinition item) {
+        public void Add(DomProcessingInstructionDefinition item) {
             _items.Add(item);
         }
 
-        public DomAttributeDefinition AddNew(string name) {
+        public DomProcessingInstructionDefinition AddNew(string name) {
             return _items.AddNew(name);
         }
 
@@ -64,19 +61,19 @@ namespace Carbonfrost.Commons.Web.Dom {
             _items.Clear();
         }
 
-        public bool Contains(DomAttributeDefinition item) {
+        public bool Contains(DomProcessingInstructionDefinition item) {
             return _items.Contains(item);
         }
 
-        public void CopyTo(DomAttributeDefinition[] array, int arrayIndex) {
+        public void CopyTo(DomProcessingInstructionDefinition[] array, int arrayIndex) {
             _items.CopyTo(array, arrayIndex);
         }
 
-        public IEnumerator<DomAttributeDefinition> GetEnumerator() {
+        public IEnumerator<DomProcessingInstructionDefinition> GetEnumerator() {
             return _items.GetEnumerator();
         }
 
-        public bool Remove(DomAttributeDefinition item) {
+        public bool Remove(DomProcessingInstructionDefinition item) {
             return _items.Remove(item);
         }
 

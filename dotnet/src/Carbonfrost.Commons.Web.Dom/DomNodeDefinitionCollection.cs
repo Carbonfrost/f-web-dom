@@ -1,13 +1,11 @@
 //
-// - DomNodeDefinitionCollection.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,69 +16,92 @@
 
 using System;
 using System.Collections.Generic;
+using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomNodeDefinitionCollection<T> : ICollection<T>
-        where T : DomNodeDefinition {
+    class DomNodeDefinitionCollection<T> : IDomNodeDefinitionCollection<T> where T : DomNodeDefinition {
 
-        private readonly Dictionary<string, T> items = new Dictionary<string, T>();
+        private readonly Dictionary<string, T> _items = new Dictionary<string, T>();
+        private readonly Func<string, T> _ctor;
+
+        public DomNodeDefinitionCollection(Func<string, T> ctor) {
+            _ctor = ctor;
+        }
 
         public T this[string name] {
             get {
-                return items.GetValueOrDefault(name);
+                return _items.GetValueOrDefault(name);
             }
         }
 
         public int Count {
             get {
-                return items.Count;
+                return _items.Count;
             }
         }
 
-        bool ICollection<T>.IsReadOnly {
-            get {
-                return false;
-            }
+        public bool IsReadOnly {
+            get;
+            private set;
         }
 
         public void Add(T item) {
-            items.Add(item.Name, item);
+            ThrowIfReadOnly();
+            _items.Add(item.Name, item);
+        }
+
+        public T AddNew(string name) {
+            ThrowIfReadOnly();
+            var result = _ctor(name);
+            Add(result);
+            return result;
         }
 
         public void Clear() {
-            items.Clear();
+            ThrowIfReadOnly();
+            _items.Clear();
         }
 
         public bool Contains(T item) {
-            if (item == null)
-                throw new ArgumentNullException("item");
+            if (item == null) {
+                throw new ArgumentNullException(nameof(item));
+            }
 
             T actual;
-            return items.TryGetValue(item.Name, out actual)
-                && actual == item;
+            return _items.TryGetValue(item.Name, out actual) && actual == item;
         }
 
         public void CopyTo(T[] array, int arrayIndex) {
-            this.items.Values.CopyTo(array, arrayIndex);
+            _items.Values.CopyTo(array, arrayIndex);
         }
 
         public bool Remove(T item) {
             if (item == null)
-                throw new ArgumentNullException("item");
+                throw new ArgumentNullException(nameof(item));
 
             if (Contains(item)) {
-                return items.Remove(item.Name);
+                return _items.Remove(item.Name);
             }
             return false;
         }
 
         public IEnumerator<T> GetEnumerator() {
-            return items.Values.GetEnumerator();
+            return _items.Values.GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
             return GetEnumerator();
+        }
+
+        internal void MakeReadOnly() {
+            IsReadOnly = true;
+        }
+
+        private void ThrowIfReadOnly() {
+            if (IsReadOnly) {
+                throw Failure.Sealed();
+            }
         }
     }
 }

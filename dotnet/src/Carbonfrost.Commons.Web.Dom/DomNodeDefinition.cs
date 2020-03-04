@@ -1,13 +1,11 @@
 //
-// - DomNodeDefinition.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
@@ -29,16 +26,17 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected DomNodeDefinition(string name) {
-            this.Name = name;
+            Name = name;
         }
 
         protected virtual void ThrowIfReadOnly() {
-            if (IsReadOnly)
+            if (IsReadOnly) {
                 throw Failure.Sealed();
+            }
         }
 
         public override string ToString() {
-            return this.Name;
+            return Name;
         }
 
         public bool IsReadOnly {
@@ -46,9 +44,14 @@ namespace Carbonfrost.Commons.Web.Dom {
             private set;
         }
 
-        public void MakeReadOnly()
-        {
-            this.IsReadOnly = true;
+        internal virtual void MakeReadOnly() {
+            IsReadOnly = true;
         }
+
+        public DomNodeDefinition Clone() {
+            return CloneCore();
+        }
+
+        protected abstract DomNodeDefinition CloneCore();
     }
 }
