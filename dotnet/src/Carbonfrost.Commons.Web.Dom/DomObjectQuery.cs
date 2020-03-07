@@ -97,6 +97,22 @@ namespace Carbonfrost.Commons.Web.Dom {
             return this;
         }
 
+        public TValue Attribute<TValue>(string name) {
+            if (name == null) {
+                throw new ArgumentNullException("name");
+            }
+            if (string.IsNullOrEmpty(name)) {
+                throw Failure.EmptyString("name");
+            }
+
+            var node = this.FirstOrDefault();
+            if (node == null) {
+                return default(TValue);
+            }
+
+            return node.Attribute<TValue>(name);
+        }
+
         public DomObjectQuery Closest(string selector) {
             DomSelector s;
             if (!DomSelector.TryParse(selector, out s)) {
@@ -128,7 +144,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObjectQuery ChildNode(int index) {
-            throw new NotImplementedException();
+            return Select(s => s.ChildNode(index));
         }
 
         public bool HasAttribute(string name) {

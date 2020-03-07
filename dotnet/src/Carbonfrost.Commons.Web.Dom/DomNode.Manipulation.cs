@@ -18,10 +18,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    partial class DomNode : IDomNodeManipulation<DomNode>, IDomNodeQuery<DomNode> {
+    partial class DomNode : IDomNodeManipulation<DomNode>, IDomNodeAppendApiConventions, IDomNodeQuery<DomNode> {
 
         internal virtual DomDocument OwnerDocumentOrSelf {
             get {
@@ -43,6 +44,14 @@ namespace Carbonfrost.Commons.Web.Dom {
             var attr = this.Attributes.GetByNameOrCreate(name);
             attr.SetTypedValue(value);
             return this;
+        }
+
+        public TValue Attribute<TValue>(string name) {
+            var attr = Attributes[name];
+            if (attr == null) {
+                return default(TValue);
+            }
+            return attr.GetValue<TValue>();
         }
 
         public DomNode AddClass(string className) {
@@ -192,6 +201,14 @@ namespace Carbonfrost.Commons.Web.Dom {
             return this;
         }
 
+        public DomAttribute AppendAttribute(string name, object value) {
+            return Attributes.GetByNameOrCreate(name).AppendValue(value);
+        }
+
+        public DomAttribute PrependAttribute(string name, object value) {
+            return Attributes.GetByNameOrCreate(name, true).AppendValue(value);
+        }
+
         public DomElement AppendElement(string name) {
             var e = this.OwnerDocumentOrSelf.CreateElement(name);
             this.Append(e);
@@ -231,6 +248,36 @@ namespace Carbonfrost.Commons.Web.Dom {
         public DomComment AppendComment(string data) {
             var e = OwnerDocumentOrSelf.CreateComment(data);
             Append(e);
+            return e;
+        }
+
+        public DomProcessingInstruction AppendProcessingInstruction(string target, string data) {
+            var e = OwnerDocumentOrSelf.CreateProcessingInstruction(target, data);
+            Append(e);
+            return e;
+        }
+
+        public DomDocumentType AppendDocumentType(string name) {
+            var e = OwnerDocumentOrSelf.CreateDocumentType(name);
+            Append(e);
+            return e;
+        }
+
+        public DomElement PrependElement(string name) {
+            var e = OwnerDocumentOrSelf.CreateElement(name);
+            Prepend(e);
+            return e;
+        }
+
+        public DomProcessingInstruction PrependProcessingInstruction(string target, string data) {
+            var e = OwnerDocumentOrSelf.CreateProcessingInstruction(target, data);
+            Prepend(e);
+            return e;
+        }
+
+        public DomDocumentType PrependDocumentType(string name) {
+            var e = OwnerDocumentOrSelf.CreateDocumentType(name);
+            Prepend(e);
             return e;
         }
 

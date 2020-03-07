@@ -42,10 +42,6 @@ namespace Carbonfrost.Commons.Web.Dom {
         protected DomNode() {
         }
 
-        public DomAttribute AppendAttribute(string name, object value) {
-            return Attributes.GetByNameOrCreate(name).AppendValue(value);
-        }
-
         public string Attribute(string name) {
             if (name == null) {
                 throw new ArgumentNullException("name");

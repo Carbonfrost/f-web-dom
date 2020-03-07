@@ -45,6 +45,16 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void PrependAttribute_creates_attribute_first_if_necessary() {
+            DomDocument doc = new DomDocument();
+            var e = doc.AppendElement("t").Attribute("hello", "world").Attribute("goodbye", "earth");
+            var attr = e.PrependAttribute("class", "me");
+
+            Assert.NotNull(attr);
+            Assert.Same(attr, e.Attributes[0]);
+        }
+
+        [Fact]
         public void IsDocumentElement_should_be_true_for_root() {
             DomDocument doc = new DomDocument();
             doc.AppendComment("c");

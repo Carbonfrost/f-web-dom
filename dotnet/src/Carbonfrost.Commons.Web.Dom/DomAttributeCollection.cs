@@ -101,7 +101,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return -1;
         }
 
-        internal DomAttribute GetByNameOrCreate(string name) {
+        internal DomAttribute GetByNameOrCreate(string name, bool insertFirst = false) {
             var attr = GetByName(name);
             if (attr == null) {
                 // Owner doc could be null (rare)
@@ -111,7 +111,11 @@ namespace Carbonfrost.Commons.Web.Dom {
                 } else {
                     attr = doc.CreateAttribute(name);
                 }
-                Add(attr);
+                if (insertFirst) {
+                    Insert(0, attr);
+                } else {
+                    Add(attr);
+                }
             }
 
             return attr;

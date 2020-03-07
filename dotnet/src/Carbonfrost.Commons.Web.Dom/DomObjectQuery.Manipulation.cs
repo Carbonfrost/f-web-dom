@@ -17,30 +17,44 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
     partial class DomObjectQuery : IDomNodeManipulation<DomObjectQuery> {
 
+        private DomObjectQuery Select(Func<DomNode, DomNode> f) {
+            return new DomObjectQuery(Enumerable.Select(this, f).NonNull());
+        }
+
+        private DomObjectQuery SelectMany(Func<DomNode, IEnumerable<DomNode>> f) {
+            return new DomObjectQuery(Enumerable.SelectMany(this, f).NonNull());
+        }
+
+        private DomObjectQuery Each(Action<DomNode> f) {
+            foreach (var n in this) {
+                f(n);
+            }
+            return this;
+        }
+
         public DomObjectQuery Unwrap() {
-            return new DomObjectQuery(this.Select(m => m.Unwrap()).NonNull());
+            return Select(m => m.Unwrap());
         }
 
         public DomObjectQuery RemoveAttributes() {
-            return new DomObjectQuery(this.Select(m => m.RemoveAttributes()));
+            return Select(m => m.RemoveAttributes());
         }
 
         public DomObjectQuery RemoveAttribute(string name) {
-            return new DomObjectQuery(this.Select(m => m.RemoveAttribute(name)));
+            return Select(m => m.RemoveAttribute(name));
         }
 
         public DomObjectQuery AddClass(string className) {
-            return new DomObjectQuery(this.Select(m => m.AddClass(className)));
+            return Select(m => m.AddClass(className));
         }
 
         public DomObjectQuery RemoveClass(string className) {
-            return new DomObjectQuery(this.Select(m => m.RemoveClass(className)));
+            return Select(m => m.RemoveClass(className));
         }
 
         public DomObjectQuery SetName(string name) {
@@ -48,11 +62,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObjectQuery Wrap(string element) {
-            return new DomObjectQuery(this.Select(m => m.Wrap(element)));
+            return Select(m => m.Wrap(element));
         }
 
         public DomObjectQuery Wrap(DomNode newParent) {
-            return new DomObjectQuery(this.Select(m => m.Wrap(newParent)));
+            return Select(m => m.Wrap(newParent));
         }
 
         public DomObjectQuery After(DomNode nextSibling) {
@@ -141,6 +155,115 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public DomObjectQuery AncestorNodes() {
+            return SelectMany(n => n.AncestorNodes);
+        }
+
+        public DomObjectQuery AncestorNodesAndSelf() {
+            return SelectMany(n => n.AncestorNodesAndSelf);
+        }
+
+        public DomObjectQuery DescendantNodes() {
+            return SelectMany(n => n.DescendantNodes);
+        }
+
+        public DomObjectQuery DescendantNodesAndSelf() {
+            return SelectMany(n => n.DescendantNodesAndSelf);
+        }
+
+        public DomObjectQuery FirstChildNode() {
+            return Select(n => n.FirstChildNode);
+        }
+
+        public DomObjectQuery FollowingNodes() {
+            return SelectMany(n => n.FollowingNodes);
+        }
+
+        public DomObjectQuery FollowingSiblingNodes() {
+            return SelectMany(n => n.FollowingSiblingNodes);
+        }
+
+        public DomObjectQuery LastChildNode() {
+            return Select(n => n.LastChildNode);
+        }
+
+        public DomObjectQuery NextSiblingNode() {
+            return Select(n => n.NextSiblingNode);
+        }
+
+        public DomObjectQuery ParentNode() {
+            return Select(n => n.ParentNode);
+        }
+
+        public DomObjectQuery PrecedingNodes() {
+            return SelectMany(n => n.PrecedingNodes);
+        }
+
+        public DomObjectQuery PrecedingSiblingNodes() {
+            return SelectMany(n => n.PrecedingSiblingNodes);
+        }
+
+        public DomObjectQuery PreviousSiblingNode() {
+            return Select(n => n.PreviousSiblingNode);
+        }
+
+        // These methods provide the operations that match IDomNodeAppendApiConventions
+
+        public DomObjectQuery AppendElement(string name) {
+            return Each(s => s.AppendElement(name));
+        }
+
+        public DomObjectQuery AppendAttribute(string name, object value) {
+            return Each(s => s.AppendAttribute(name, value));
+        }
+
+        public DomObjectQuery AppendText(string data) {
+            return Each(s => s.AppendText(data));
+        }
+
+        public DomObjectQuery AppendCDataSection(string data) {
+            return Each(s => s.AppendCDataSection(data));
+        }
+
+        public DomObjectQuery AppendProcessingInstruction(string target, string data) {
+            return Each(s => s.AppendProcessingInstruction(target, data));
+        }
+
+        public DomObjectQuery AppendComment(string data) {
+            return Each(s => s.AppendComment(data));
+        }
+
+        public DomObjectQuery AppendDocumentType(string name) {
+            return Each(s => s.AppendDocumentType(name));
+        }
+
+        public DomObjectQuery PrependElement(string name) {
+            return Each(s => s.PrependElement(name));
+        }
+
+        public DomObjectQuery PrependAttribute(string name, object value) {
+            return Each(s => s.PrependAttribute(name, value));
+        }
+
+        public DomObjectQuery PrependText(string data) {
+            return Each(s => s.PrependText(data));
+        }
+
+        public DomObjectQuery PrependCDataSection(string data) {
+            return Each(s => s.PrependCDataSection(data));
+        }
+
+        public DomObjectQuery PrependProcessingInstruction(string target, string data) {
+            return Each(s => s.PrependProcessingInstruction(target, data));
+        }
+
+        public DomObjectQuery PrependComment(string data) {
+            return Each(s => s.PrependComment(data));
+        }
+
+        public DomObjectQuery PrependDocumentType(string name) {
+            return Each(s => s.PrependDocumentType(name));
+        }
     }
 
 }

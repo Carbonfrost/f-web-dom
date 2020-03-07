@@ -55,6 +55,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
         [Theory]
         [InlineData("")]
+        [InlineData((string) null, Name = "null")]
         public void Attribute_illegal_arguments(string attr) {
             DomDocument doc = new DomDocument();
             var html = doc.CreateElement("html");
@@ -105,6 +106,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
         [Theory]
         [InlineData("")]
+        [InlineData((string) null, Name = "null")]
         public void HasAttribute_illegal_arguments(string attr) {
             DomDocument doc = new DomDocument();
             var html = doc.CreateElement("html");

@@ -15,7 +15,9 @@
 //
 
 using System;
+using System.Reflection;
 using Carbonfrost.Commons.Core;
+using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -81,7 +83,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         public override string NodeValue { get { return Value; } }
 
         public override DomNodeType NodeType {
-            get { return DomNodeType.Attribute; } }
+            get {
+                return DomNodeType.Attribute;
+            }
+        }
 
         public override string TextContent {
             get { return Value; }
@@ -148,6 +153,24 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomAttribute SetValue(object value) {
             return SetTypedValue(value);
+        }
+
+        public TValue GetValue<TValue>() {
+            if (typeof(TValue) == typeof(string)) {
+                object obj = Value;
+                return (TValue) obj;
+            }
+            if (CONVERSION_TYPES.TryGetValue(typeof(TValue), out var method)) {
+                try {
+                    return (TValue) method.Invoke(null, new [] { this });
+                } catch (TargetInvocationException ex) {
+                    throw ex.InnerException;
+                }
+            }
+            if (DomValue is TValue value) {
+                return value;
+            }
+            return Activation.FromText<TValue>(Value);
         }
 
         public DomAttribute AppendValue(object value) {

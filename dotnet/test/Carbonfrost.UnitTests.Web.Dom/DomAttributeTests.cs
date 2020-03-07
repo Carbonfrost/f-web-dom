@@ -205,6 +205,23 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Equal(0, html.Attributes.Count);
         }
 
+        [Fact]
+        public void GetValue_will_apply_type_conversion() {
+            DomDocument doc = new DomDocument();
+            var time = doc.AppendElement("time");
+            var attr = time.AppendAttribute("stamp", "PT3.3S");
+
+            Assert.Equal(TimeSpan.FromSeconds(3.3), attr.GetValue<TimeSpan>());
+        }
+
+        [Fact]
+        public void GetValue_on_type_conversion_error_throws_FormatException() {
+            DomDocument doc = new DomDocument();
+            var time = doc.AppendElement("time");
+            var attr = time.AppendAttribute("stamp", "00:00:03.3000000");
+
+            Assert.Throws<FormatException>(() => attr.GetValue<TimeSpan>());
+        }
 
         [Fact]
         public void NextAttribute_attribute_adjacent_nominal() {
