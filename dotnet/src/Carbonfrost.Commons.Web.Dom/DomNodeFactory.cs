@@ -85,15 +85,27 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public virtual DomProcessingInstruction CreateProcessingInstruction(string target) {
-            return CreateNode(GetProcessingInstructionNodeType(target), () => new DomProcessingInstruction(target));
+            return CreateNode(
+                GetProcessingInstructionNodeType(target),
+                target,
+                nameOrTarget => new DomProcessingInstruction(nameOrTarget)
+            );
         }
 
         public virtual DomAttribute CreateAttribute(string name) {
-            return CreateNode(GetAttributeNodeType(name), () => new DomAttribute(name));
+            return CreateNode(
+                GetAttributeNodeType(name),
+                name,
+                nameOrTarget => new DomAttribute(nameOrTarget)
+            );
         }
 
         public virtual DomElement CreateElement(string name) {
-            return CreateNode(GetElementNodeType(name), () => new DomElement(name));
+            return CreateNode(
+                GetElementNodeType(name),
+                name,
+                nameOrTarget => new DomElement(nameOrTarget)
+            );
         }
 
         public virtual DomEntityReference CreateEntityReference(string name) {
@@ -162,11 +174,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             return result;
         }
 
-        private T CreateNode<T>(Type type, Func<T> ctor) {
+        private T CreateNode<T>(Type type, string nameOrTarget, Func<string, T> ctor) {
             if (type == typeof(T) || type == null) {
-                return ctor();
+                return ctor(nameOrTarget);
             }
-            return (T) Activator.CreateInstance(type);
+            // TODO Improve error handling here - it should be a domain exception if neither
+            // .ctor(string) OR .ctor() exist
+            return (T) Activator.CreateInstance(type, nameOrTarget);
         }
     }
 }

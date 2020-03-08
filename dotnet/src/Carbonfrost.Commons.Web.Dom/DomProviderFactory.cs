@@ -135,7 +135,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             ).Concat(All);
         }
 
-        public virtual IDomNodeFactory CreateNodeFactory(IDomNodeTypeProvider nodeTypeProvider) {
+        public IDomNodeFactory CreateNodeFactory(IDomNodeTypeProvider nodeTypeProvider) {
+            return CreateDomNodeFactory(nodeTypeProvider);
+        }
+
+        protected virtual IDomNodeFactory CreateDomNodeFactory(IDomNodeTypeProvider nodeTypeProvider) {
             return new DomNodeFactory(nodeTypeProvider);
         }
 

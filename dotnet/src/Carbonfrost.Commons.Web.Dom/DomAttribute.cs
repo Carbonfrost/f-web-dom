@@ -109,6 +109,21 @@ namespace Carbonfrost.Commons.Web.Dom {
             set { DomValue.Value = value; }
         }
 
+        public DomAttributeDefinition AttributeDefinition {
+            get {
+                return DomAttributeDefinition;
+            }
+        }
+
+        protected virtual DomAttributeDefinition DomAttributeDefinition {
+            get {
+                if (OwnerDocument == null || OwnerDocument.Schema == null) {
+                    return new DomAttributeDefinition(Name);
+                }
+                return OwnerDocument.Schema.GetAttributeDefinition(Name);
+            }
+        }
+
         protected internal DomAttribute() {
             _name = RequireFactoryGeneratedName(GetType());
             this.content = new BasicDomValue();

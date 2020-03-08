@@ -22,7 +22,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         private IDomNodeTypeProvider _nodeTypeProvider;
         private readonly DomProcessingInstructionDefinitionCollection _processingInstructionDefinitions = new DomProcessingInstructionDefinitionCollection();
 
-        public DomProcessingInstructionDefinitionCollection ProcessInstructionDefinitions {
+        public DomProcessingInstructionDefinitionCollection ProcessingInstructionDefinitions {
             get {
                 return _processingInstructionDefinitions;;
             }
@@ -64,8 +64,8 @@ namespace Carbonfrost.Commons.Web.Dom {
             foreach (var ad in AttributeDefinitions) {
                 schema.AttributeDefinitions.Add(ad.Clone());
             }
-            foreach (var pd in ProcessInstructionDefinitions) {
-                schema.ProcessInstructionDefinitions.Add(pd.Clone());
+            foreach (var pd in ProcessingInstructionDefinitions) {
+                schema.ProcessingInstructionDefinitions.Add(pd.Clone());
             }
             return schema;
         }
@@ -96,7 +96,31 @@ namespace Carbonfrost.Commons.Web.Dom {
             base.MakeReadOnly();
             ElementDefinitions.MakeReadOnly();
             AttributeDefinitions.MakeReadOnly();
-            ProcessInstructionDefinitions.MakeReadOnly();
+            ProcessingInstructionDefinitions.MakeReadOnly();
+        }
+
+        public DomProcessingInstructionDefinition GetProcessingInstructionDefinition(string target) {
+            return GetDomProcessingInstructionDefinition(target);
+        }
+
+        protected virtual DomProcessingInstructionDefinition GetDomProcessingInstructionDefinition(string target) {
+            return ProcessingInstructionDefinitions[target];
+        }
+
+        public DomAttributeDefinition GetAttributeDefinition(string name) {
+            return GetDomAttributeDefinition(name);
+        }
+
+        protected virtual DomAttributeDefinition GetDomAttributeDefinition(string name) {
+            return AttributeDefinitions[name];
+        }
+
+        public DomElementDefinition GetElementDefinition(string name) {
+            return GetDomElementDefinition(name);
+        }
+
+        protected virtual DomElementDefinition GetDomElementDefinition(string name) {
+            return ElementDefinitions[name];
         }
     }
 }

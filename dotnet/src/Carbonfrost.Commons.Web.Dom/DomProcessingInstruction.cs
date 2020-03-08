@@ -106,6 +106,21 @@ namespace Carbonfrost.Commons.Web.Dom {
             get { return DomNodeCollection.Empty; }
         }
 
+        public DomProcessingInstructionDefinition ProcessingInstructionDefinition {
+            get {
+                return DomProcessingInstructionDefinition;
+            }
+        }
+
+        protected virtual DomProcessingInstructionDefinition DomProcessingInstructionDefinition {
+            get {
+                if (OwnerDocument == null || OwnerDocument.Schema == null) {
+                    return new DomProcessingInstructionDefinition(Target);
+                }
+                return OwnerDocument.Schema.GetProcessingInstructionDefinition(Target);
+            }
+        }
+
         public override string ToString() {
             return this.TextContent;
         }

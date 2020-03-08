@@ -15,12 +15,27 @@
 //
 
 using System;
+using System.Collections.Generic;
+using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
+    [Providers, Composable]
     public class DomNodeTypeProvider : IDomNodeTypeProvider {
 
         public static readonly IDomNodeTypeProvider Default = new DomNodeTypeProvider();
+        public static readonly IDomNodeTypeProvider Null = new NullImpl();
+
+        [DomNodeTypeProviderUsage]
+        public static IDomNodeTypeProvider Compose(params IDomNodeTypeProvider[] items) {
+            return Compose((IEnumerable<IDomNodeTypeProvider>) items);
+        }
+
+        public static IDomNodeTypeProvider Compose(IEnumerable<IDomNodeTypeProvider> items) {
+            return Utility.OptimalComposite(
+                items, m => new CompositeDomNodeTypeProvider(m), Null
+            );
+        }
 
         public virtual Type GetAttributeNodeType(string name) {
             return typeof(DomAttribute);
@@ -34,38 +49,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             return typeof(DomProcessingInstruction);
         }
 
-        public virtual Type GetTextNodeType() {
-            return typeof(DomText);
-        }
+        public class NullImpl : IDomNodeTypeProvider {
+            Type IDomNodeTypeProvider.GetAttributeNodeType(string name) {
+                return null;
+            }
 
-        public virtual Type GetCommentNodeType() {
-            return typeof(DomComment);
-        }
+            Type IDomNodeTypeProvider.GetElementNodeType(string name) {
+                return null;
+            }
 
-        public virtual Type GetNotationNodeType(string name) {
-            return typeof(DomNotation);
-        }
-
-        public virtual Type GetEntityReferenceNodeType(string name) {
-            return typeof(DomEntityReference);
-        }
-
-        public virtual Type GetEntityNodeType(string name) {
-            return typeof(DomEntity);
-        }
-
-        public virtual Type GetCDataSectionNodeType() {
-            return typeof(DomCDataSection);
-        }
-
-        public virtual Type GetDocumentFragmentNodeType() {
-            return typeof(DomDocumentFragment);
-        }
-
-        public virtual Type GetDocumentTypeNodeType(string name) {
-            return typeof(DomDocumentType);
+            Type IDomNodeTypeProvider.GetProcessingInstructionNodeType(string target) {
+                return null;
+            }
         }
     }
 }
-
-

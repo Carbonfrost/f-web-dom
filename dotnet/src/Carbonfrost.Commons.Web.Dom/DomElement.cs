@@ -172,9 +172,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public DomElementDefinition ElementDefinition {
+        public DomElementDefinition ElementDefinitDomElementDefinition {
             get {
-                return this.OwnerDocument.GetElementDefinition(this.Name);
+                return DomElementDefinition;
+            }
+        }
+
+        protected virtual DomElementDefinition DomElementDefinition {
+            get {
+                if (OwnerDocument == null || OwnerDocument.Schema == null) {
+                    return new DomElementDefinition(Name);
+                }
+                return OwnerDocument.Schema.GetElementDefinition(Name);
             }
         }
 

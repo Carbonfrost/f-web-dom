@@ -16,10 +16,34 @@
 
 using Carbonfrost.Commons.Web.Dom;
 using Carbonfrost.Commons.Spec;
+using System.Collections.Generic;
+using System;
 
 namespace Carbonfrost.UnitTests.Web.Dom {
 
     public class DomElementVisitorSpecializationTests {
+
+        public IEnumerable<Func<DomElement, DomElement>> AppendElementOperations {
+            get {
+                return new Func<DomElement, DomElement>[] {
+                    d => d.AppendElement("append"),
+                    d => d.PrependElement("append"),
+                };
+            }
+        }
+
+        public IEnumerable<Func<DomElement, DomAttribute>> AppendAttributeOperations {
+            get {
+                return new Func<DomElement, DomAttribute>[] {
+                    d => d.AppendAttribute("append", "value"),
+                    d => d.PrependAttribute("prepend", "value"),
+                    d => {
+                        d.Attribute("attr", "0");
+                        return d.Attributes[0];
+                    },
+                };
+            }
+        }
 
         [Fact]
         public void Visitor_should_dispatch_to_delegate_types() {
@@ -35,15 +59,65 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Equal(1, rv.VisitElementCalledCount);
             Assert.Equal(2, rv.VisitDefaultElementCalledCount);
         }
+
+        [Theory]
+        [PropertyData(nameof(AppendElementOperations))]
+        public void AppendElement_operations_should_use_specialization_type_by_default(Func<DomElement, DomElement> op) {
+            var root = new RDocument().AppendElement("documentElement");
+            var ele = op(root);
+            Assert.IsInstanceOf(typeof(RElement), ele);
+        }
+
+        [Theory]
+        [PropertyData(nameof(AppendAttributeOperations))]
+        public void AppendAttribute_operations_should_use_specialization_type_by_default(Func<DomElement, DomAttribute> op) {
+            var doc = new RDocument();
+            var attribute = op(doc.AppendElement("cool"));
+            Assert.IsInstanceOf(typeof(RAttribute), attribute);
+        }
+
+        [Fact]
+        public void AppendProcessingInstruction_operations_should_use_specialization_type_by_default() {
+            var doc = new RDocument();
+            var pi = doc.AppendElement("cool").AppendProcessingInstruction("k", "");
+            Assert.IsInstanceOf(typeof(RProcessingInstruction), pi);
+        }
     }
 
+    class RDocument : DomDocument {
+        protected override DomProviderFactory DomProviderFactory {
+            get {
+                return new RProviderFactory();
+            }
+        }
+    }
     class RElement : DomElement<RElement> {
-        public RElement() {}
         public RElement(string name) : base(name) {}
     }
-    class RProviderFactory : DomProviderFactory {}
-    class RAttribute : DomAttribute<RAttribute> {}
-    class RProcessingInstruction : DomProcessingInstruction<RProcessingInstruction> {}
+    class RProviderFactory : DomProviderFactory {
+        protected override IDomNodeFactory CreateDomNodeFactory(IDomNodeTypeProvider nodeTypeProvider) {
+            return new DomNodeFactory(
+                DomNodeTypeProvider.Compose(nodeTypeProvider, new RNodeTypeProvider())
+            );
+        }
+    }
+    class RNodeTypeProvider : IDomNodeTypeProvider {
+        public Type GetAttributeNodeType(string name) {
+            return typeof(RAttribute);
+        }
+        public Type GetElementNodeType(string name) {
+            return typeof(RElement);
+        }
+        public Type GetProcessingInstructionNodeType(string target) {
+            return typeof(RProcessingInstruction);
+        }
+    }
+    class RAttribute : DomAttribute<RAttribute> {
+        public RAttribute(string name) : base(name) {}
+    }
+    class RProcessingInstruction : DomProcessingInstruction<RProcessingInstruction> {
+        public RProcessingInstruction(string target) : base(target) {}
+    }
     class RNodeVisitor : DomNodeVisitor, IDomAttributeVisitor<RAttribute>, IDomElementVisitor<RElement>, IDomProcessingInstructionVisitor<RProcessingInstruction> {
         public int VisitInstructionCalledCount;
         public int VisitAttributeCalledCount;
