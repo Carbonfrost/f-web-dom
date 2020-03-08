@@ -59,7 +59,7 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
             }
 
             public override string ToString() {
-                return string.Format(":matches({0}", pattern);
+                return string.Format(":matches({0})", pattern);
             }
         }
 

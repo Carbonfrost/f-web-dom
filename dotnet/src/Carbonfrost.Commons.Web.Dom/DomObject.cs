@@ -1,11 +1,11 @@
 //
-// Copyright 2014, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2014, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,7 @@ namespace Carbonfrost.Commons.Web.Dom {
     public abstract class DomObject {
 
         private AnnotationList _annotations = AnnotationList.Empty;
-        private IDomNodeCollection siblingsContent;
+        private IDomNodeCollection _siblingsContent;
 
         // Purely for the sake of reducing memory required by DomNode
         //   DomAttribute => IDomValue
@@ -141,19 +141,19 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         internal DomAttributeCollection SiblingAttributes {
             get {
-                return siblingsContent as DomAttributeCollection;
+                return _siblingsContent as DomAttributeCollection;
             }
         }
 
         internal int SiblingIndex {
             get {
-                return siblingsContent.GetSiblingIndex(this);
+                return _siblingsContent.GetSiblingIndex(this);
             }
         }
 
-        internal IDomNodeCollection Siblings {
+        internal IDomNodeCollection _Siblings {
             get {
-                return siblingsContent as IDomNodeCollection;
+                return _siblingsContent as IDomNodeCollection;
             }
         }
 
@@ -199,7 +199,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
             set {
                 RemoveAnnotations<BaseUriAnnotation>();
-                AddAnnotation(new BaseUriAnnotation(value));
+                if (value != null) {
+                    AddAnnotation(new BaseUriAnnotation(value));
+                }
             }
         }
 
@@ -235,8 +237,8 @@ namespace Carbonfrost.Commons.Web.Dom {
                 if (this.SiblingAttributes != null)
                     return this.SiblingAttributes.OwnerElement;
 
-                else if (this.Siblings != null)
-                    return Siblings.OwnerNode;
+                else if (_Siblings != null)
+                    return _Siblings.OwnerNode;
 
                 else
                     return null;
@@ -356,19 +358,26 @@ namespace Carbonfrost.Commons.Web.Dom {
             throw DomFailure.CannotSetName();
         }
 
+        internal DomProviderFactory FindProviderFactory() {
+            if (OwnerDocument == null) {
+                return DomProviderFactory.Default;
+            }
+            return OwnerDocument.ProviderFactory;
+        }
+
         internal void SetSiblingNodes(IDomNodeCollection newSiblings) {
-            if (this.siblingsContent != null && newSiblings != this.siblingsContent) {
-                var sc = this.siblingsContent;
+            if (_siblingsContent != null && newSiblings != _siblingsContent) {
+                var sc = _siblingsContent;
                 sc.UnsafeRemove(this);
             }
 
-            this.siblingsContent = newSiblings;
+            _siblingsContent = newSiblings;
         }
 
         internal void Unlinked() {
             IDomNodeCollection unlinked = OwnerDocument.UnlinkedNodes;
             unlinked.UnsafeAdd(this);
-            this.siblingsContent = unlinked;
+            _siblingsContent = unlinked;
         }
 
         internal abstract void AcceptVisitor(IDomNodeVisitor visitor);
@@ -379,8 +388,8 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObject RemoveSelf() {
-            if (this.siblingsContent != null) {
-                this.siblingsContent.Remove(this);
+            if (_siblingsContent != null) {
+                _siblingsContent.Remove(this);
             }
 
             return this;

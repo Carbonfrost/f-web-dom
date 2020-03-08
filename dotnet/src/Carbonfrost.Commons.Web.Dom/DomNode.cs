@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using Carbonfrost.Commons.Core;
 using Carbonfrost.Commons.Core.Runtime.Expressions;
-using Carbonfrost.Commons.Web.Dom.Query;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -44,10 +42,6 @@ namespace Carbonfrost.Commons.Web.Dom {
         protected DomNode() {
         }
 
-        public DomAttribute AppendAttribute(string name, object value) {
-            return Attributes.AddNew(name).SetTypedValue(value);
-        }
-
         public string Attribute(string name) {
             if (name == null) {
                 throw new ArgumentNullException("name");
@@ -60,8 +54,8 @@ namespace Carbonfrost.Commons.Web.Dom {
                 Traceables.IgnoredAttributes();
                 return null;
             }
-
-            return Attributes[name];
+            var attr = Attributes[name];
+            return attr == null ? null : attr.Value;
         }
 
         public bool HasClass(string name) {
@@ -163,22 +157,22 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public sealed override DomNode NextSiblingNode {
             get {
-                if (ParentNode == null)
+                if (ParentNode == null) {
                     return null;
-                else
-                    return this.ParentNode.ChildNodes.GetNextSibling(this);
+                }
+                return ParentNode.ChildNodes.GetNextSibling(this);
             }
         }
 
         public DomNode FirstChildNode {
             get {
-                return this.ChildNodes.FirstOrDefault();
+                return ChildNodes.FirstOrDefault();
             }
         }
 
         public DomNode LastChildNode {
             get {
-                return this.ChildNodes.LastOrDefault();
+                return ChildNodes.LastOrDefault();
             }
         }
 
@@ -202,13 +196,13 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public virtual string OuterText {
             get {
-                return new OuterTextVisitor(false).ConvertToString(this);
+                return new OuterTextVisitor().ConvertToString(this);
             }
         }
 
         public virtual string OuterXml {
             get {
-                return new OuterTextVisitor(true).ConvertToString(this);
+                return new OuterXmlVisitor().ConvertToString(this);
             }
         }
 
@@ -227,7 +221,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                     return Array.Empty<DomNode>();
                 }
 
-                return (IReadOnlyList<DomNode>) Siblings;
+                return (IReadOnlyList<DomNode>) _Siblings;
             }
         }
 
@@ -283,10 +277,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         private DomNode RequireParent() {
-            if (this.ParentNode == null)
+            if (ParentNode == null)
                 throw DomFailure.ParentNodeRequired();
 
-            return this.ParentNode;
+            return ParentNode;
         }
 
         public DomNode Clone() {
@@ -331,13 +325,8 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObjectQuery Select(string selector) {
-            // TODO Revisit semantics of selecting on attributes, text, etc.
-            var e = this as DomContainer;
-            if (e == null) {
-                return DomObjectQuery._Empty;
-            } else {
-                return new CssSelector(selector).Select(e);
-            }
+            var sl = FindProviderFactory().CreateSelector(selector);
+            return sl.Select(this);
         }
 
         public DomNode CompressWhitespace() {

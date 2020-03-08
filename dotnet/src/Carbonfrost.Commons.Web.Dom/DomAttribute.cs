@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2019 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2019, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,8 +15,9 @@
 //
 
 using System;
-using System.Net;
+using System.Reflection;
 using Carbonfrost.Commons.Core;
+using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -82,7 +83,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         public override string NodeValue { get { return Value; } }
 
         public override DomNodeType NodeType {
-            get { return DomNodeType.Attribute; } }
+            get {
+                return DomNodeType.Attribute;
+            }
+        }
 
         public override string TextContent {
             get { return Value; }
@@ -105,6 +109,21 @@ namespace Carbonfrost.Commons.Web.Dom {
             set { DomValue.Value = value; }
         }
 
+        public DomAttributeDefinition AttributeDefinition {
+            get {
+                return DomAttributeDefinition;
+            }
+        }
+
+        protected virtual DomAttributeDefinition DomAttributeDefinition {
+            get {
+                if (OwnerDocument == null || OwnerDocument.Schema == null) {
+                    return new DomAttributeDefinition(Name);
+                }
+                return OwnerDocument.Schema.GetAttributeDefinition(Name);
+            }
+        }
+
         protected internal DomAttribute() {
             _name = RequireFactoryGeneratedName(GetType());
             this.content = new BasicDomValue();
@@ -112,11 +131,10 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected internal DomAttribute(string name) {
             if (name == null) {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
-
-            if (name.Length == 0) {
-                throw Failure.EmptyString("name");
+            if (string.IsNullOrEmpty(name)) {
+                throw Failure.EmptyString(nameof(name));
             }
 
             _name = name.Trim();
@@ -129,8 +147,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected virtual DomAttribute CloneCore() {
             var result = this.OwnerDocument.CreateAttribute(Name, Value);
-            // TODO Previously, we required that the value be cloned
-            result.DomValue = this.DomValue;
+            result.DomValue = DomValue.Clone();
             return result;
         }
 
@@ -153,12 +170,36 @@ namespace Carbonfrost.Commons.Web.Dom {
             return SetTypedValue(value);
         }
 
+        public TValue GetValue<TValue>() {
+            if (typeof(TValue) == typeof(string)) {
+                object obj = Value;
+                return (TValue) obj;
+            }
+            if (CONVERSION_TYPES.TryGetValue(typeof(TValue), out var method)) {
+                try {
+                    return (TValue) method.Invoke(null, new [] { this });
+                } catch (TargetInvocationException ex) {
+                    throw ex.InnerException;
+                }
+            }
+            if (DomValue is TValue value) {
+                return value;
+            }
+            return Activation.FromText<TValue>(Value);
+        }
+
+        public DomAttribute AppendValue(object value) {
+            DomValue.AppendValue(value);
+            return this;
+        }
+
         internal DomAttribute SetTypedValue(object value) {
             IDomValue dv = value as IDomValue;
-            if (dv == null)
-                this.DomValue.Value = Utility.ConvertToString(value);
-            else
-                this.DomValue = dv;
+            if (dv == null) {
+                DomValue.Value = Utility.ConvertToString(value);
+            } else {
+                DomValue = dv;
+            }
 
             return this;
         }
@@ -200,10 +241,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string ToString() {
-            return string.Format("{0}={1}{2}{1}",
-                                 _name,
-                                 '"',
-                                 WebUtility.HtmlEncode(Value));
+            return Name;
         }
 
         sealed class BasicDomValue : IDomValue {
@@ -218,6 +256,13 @@ namespace Carbonfrost.Commons.Web.Dom {
 
             public string Value { get; set; }
 
+            public void AppendValue(object value) {
+                Value += value;
+            }
+
+            public IDomValue Clone() {
+                return new BasicDomValue { Value = Value };
+            }
         }
     }
 }

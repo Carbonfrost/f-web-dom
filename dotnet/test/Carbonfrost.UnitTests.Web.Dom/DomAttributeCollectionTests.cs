@@ -83,25 +83,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void Indexer_can_set_by_name_and_retrieve_by_name() {
-            DomDocument doc = new DomDocument();
-            var html = doc.AppendElement("html");
-            html.Attributes["class"] = "hello";
-
-            Assert.Equal("hello", html.Attributes["class"]);
-        }
-
-        [Fact]
-        public void Indexer_can_set_by_name_and_create_attribute() {
-            DomDocument doc = new DomDocument();
-            var html = doc.AppendElement("html");
-            html.Attributes["class"] = "hello";
-
-            Assert.HasCount(1, html.Attributes);
-            Assert.Equal("class", html.Attributes[0].Name);
-        }
-
-        [Fact]
         public void Remove_supports_removing_by_name() {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html");

@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,22 +14,18 @@
 // limitations under the License.
 //
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.ComponentModel;
-using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public partial class DomElement : DomContainer {
+    public partial class DomElement : DomContainer, IDomContainerManipulationApiConventions<DomElement> {
 
         private readonly DomAttributeCollection attributes;
         private readonly string name;
 
         public bool HasElements {
             get {
-                return this.Elements.Any();
+                return Elements.Any();
             }
         }
 
@@ -66,11 +62,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        // TODO Set up element position
-
         public DomElement PreviousSibling {
             get {
-                var answer = this.PreviousSiblingNode;
+                var answer = PreviousSiblingNode;
                 while (answer != null) {
                     if (answer.IsElement) {
                         return (DomElement) answer;
@@ -87,7 +81,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             get {
                 var answer = NextSiblingNode;
                 while (answer != null) {
-
                     if (answer.IsElement) {
                         return (DomElement) answer;
                     }
@@ -103,13 +96,15 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public int ElementPosition {
             get {
-                if (this.ParentElement == null)
+                if (ParentElement == null) {
                     return -1;
+                }
 
                 int index = 0;
                 foreach (var e in ParentElement.Elements) {
-                    if (e == this)
+                    if (e == this) {
                         return index;
+                    }
                     index++;
                 }
 
@@ -127,19 +122,28 @@ namespace Carbonfrost.Commons.Web.Dom {
             get {
                 // TODO Technically, should use Html StringUtil.GetOwnText, which
                 // needs to be added here to preserve ws rules
-                return this.InnerText;
+                return InnerText;
             }
         }
 
-        public IEnumerable<DomElement> PrecedingSiblings {
+        public DomElementCollection PrecedingSiblings {
             get {
-                return PrecedingNodes.OfType<DomElement>();
+                return new DefaultDomElementCollection(this, e => e.PrecedingNodes.OfType<DomElement>());
             }
         }
 
-        public IEnumerable<DomElement> FollowingSiblings {
+        public DomElementCollection FollowingSiblings {
             get {
-                return FollowingNodes.OfType<DomElement>();
+                return new DefaultDomElementCollection(this, e => e.FollowingNodes.OfType<DomElement>());
+            }
+        }
+
+        public DomElementCollection Siblings {
+            get {
+                if (Parent == null) {
+                    return DomElementCollection.Empty;
+                }
+                return Parent.Elements;
             }
         }
 
@@ -153,9 +157,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             this.attributes = new DomAttributeCollection(this);
         }
 
-        public override IEnumerable<DomElement> DescendantsAndSelf {
+        public override DomElementCollection DescendantsAndSelf {
             get {
-                return Utility.Cons(this, base.Descendants);
+                return new DefaultDomElementCollection(
+                    this,
+                    e => Utility.Cons((DomElement) e, e.Descendants)
+                );
             }
         }
 
@@ -165,17 +172,22 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public DomElementDefinition ElementDefinition {
+        public DomElementDefinition ElementDefinitDomElementDefinition {
             get {
-                return this.OwnerDocument.GetElementDefinition(this.Name);
+                return DomElementDefinition;
+            }
+        }
+
+        protected virtual DomElementDefinition DomElementDefinition {
+            get {
+                if (OwnerDocument == null || OwnerDocument.Schema == null) {
+                    return new DomElementDefinition(Name);
+                }
+                return OwnerDocument.Schema.GetElementDefinition(Name);
             }
         }
 
         protected override DomNode CloneCore() {
-            return Clone();
-        }
-
-        public new DomElement Clone() {
             DomElement result = OwnerDocument.CreateElement(this.Name);
             foreach (var m in this.Attributes)
                 result.Attributes.Add(m.Clone());
@@ -185,6 +197,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
 
             return result;
+        }
+
+        public new DomElement Clone() {
+            return (DomElement) base.Clone();
         }
 
         public new DomElement Add(object content) {

@@ -148,10 +148,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var attr = html.AppendAttribute("lang", "en");
 
             Assert.Throws<ArgumentException>(() => {
-                html.AppendAttribute("lang", "fr");
-            });
-
-            Assert.Throws<ArgumentException>(() => {
                 html.Append(doc.CreateAttribute("lang", "fr"));
             });
 
@@ -209,6 +205,23 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Equal(0, html.Attributes.Count);
         }
 
+        [Fact]
+        public void GetValue_will_apply_type_conversion() {
+            DomDocument doc = new DomDocument();
+            var time = doc.AppendElement("time");
+            var attr = time.AppendAttribute("stamp", "PT3.3S");
+
+            Assert.Equal(TimeSpan.FromSeconds(3.3), attr.GetValue<TimeSpan>());
+        }
+
+        [Fact]
+        public void GetValue_on_type_conversion_error_throws_FormatException() {
+            DomDocument doc = new DomDocument();
+            var time = doc.AppendElement("time");
+            var attr = time.AppendAttribute("stamp", "00:00:03.3000000");
+
+            Assert.Throws<FormatException>(() => attr.GetValue<TimeSpan>());
+        }
 
         [Fact]
         public void NextAttribute_attribute_adjacent_nominal() {
@@ -307,15 +320,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html").Attribute("lang", "en");
 
-            Assert.Equal("lang=\"en\"", html.Attributes[0].ToString());
-        }
-
-        [Fact]
-        public void ToString_will_encode_html_entities() {
-            DomDocument doc = new DomDocument();
-            var html = doc.AppendElement("html").Attribute("lang", "<> &");
-
-            Assert.Equal("lang=\"&lt;&gt; &amp;\"", html.Attributes[0].ToString());
+            Assert.Equal("lang", html.Attributes[0].ToString());
         }
 
         [Fact]

@@ -1,4 +1,4 @@
-.PHONY: dotnet/build dotnet/test dotnet/publish dotnet/push dotnet/generate
+.PHONY: dotnet/test dotnet/generate
 
 CONFIGURATION ?= Release
 
@@ -15,9 +15,6 @@ dotnet/test: dotnet/publish -dotnet/test
 
 -dotnet/test:
 	fspec -i dotnet/test/Carbonfrost.UnitTests.Web.Dom/Content \
-		dotnet/test/Carbonfrost.UnitTests.Web.Dom/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.Commons.Core.dll \
-		dotnet/test/Carbonfrost.UnitTests.Web.Dom/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.Commons.Core.Runtime.Expressions.dll \
-		dotnet/test/Carbonfrost.UnitTests.Web.Dom/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.Commons.Web.Dom.dll \
 		dotnet/test/Carbonfrost.UnitTests.Web.Dom/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.UnitTests.Web.Dom.dll
 
 ## Run unit tests with code coverage
@@ -32,4 +29,4 @@ dotnet/cover: dotnet/publish -check-command-coverlet
 		--exclude-by-attribute 'CompilerGenerated' \
 		dotnet/test/Carbonfrost.UnitTests.Web.Dom/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.UnitTests.Web.Dom.dll
 
-include eng/.mk/*.mk
+-include eng/.mk/*.mk

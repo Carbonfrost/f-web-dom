@@ -39,7 +39,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        protected IList<DomAttribute> Items {
+        private IList<DomAttribute> Items {
             get {
                 return _items;
             }
@@ -49,7 +49,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             : this(owner, new List<DomAttribute>()) {
         }
 
-        internal DomAttributeCollection(DomElement owner, IList<DomAttribute> items) {
+        private DomAttributeCollection(DomElement owner, IList<DomAttribute> items) {
             if (items == null) {
                 throw new ArgumentNullException("items");
             }
@@ -59,45 +59,25 @@ namespace Carbonfrost.Commons.Web.Dom {
             _map = new Dictionary<string, DomAttribute>();
         }
 
-        public virtual bool IsReadOnly {
+        public bool IsReadOnly {
             get {
                 return Items.IsReadOnly;
             }
         }
 
-        public string this[string name] {
+        public DomAttribute this[string name] {
             get {
-                DomAttribute result = GetByName(name);
-                if (result == null) {
-                    return null;
-                }
-                return result.Value;
-            }
-            set {
-                GetOrAdd(name).Value = value;
+                return GetByName(name);
             }
         }
 
-        public DomAttribute GetByName(string name) {
+        private DomAttribute GetByName(string name) {
             DomAttribute result;
             if (TryGetValue(RequireName(name), out result)) {
                 return result;
             } else {
                 return null;
             }
-        }
-
-        public DomAttribute GetOrAdd(string name) {
-            return GetByNameOrCreate(name);
-        }
-
-        public DomAttribute AddNew(string name) {
-            if (Contains(name))
-                throw DomFailure.AttributeWithGivenNameExists(name, "name");
-
-            var attr = OwnerElement.OwnerDocument.CreateAttribute(name);
-            Add(attr);
-            return attr;
         }
 
         public bool Remove(string name) {
@@ -121,23 +101,27 @@ namespace Carbonfrost.Commons.Web.Dom {
             return -1;
         }
 
-        internal DomAttribute GetByNameOrCreate(string name) {
+        internal DomAttribute GetByNameOrCreate(string name, bool insertFirst = false) {
             var attr = GetByName(name);
             if (attr == null) {
                 // Owner doc could be null (rare)
                 var doc = OwnerElement.OwnerDocument;
                 if (doc == null) {
-                    attr = DomProviderFactory.ForProviderObject(OwnerElement).NodeFactory.CreateAttribute(name);
+                    attr = DomProviderFactory.ForProviderObject(OwnerElement).CreateNodeFactory(null).CreateAttribute(name);
                 } else {
                     attr = doc.CreateAttribute(name);
                 }
-                Add(attr);
+                if (insertFirst) {
+                    Insert(0, attr);
+                } else {
+                    Add(attr);
+                }
             }
 
             return attr;
         }
 
-        internal bool TryGetValue(string name, out DomAttribute result) {
+        private bool TryGetValue(string name, out DomAttribute result) {
             return _map.TryGetValue(name, out result);
         }
 

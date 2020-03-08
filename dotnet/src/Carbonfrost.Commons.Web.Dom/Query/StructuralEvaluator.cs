@@ -103,7 +103,7 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
             }
 
             public override string ToString() {
-                return string.Format(":parent{0}", evaluator);
+                return string.Format("{0} ", evaluator);
             }
         }
 
@@ -121,7 +121,7 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
             }
 
             public override string ToString() {
-                return string.Format(":ImmediateParent{0}", evaluator);
+                return string.Format("{0}>", evaluator);
             }
         }
 
@@ -145,7 +145,7 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
             }
 
             public override string ToString() {
-                return string.Format(":prev*{0}", evaluator);
+                return string.Format("{0}~", evaluator);
             }
         }
 
@@ -162,7 +162,7 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
             }
 
             public override string ToString() {
-                return string.Format(":prev{0}", evaluator);
+                return string.Format("{0}+", evaluator);
             }
         }
     }

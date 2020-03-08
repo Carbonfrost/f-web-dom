@@ -1,13 +1,11 @@
 //
-// - DomAttributeDefinitionCollection.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,19 +15,73 @@
 //
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public class DomAttributeDefinitionCollection
-        : DomNodeDefinitionCollection<DomAttributeDefinition> {
+    public class DomAttributeDefinitionCollection : IDomNodeDefinitionCollection<DomAttributeDefinition> {
 
-        private readonly DomElementDefinition owner;
+        private readonly DomElementDefinition _owner;
+        private readonly DomNodeDefinitionCollection<DomAttributeDefinition> _items;
 
         protected internal DomAttributeDefinitionCollection(DomElementDefinition owner) {
-            this.owner = owner;
+            _owner = owner;
+            _items = new DomNodeDefinitionCollection<DomAttributeDefinition>(s => new DomAttributeDefinition(s));
+        }
+
+        public DomAttributeDefinition this[string name] {
+            get {
+                return _items[name];
+            }
+        }
+
+        public int Count {
+            get {
+                return _items.Count;
+            }
+        }
+
+        public bool IsReadOnly {
+            get {
+                return _items.IsReadOnly;
+            }
+        }
+
+        internal void MakeReadOnly() {
+            _items.MakeReadOnly();
+        }
+
+        public void Add(DomAttributeDefinition item) {
+            _items.Add(item);
+        }
+
+        public DomAttributeDefinition AddNew(string name) {
+            return _items.AddNew(name);
+        }
+
+        public void Clear() {
+            _items.Clear();
+        }
+
+        public bool Contains(DomAttributeDefinition item) {
+            return _items.Contains(item);
+        }
+
+        public void CopyTo(DomAttributeDefinition[] array, int arrayIndex) {
+            _items.CopyTo(array, arrayIndex);
+        }
+
+        public IEnumerator<DomAttributeDefinition> GetEnumerator() {
+            return _items.GetEnumerator();
+        }
+
+        public bool Remove(DomAttributeDefinition item) {
+            return _items.Remove(item);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return _items.GetEnumerator();
         }
     }
-
 }
-
-

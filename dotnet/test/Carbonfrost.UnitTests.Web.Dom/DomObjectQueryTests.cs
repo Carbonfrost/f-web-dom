@@ -15,7 +15,9 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
@@ -66,6 +68,43 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             doc.QuerySelectorAll("dl").QuerySelectorAll("> dd").Unwrap();
             Assert.Equal("<section>\n<dl>\n<dl />\n<dl />\n</dl>\n</section>",
                 doc.CompressWhitespace().ToXml());
+        }
+
+        public IEnumerable<PropertyInfo> DomNodeProperties {
+            get {
+                return typeof(DomNode).GetProperties()
+                    .Where(p => p.PropertyType == typeof(DomNode) || p.PropertyType == typeof(IEnumerable<DomNode>));
+            }
+        }
+
+        public IEnumerable<MethodInfo> DomAppenderMethods {
+            get {
+                return typeof(IDomNodeAppendApiConventions).GetMethods();
+            }
+        }
+
+        [Theory]
+        [PropertyData(nameof(DomNodeProperties))]
+        public void Properties_should_correspond_to_DomNode(PropertyInfo property) {
+            // Because there is a property FollowingSiblingNodes on DomNode, the DomObjectQuery must
+            // have a method FollowingSiblingNodes() that does the same thing
+            var actual = typeof(DomObjectQuery).GetMethod(
+                property.Name
+            );
+            Assert.NotNull(actual);
+            Assert.Equal(typeof(DomObjectQuery), actual.ReturnType);
+        }
+
+        [Theory]
+        [PropertyData(nameof(DomAppenderMethods))]
+        public void Append_method_should_exist_matching_nodes(MethodInfo method) {
+            // All the appender methods (like AppendText) should exist on DomNode and DomObjectQuery
+            MethodInfo actual = typeof(DomObjectQuery).GetMethod(
+                method.Name,
+                method.GetParameters().Select(t => t.ParameterType).ToArray()
+            );
+            Assert.NotNull(actual);
+            Assert.Equal(typeof(DomObjectQuery), actual.ReturnType);
         }
     }
 }

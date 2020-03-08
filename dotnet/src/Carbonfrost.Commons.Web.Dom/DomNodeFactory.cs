@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,49 +17,55 @@
 using System;
 
 using System.Collections.Generic;
-using System.Linq;
-using Carbonfrost.Commons.Core;
 using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public class DomNodeFactory : IDomNodeFactory {
+    [Providers]
+    public class DomNodeFactory : IDomNodeFactory, IDomNodeFactoryApiConventions {
 
+        [DomNodeFactoryUsage]
         public static readonly IDomNodeFactory Null = new NullDomNodeFactory();
 
+        [DomNodeFactoryUsage]
         public static readonly IDomNodeFactory Default = new DomNodeFactory();
+
+        public IDomNodeTypeProvider NodeTypeProvider {
+            get;
+            private set;
+        }
 
         public static IDomNodeFactory FromName(string name) {
             return App.GetProvider<IDomNodeFactory>(name);
         }
 
+        [DomNodeFactoryUsage]
         public static IDomNodeFactory Compose(params IDomNodeFactory[] items) {
-            if (items == null || items.Length == 0)
-                return Null;
-
-            if (items.Any(t => t == null))
-                throw Failure.CollectionContainsNullElement("items");
-
-            if (items.Length == 1)
-                return items[0];
-
-            else
-                return new CompositeDomNodeFactory(items);
+            return Compose((IEnumerable<IDomNodeFactory>) items);
         }
 
         public static IDomNodeFactory Compose(IEnumerable<IDomNodeFactory> items) {
-            if (items == null)
-                throw new ArgumentNullException("items");
-
-            // TODO This ToArray() causes full AppDomain loading to be processed (performance)
-            // It'd be better if the enumeration could be allowed to complete within CompositeDomNodeFactory
-            return Compose(items.ToArray());
+            return Utility.OptimalComposite(
+                items, m => new CompositeDomNodeFactory(m), Null
+            );
         }
 
-        public DomComment CreateComment(string data) {
-            var result = CreateComment();
-            result.Data = data;
-            return result;
+        public DomNodeFactory() : this(null) {}
+
+        public DomNodeFactory(IDomNodeTypeProvider nodeTypeProvider) {
+            NodeTypeProvider = nodeTypeProvider ?? DomNodeTypeProvider.Default;
+        }
+
+        public Type GetAttributeNodeType(string name) {
+            return NodeTypeProvider.GetAttributeNodeType(name);
+        }
+
+        public Type GetElementNodeType(string name) {
+            return NodeTypeProvider.GetElementNodeType(name);
+        }
+
+        public Type GetProcessingInstructionNodeType(string target) {
+            return NodeTypeProvider.GetProcessingInstructionNodeType(target);
         }
 
         public virtual DomComment CreateComment() {
@@ -70,76 +76,77 @@ namespace Carbonfrost.Commons.Web.Dom {
             return new DomCDataSection();
         }
 
+        public virtual DomText CreateText() {
+            return new DomText();
+        }
+
+        public virtual DomDocumentFragment CreateDocumentFragment() {
+            return new DomDocumentFragment();
+        }
+
+        public virtual DomProcessingInstruction CreateProcessingInstruction(string target) {
+            return CreateNode(
+                GetProcessingInstructionNodeType(target),
+                target,
+                nameOrTarget => new DomProcessingInstruction(nameOrTarget)
+            );
+        }
+
+        public virtual DomAttribute CreateAttribute(string name) {
+            return CreateNode(
+                GetAttributeNodeType(name),
+                name,
+                nameOrTarget => new DomAttribute(nameOrTarget)
+            );
+        }
+
+        public virtual DomElement CreateElement(string name) {
+            return CreateNode(
+                GetElementNodeType(name),
+                name,
+                nameOrTarget => new DomElement(nameOrTarget)
+            );
+        }
+
+        public virtual DomEntityReference CreateEntityReference(string name) {
+            return new DomEntityReference(name);
+        }
+
+        public virtual DomDocumentType CreateDocumentType(string name) {
+            return new DomDocumentType(name);
+        }
+
+        public virtual DomEntity CreateEntity(string name) {
+            return new DomEntity();
+        }
+
+        public virtual DomNotation CreateNotation(string name) {
+            return new DomNotation();
+        }
+
+        // Conventions
+        public DomComment CreateComment(string data) {
+            var result = CreateComment();
+            result.Data = data;
+            return result;
+        }
+
         public DomCDataSection CreateCDataSection(string data) {
             var result = CreateCDataSection();
             result.Data = data;
             return result;
         }
 
-        public virtual DomText CreateText(string data) {
+        public DomText CreateText(string data) {
             var result = CreateText();
             result.Data = data;
             return result;
         }
 
-        public virtual DomText CreateText() {
-            return new DomText();
-        }
-
-        public DomProcessingInstruction CreateProcessingInstruction(string target) {
-            return CreateProcessingInstruction(target, null);
-        }
-
-        public virtual DomProcessingInstruction CreateProcessingInstruction(string target, string data) {
-            if (target == null)
-                throw new ArgumentNullException("target");
-            if (target.Length == 0)
-                throw Failure.EmptyString("target");
-
-            var result = new DomProcessingInstruction(target);
+        public DomProcessingInstruction CreateProcessingInstruction(string target, string data) {
+            var result = CreateProcessingInstruction(target);
             result.Data = data;
             return result;
-        }
-
-        public virtual Type GetAttributeNodeType(string name) {
-            return typeof(DomAttribute);
-        }
-
-        public virtual Type GetElementNodeType(string name) {
-            return typeof(DomElement);
-        }
-
-        public virtual Type GetProcessingInstructionNodeType(string name) {
-            return typeof(DomProcessingInstruction);
-        }
-
-        public virtual Type GetTextNodeType(string name) {
-            return typeof(DomText);
-        }
-
-        public virtual Type GetCommentNodeType(string name) {
-            return typeof(DomComment);
-        }
-
-        public virtual Type GetNotationNodeType(string name) {
-            return typeof(DomNotation);
-        }
-
-        public virtual Type GetEntityReferenceNodeType(string name) {
-            return typeof(DomEntityReference);
-        }
-
-        public virtual Type GetEntityNodeType(string name) {
-            return typeof(DomEntity);
-        }
-
-        public virtual DomAttribute CreateAttribute(string name) {
-            if (name == null)
-                throw new ArgumentNullException("name");
-            if (string.IsNullOrEmpty(name))
-                throw Failure.EmptyString("name");
-
-            return new DomAttribute(name);
         }
 
         public DomAttribute CreateAttribute(string name, string value) {
@@ -149,25 +156,17 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomAttribute CreateAttribute(string name, IDomValue value) {
-            if (value == null)
-                throw new ArgumentNullException("value");
+            var result = CreateAttribute(name);
 
-            string t = value.Value;
-            var result = CreateAttribute(name, t);
+            if (value == null) {
+                throw new ArgumentNullException(nameof(value));
+            }
             result.DomValue = value;
             return result;
         }
 
-        public virtual DomElement CreateElement(string name) {
-            return new DomElement(name);
-        }
-
-        public virtual DomEntityReference CreateEntityReference(string name) {
-            return new DomEntityReference(name);
-        }
-
-        public virtual DomDocumentType CreateDocumentType(string name, string publicId, string systemId) {
-            var result = new DomDocumentType(name);
+        public DomDocumentType CreateDocumentType(string name, string publicId, string systemId) {
+            var result = CreateDocumentType(name);
 
             // TODO Look up based on name
             result.PublicId = publicId;
@@ -175,7 +174,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             return result;
         }
 
-        // TODO DomDocument should delegate to node factory
-
+        private T CreateNode<T>(Type type, string nameOrTarget, Func<string, T> ctor) {
+            if (type == typeof(T) || type == null) {
+                return ctor(nameOrTarget);
+            }
+            // TODO Improve error handling here - it should be a domain exception if neither
+            // .ctor(string) OR .ctor() exist
+            return (T) Activator.CreateInstance(type, nameOrTarget);
+        }
     }
 }

@@ -1,11 +1,11 @@
 //
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,23 +15,18 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Xml;
 
-using Carbonfrost.Commons.Core;
 using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public partial class DomDocument : DomContainer, IDomNodeFactory {
+    public partial class DomDocument : DomContainer, IDomNodeFactory, IDomNodeFactoryApiConventions, IDomDocumentLoaderApiConventions {
 
-        private static readonly IReadOnlyList<DomElement> EMPTY = new ReadOnlyCollection<DomElement>(
-            Array.Empty<DomElement>()
-        );
-        private readonly IDomUnlinkedNodeCollection unlinked;
+        private readonly IDomUnlinkedNodeCollection _unlinked;
+        private IDomNodeFactory _nodeFactory;
 
         public DomElement DocumentElement {
             get {
@@ -39,9 +34,24 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public virtual DomProviderFactory ProviderFactory {
+        public DomProviderFactory ProviderFactory {
+            get {
+                return DomProviderFactory;
+            }
+        }
+
+        protected virtual DomProviderFactory DomProviderFactory {
             get {
                 return DomProviderFactory.Default;
+            }
+        }
+
+        public IDomNodeFactory NodeFactory {
+            get {
+                if (_nodeFactory == null) {
+                    _nodeFactory = ProviderFactory.CreateNodeFactory(Schema);
+                }
+                return _nodeFactory;
             }
         }
 
@@ -63,10 +73,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public override IReadOnlyList<DomElement> Elements {
+        public override DomElementCollection Elements {
             get {
                 if (DocumentElement == null) {
-                    return EMPTY;
+                    return DomElementCollection.Empty;
                 }
 
                 return DocumentElement.Elements;
@@ -95,27 +105,29 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         internal IDomUnlinkedNodeCollection UnlinkedNodes {
             get {
-                return unlinked;
+                return _unlinked;
             }
         }
 
         public DomDocument() {
-            this.unlinked = new DomUnlinkedNodeCollection(this);
+            _unlinked = new DomUnlinkedNodeCollection(this);
         }
 
         internal DomDocument(bool useLL) : base(useLL) {
-            this.unlinked = new DomUnlinkedNodeCollection(this);
+            _unlinked = new DomUnlinkedNodeCollection(this);
         }
 
         public virtual int GetLinePosition(DomObject node) {
-            if (node == null)
-                throw new ArgumentNullException("node");
+            if (node == null) {
+                throw new ArgumentNullException(nameof(node));
+            }
             return -1;
         }
 
         public virtual int GetLineNumber(DomObject node) {
-            if (node == null)
-                throw new ArgumentNullException("node");
+            if (node == null) {
+                throw new ArgumentNullException(nameof(node));
+            }
             return -1;
         }
 
@@ -213,144 +225,104 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomComment CreateComment() {
-            return CreateCommentCore();
+            return AddUnlinked(CreateCommentCore());
         }
 
         public DomComment CreateComment(string data) {
-            var result = CreateCommentCore();
+            var result = CreateComment();
             result.Data = data;
             return AddUnlinked(result);
         }
 
         protected virtual DomComment CreateCommentCore() {
-            return this.ProviderFactory.NodeFactory.CreateComment();
+            return NodeFactory.CreateComment() ?? new DomComment();
         }
 
         public DomCDataSection CreateCDataSection() {
-            return CreateCDataSection(string.Empty);
+            return AddUnlinked(CreateCDataSectionCore());
         }
 
         public DomCDataSection CreateCDataSection(string data) {
-            var result = CreateCDataSectionCore();
+            var result = CreateCDataSection();
             result.Data = data;
             return AddUnlinked(result);
         }
 
         protected virtual DomCDataSection CreateCDataSectionCore() {
-            return this.ProviderFactory.NodeFactory.CreateCDataSection();
+            return NodeFactory.CreateCDataSection() ?? new DomCDataSection();
         }
 
         public DomText CreateText() {
-            var result = CreateTextCore();
-            return AddUnlinked(result);
+            return AddUnlinked(CreateTextCore());
         }
 
         public DomText CreateText(string data) {
-            var result = CreateTextCore();
+            var result = CreateText();
             result.Data = data;
             return AddUnlinked(result);
         }
 
         protected virtual DomText CreateTextCore() {
-            return this.ProviderFactory.NodeFactory.CreateText();
+            return NodeFactory.CreateText() ?? new DomText();
         }
 
         public DomProcessingInstruction CreateProcessingInstruction(string target) {
-            var result = CreateProcessingInstructionCore(target);
-            return AddUnlinked(result);
+            return AddUnlinked(CreateProcessingInstructionCore(target));
         }
 
         public DomProcessingInstruction CreateProcessingInstruction(string target, string data) {
-            var result = CreateProcessingInstructionCore(target);
+            var result = CreateProcessingInstruction(target);
             result.Data = data;
             return AddUnlinked(result);
         }
 
         protected virtual DomProcessingInstruction CreateProcessingInstructionCore(string target) {
-            if (target == null)
-                throw new ArgumentNullException("target");
-            if (target.Length == 0)
-                throw Failure.EmptyString("target");
-
-            return this.ProviderFactory.NodeFactory.CreateProcessingInstruction(target);
+            return NodeFactory.CreateProcessingInstruction(target);
         }
 
         public virtual Type GetAttributeNodeType(string name) {
-            return this.ProviderFactory.NodeFactory.GetAttributeNodeType(name);
+            return NodeFactory.GetAttributeNodeType(name);
         }
 
         public virtual Type GetElementNodeType(string name) {
-            return this.ProviderFactory.NodeFactory.GetElementNodeType(name);
+            return NodeFactory.GetElementNodeType(name);
         }
 
         public virtual Type GetProcessingInstructionNodeType(string name) {
-            return this.ProviderFactory.NodeFactory.GetProcessingInstructionNodeType(name);
-        }
-
-        public virtual Type GetTextNodeType(string name) {
-            return this.ProviderFactory.NodeFactory.GetTextNodeType(name);
-        }
-
-        public virtual Type GetCommentNodeType(string name) {
-            return this.ProviderFactory.NodeFactory.GetCommentNodeType(name);
-        }
-
-        public virtual Type GetNotationNodeType(string name) {
-            return this.ProviderFactory.NodeFactory.GetNotationNodeType(name);
-        }
-
-        public virtual Type GetEntityReferenceNodeType(string name) {
-            return this.ProviderFactory.NodeFactory.GetEntityReferenceNodeType(name);
-        }
-
-        public virtual Type GetEntityNodeType(string name) {
-            return this.ProviderFactory.NodeFactory.GetEntityNodeType(name);
+            return NodeFactory.GetProcessingInstructionNodeType(name);
         }
 
         public DomAttribute CreateAttribute(string name) {
-            return AddUnlinked(CreateAttributeCoreSafe(name, null));
+            return AddUnlinked(CreateAttributeCore(name));
         }
 
         public DomAttribute CreateAttribute(string name, string value) {
-            return AddUnlinked(CreateAttributeCoreSafe(name, value));
+            var result = CreateAttribute(name);
+            result.Value = value;
+            return result;
         }
 
         public DomAttribute CreateAttribute(string name, IDomValue value) {
-            if (value == null)
-                throw new ArgumentNullException("value");
+            if (value == null) {
+                throw new ArgumentNullException(nameof(value));
+            }
 
-            var result = CreateAttributeCoreSafe(name, value.Value);
+            var result = CreateAttribute(name);
             result.DomValue = value;
-            return AddUnlinked(result);
+            return result;
         }
 
         protected virtual DomAttribute CreateAttributeCore(string name) {
-            return this.ProviderFactory.NodeFactory.CreateAttribute(name);
-        }
-
-        private DomAttribute CreateAttributeCoreSafe(string name, string value) {
-            var result = CreateAttributeCore(name);
-            if (result == null) {
-                result = new DomAttribute(name);
-            }
-            if (value != null) {
-                result.Value = value;
-            }
-
-            return result;
+            return ApplySchema(NodeFactory.CreateAttribute(name) ?? new DomAttribute(name));
         }
 
         public DomElement CreateElement(string name) {
             var e = CreateElementCore(name);
-            if (e == null) {
-                e = new DomElement(name);
-            }
-
             return AddUnlinked(e);
         }
 
         protected virtual DomElement CreateElementCore(string name) {
-            return this.ProviderFactory.NodeFactory.CreateElement(name);
+            return ApplySchema(NodeFactory.CreateElement(name) ?? new DomElement(name));
         }
 
         public DomEntityReference CreateEntityReference(string name) {
@@ -359,24 +331,22 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected virtual DomEntityReference CreateEntityReferenceCore(string name) {
-            return new DomEntityReference(name);
+            return NodeFactory.CreateEntityReference(name) ?? new DomEntityReference(name);
         }
 
         public DomDocumentType CreateDocumentType(string name) {
-            return CreateDocumentType(name, null, null);
+            return AddUnlinked(CreateDocumentTypeCore(name));
         }
 
         public DomDocumentType CreateDocumentType(string name, string publicId, string systemId) {
-            var result = CreateDocumentTypeCore(name);
-
-            // TODO Lookup based on name
+            var result = CreateDocumentType(name);
             result.PublicId = publicId;
             result.SystemId = systemId;
-            return AddUnlinked(result);
+            return result;
         }
 
         protected virtual DomDocumentType CreateDocumentTypeCore(string name) {
-            return new DomDocumentType(name);
+            return NodeFactory.CreateDocumentType(name) ?? new DomDocumentType(name);
         }
 
         public DomDocumentFragment CreateDocumentFragment() {
@@ -385,7 +355,23 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected virtual DomDocumentFragment CreateDocumentFragmentCore() {
-            return new DomDocumentFragment();
+            return NodeFactory.CreateDocumentFragment();
+        }
+
+        public DomEntity CreateEntity(string name) {
+            return AddUnlinked(CreateEntityCore(name));
+        }
+
+        protected virtual DomEntity CreateEntityCore(string name) {
+            return NodeFactory.CreateEntity(name);
+        }
+
+        public DomNotation CreateNotation(string name) {
+            return AddUnlinked(CreateNotationCore(name));
+        }
+
+        protected virtual DomNotation CreateNotationCore(string name) {
+            return NodeFactory.CreateNotation(name);
         }
 
         public virtual DomElementDefinition GetElementDefinition(string name) {
@@ -397,10 +383,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         private T AddUnlinked<T>(T item) where T : DomObject {
-            this.unlinked.Add(item);
+            _unlinked.Add(item);
             return item;
         }
-
     }
 
 }

@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,34 @@
 
 using System;
 using System.Linq;
-using System.Xml;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
 namespace Carbonfrost.UnitTests.Web.Dom {
 
     public class DomDocumentTests {
+
+        public TestData[] DocumentCreateNodeMethods {
+            get {
+                return new [] {
+                    CreateNodeMethod("Attribute", doc => doc.CreateAttribute("name")),
+                    CreateNodeMethod("CDataSection", doc => doc.CreateCDataSection()),
+                    CreateNodeMethod("Comment", doc => doc.CreateComment()),
+                    CreateNodeMethod("DocumentFragment", doc => doc.CreateDocumentFragment()),
+                    CreateNodeMethod("DocumentType", doc => doc.CreateDocumentType("name")),
+                    CreateNodeMethod("Element", doc => doc.CreateElement("name")),
+                    CreateNodeMethod("Entity", doc => doc.CreateEntity("name")),
+                    CreateNodeMethod("Notation", doc => doc.CreateNotation("name")),
+                    CreateNodeMethod("EntityReference", doc => doc.CreateEntityReference("name")),
+                    CreateNodeMethod("ProcessingInstruction", doc => doc.CreateProcessingInstruction("target")),
+                    CreateNodeMethod("Text", doc => doc.CreateText()),
+                };
+            }
+        }
+
+        private TestData CreateNodeMethod(string v, Func<DomDocument, DomObject> p) {
+            return new TestData(p).WithName(v);
+        }
 
         [Fact]
         public void CreateElement_implies_owner_document() {
@@ -123,6 +144,21 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         public void CreateAttribute_requires_name_argument_nonempty() {
             DomDocument doc = new DomDocument();
             Assert.Throws<ArgumentException>(() => doc.CreateAttribute(""));
+        }
+
+        [Fact]
+        public void CreateAttribute_uses_dom_value_specified_by_schema() {
+            var schema = new DomSchema("custom");
+            var attrDef = schema.AttributeDefinitions.AddNew("class");
+            attrDef.ValueType = typeof(PDomValue);
+
+            var doc = new DomDocument().WithSchema(schema);
+            Assert.IsInstanceOf<PDomValue>(
+                doc.CreateAttribute("class").DomValue
+            );
+        }
+
+        class PDomValue : DomValue<string> {
         }
 
         [Fact]
@@ -310,6 +346,15 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             dt.AppendTo(doc);
             doc.AppendText(" ");
             Assert.Same(dt, doc.Doctype);
+        }
+
+        [Theory]
+        [PropertyData(nameof(DocumentCreateNodeMethods))]
+        public void Create_any_node_will_add_it_unlinked(object o) {
+            Func<DomDocument, DomObject> action = (Func<DomDocument, DomObject>) o;
+            var doc = new DomDocument();
+            var node = action(doc);
+            Assert.Same(doc, node.OwnerDocument);
         }
     }
 }

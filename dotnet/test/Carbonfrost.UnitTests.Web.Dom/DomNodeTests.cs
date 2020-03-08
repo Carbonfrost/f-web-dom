@@ -55,6 +55,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
         [Theory]
         [InlineData("")]
+        [InlineData((string) null, Name = "null")]
         public void Attribute_illegal_arguments(string attr) {
             DomDocument doc = new DomDocument();
             var html = doc.CreateElement("html");
@@ -76,6 +77,28 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             Assert.Equal(example, html.BaseUri);
             Assert.Equal(example, body.BaseUri);
+        }
+
+        [Fact]
+        public void BaseUri_should_inherit_on_base_uri_nulled_out() {
+            var example1 = new Uri("https://example.com");
+            var example2 = new Uri("https://test.example");
+
+            DomDocument doc = new DomDocument();
+            var html = doc.CreateElement("html");
+            html.BaseUri = example1;
+
+            var body = doc.CreateElement("body");
+            body.BaseUri = example2;
+
+            doc.Append(html);
+            html.Append(body);
+
+            // Setting this explicitly show return to the inherited balue
+            Assume.Equal(example2, body.BaseUri);
+            body.BaseUri = null;
+
+            Assert.Equal(example1, body.BaseUri);
         }
 
         [Fact]
@@ -105,6 +128,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
         [Theory]
         [InlineData("")]
+        [InlineData((string) null, Name = "null")]
         public void HasAttribute_illegal_arguments(string attr) {
             DomDocument doc = new DomDocument();
             var html = doc.CreateElement("html");

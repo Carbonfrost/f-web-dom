@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,6 @@
 //
 
 using System;
-using System.Linq;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -33,27 +32,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return null;
         }
 
-        DomAttribute IDomNodeFactory.CreateAttribute(string name, IDomValue value) {
-            return null;
-        }
-
-        DomAttribute IDomNodeFactory.CreateAttribute(string name, string value) {
-            return null;
-        }
-
         DomCDataSection IDomNodeFactory.CreateCDataSection() {
             return null;
         }
 
-        DomCDataSection IDomNodeFactory.CreateCDataSection(string data) {
-            return null;
-        }
-
-        DomComment IDomNodeFactory.CreateComment(string data) {
-            return null;
-        }
-
-        DomDocumentType IDomNodeFactory.CreateDocumentType(string name, string publicId, string systemId) {
+        DomDocumentType IDomNodeFactory.CreateDocumentType(string name) {
             return null;
         }
 
@@ -69,43 +52,27 @@ namespace Carbonfrost.Commons.Web.Dom {
             return null;
         }
 
-        DomProcessingInstruction IDomNodeFactory.CreateProcessingInstruction(string target, string data) {
+        DomDocumentFragment IDomNodeFactory.CreateDocumentFragment() {
             return null;
         }
 
-        DomText IDomNodeFactory.CreateText(string data) {
+        DomEntity IDomNodeFactory.CreateEntity(string name) {
             return null;
         }
 
-        Type IDomNodeFactory.GetAttributeNodeType(string name) {
+        DomNotation IDomNodeFactory.CreateNotation(string name) {
             return null;
         }
 
-        Type IDomNodeFactory.GetCommentNodeType(string name) {
+        Type IDomNodeTypeProvider.GetAttributeNodeType(string name) {
             return null;
         }
 
-        Type IDomNodeFactory.GetElementNodeType(string name) {
+        Type IDomNodeTypeProvider.GetElementNodeType(string name) {
             return null;
         }
 
-        Type IDomNodeFactory.GetEntityReferenceNodeType(string name) {
-            return null;
-        }
-
-        Type IDomNodeFactory.GetEntityNodeType(string name) {
-            return null;
-        }
-
-        Type IDomNodeFactory.GetNotationNodeType(string name) {
-            return null;
-        }
-
-        Type IDomNodeFactory.GetProcessingInstructionNodeType(string name) {
-            return null;
-        }
-
-        Type IDomNodeFactory.GetTextNodeType(string name) {
+        Type IDomNodeTypeProvider.GetProcessingInstructionNodeType(string name) {
             return null;
         }
     }

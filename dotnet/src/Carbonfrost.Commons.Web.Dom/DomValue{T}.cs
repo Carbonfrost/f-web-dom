@@ -1,13 +1,11 @@
 //
-// - DomValue{T}.cs -
-//
-// Copyright 2014 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2014, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,23 +15,25 @@
 //
 
 using System;
-using System.ComponentModel;
+using System.Collections.Generic;
+
 using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
     public class DomValue<T> : IDomValue {
 
-        private T valueCache;
-        private string textCache;
+        private T _valueCache;
+        private string _textCache;
+        private Action<object> _appendValueThunk;
 
         public T TypedValue {
             get {
-                return valueCache;
+                return _valueCache;
             }
             set {
-                this.valueCache = value;
-                this.textCache = this.ConvertBack(value);
+                _valueCache = value;
+                _textCache = ConvertBack(value);
             }
         }
 
@@ -59,19 +59,44 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public string Value {
             get {
-                if (this.textCache == null) {
-                    this.textCache = this.ConvertBack(this.TypedValue);
+                if (_textCache == null) {
+                    _textCache = ConvertBack(TypedValue);
                 }
-                return this.textCache;
+                return _textCache;
             }
             set {
-                this.textCache = value;
-                this.valueCache = Convert(value);
+                _textCache = value;
+                _valueCache = Convert(value);
             }
+        }
+
+        public virtual void AppendValue(object value) {
+            if (_appendValueThunk == null) {
+                _appendValueThunk = AppendValueThunk();
+            }
+            _appendValueThunk(value);
         }
 
         public virtual DomValue<T> Clone() {
             return (DomValue<T>) MemberwiseClone();
+        }
+
+        IDomValue IDomValue.Clone() {
+            return Clone();
+        }
+
+        private Action<object> AppendValueThunk() {
+            // If the user implements DomValue<T> where T is a collection type, we use
+            // add method to do the work of appending a value
+            var collectionType = typeof(T).GetInterface(typeof(ICollection<>).FullName);
+            if (collectionType != null) {
+                var collection = typeof(T).GetInterfaceMap(collectionType);
+                var index = Array.FindIndex(collection.InterfaceMethods, m => m.Name == "Add");
+                var addMethod = collection.TargetMethods[index];
+                return (value) => addMethod.Invoke(TypedValue, new [] { value });
+            }
+
+            return (value) => Value += value;
         }
     }
 }

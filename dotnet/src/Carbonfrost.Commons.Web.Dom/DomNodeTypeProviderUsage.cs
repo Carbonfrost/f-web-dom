@@ -1,13 +1,11 @@
 //
-// - ComponentTypes.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,11 +15,14 @@
 //
 
 using System;
+using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public static class ComponentTypes {
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Method, AllowMultiple = true)]
+    public sealed class DomNodeTypeProviderUsage : ProviderAttribute {
 
-        public const string TagLibrary = "domTagLibrary";
+        public DomNodeTypeProviderUsage() : base(typeof(IDomNodeTypeProvider)) {
+        }
     }
 }

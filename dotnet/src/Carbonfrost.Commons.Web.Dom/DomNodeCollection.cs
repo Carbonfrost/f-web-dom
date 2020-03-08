@@ -122,7 +122,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public bool Contains(DomNode item) {
-            return item.Siblings == this;
+            return item._Siblings == this;
         }
 
         public abstract int IndexOf(DomNode item);
