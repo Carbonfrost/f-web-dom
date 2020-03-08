@@ -54,13 +54,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             return attr.GetValue<TValue>();
         }
 
-        public DomNode AddClass(string className) {
-            ApplyClass(l => l.AddRange(DomStringTokenList.Parse(className)));
+        public DomNode AddClass(string classNames) {
+            ApplyClass(l => l.AddRange(DomStringTokenList.Parse(classNames)));
             return this;
         }
 
-        public DomNode RemoveClass(string className) {
-            ApplyClass(l => l.RemoveRange(DomStringTokenList.Parse(className)));
+        public DomNode RemoveClass(string classNames) {
+            ApplyClass(l => l.RemoveRange(DomStringTokenList.Parse(classNames)));
             return this;
         }
 

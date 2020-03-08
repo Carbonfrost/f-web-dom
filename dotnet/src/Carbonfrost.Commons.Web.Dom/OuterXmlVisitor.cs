@@ -126,12 +126,22 @@ namespace Carbonfrost.Commons.Web.Dom {
             DefaultVisit(notation);
         }
 
-        protected override void VisitDocumentType(DomDocumentType documentType) {
-            if (documentType == null) {
-                throw new ArgumentNullException(nameof(documentType));
+        protected override void VisitDocumentType(DomDocumentType node) {
+            _sb.Append("<!DOCTYPE ").Append(node.Name);
+
+            if (!string.IsNullOrWhiteSpace(node.PublicId)) {
+                _sb.Append(" PUBLIC \"")
+                    .Append(node.PublicId)
+                    .Append("\"");
             }
 
-            DefaultVisit(documentType);
+            if (!string.IsNullOrWhiteSpace(node.SystemId)) {
+                _sb.Append(" \"")
+                    .Append(node.SystemId)
+                    .Append("\"");
+            }
+
+            _sb.Append('>');
         }
 
         private static string EscapeText(string str) {

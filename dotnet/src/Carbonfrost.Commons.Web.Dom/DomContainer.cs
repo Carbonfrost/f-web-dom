@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,7 @@ namespace Carbonfrost.Commons.Web.Dom {
     // Facilitates treating DomDocument sort of like an element, but
     // really, all containers are elements
 
-    public abstract partial class DomContainer : DomNode {
+    public abstract partial class DomContainer : DomNode, IDomContainerManipulationApiConventions<DomContainer> {
 
         protected DomContainer() : this(false) {
             // TODO Replace with linked list (performance)
@@ -47,27 +47,27 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public virtual IEnumerable<DomElement> AncestorsAndSelf {
+        public virtual DomElementCollection AncestorsAndSelf {
             get {
-                return GetAncestorsCore(true);
+                return new DefaultDomElementCollection(this, n => n.GetAncestorsCore(true));
             }
         }
 
-        public IEnumerable<DomElement> Ancestors {
+        public DomElementCollection Ancestors {
             get {
-                return GetAncestorsCore(false);
+                return new DefaultDomElementCollection(this, n => n.GetAncestorsCore(false));
             }
         }
 
-        public virtual IEnumerable<DomElement> DescendantsAndSelf {
+        public virtual DomElementCollection DescendantsAndSelf {
             get {
-                return GetDescendantsCore(true);
+                return new DefaultDomElementCollection(this, n => n.GetDescendantsCore(true));
             }
         }
 
-        public IEnumerable<DomElement> Descendants {
+        public DomElementCollection Descendants {
             get {
-                return GetDescendantsCore(false);
+                return new DefaultDomElementCollection(this, n => n.GetDescendantsCore(false));
             }
         }
 
@@ -101,9 +101,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             return this.GetElementsByTagName(name, xmlns).FirstOrDefault();
         }
 
-        public virtual IReadOnlyList<DomElement> Elements {
+        public DomElementCollection Children {
             get {
-                return new Buffer<DomElement>(this.ChildNodes.Where(t => t.IsElement).Cast<DomElement>());
+                return Elements;
+            }
+        }
+
+        public virtual DomElementCollection Elements {
+            get {
+                return new DefaultDomElementCollection(
+                    this,
+                    e => e.ChildNodes.Where(t => t.IsElement).Cast<DomElement>()
+                );
             }
         }
 
@@ -129,20 +138,24 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Elements.FirstOrDefault(t => t.Name == name && t.NamespaceUri == xmlns);
         }
 
-        public virtual IEnumerable<DomElement> GetElementsByTagName(string name) {
-            return this.Descendants(name);
+        public virtual DomElementCollection GetElementsByTagName(string name) {
+            return new DefaultDomElementCollection(this, n => n.Descendants(name));
         }
 
-        public virtual IEnumerable<DomElement> GetElementsByTagName(string name, string xmlns) {
-            return this.Descendants(name, xmlns);
+        public virtual DomElementCollection GetElementsByTagName(string name, string namespaceUri) {
+            return new DefaultDomElementCollection(this, n => n.Descendants(name, namespaceUri));
         }
 
-        public virtual IEnumerable<DomElement> GetElementsByClassName(string className) {
-            if (string.IsNullOrEmpty(className))
-                return Enumerable.Empty<DomElement>(); // spec
+        public virtual DomElementCollection GetElementsByClassName(string className) {
+            if (string.IsNullOrEmpty(className)) {
+                return DomElementCollection.Empty;
+            }
 
             var names = DomStringTokenList.Parse(className);
-            return this.Descendants.Where(t => DomStringTokenList.StaticContains(t.Attribute("class"), names));
+            return new DefaultDomElementCollection(
+                this,
+                n => n.Descendants.Where(t => DomStringTokenList.StaticContains(t.Attribute("class"), names))
+            );
         }
 
         public bool IsEmpty {
@@ -350,6 +363,41 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public new DomContainer AddClass(string className) {
+            return (DomContainer) base.AddClass(className);
+        }
+
+        public new DomContainer Append(DomNode child) {
+            return (DomContainer) base.Append(child);
+        }
+
+        public new DomContainer Attribute(string name, object value) {
+            return (DomContainer) base.Attribute(name, value);
+        }
+
+        public new DomContainer Clone() {
+            return (DomContainer) base.Clone();
+        }
+
+        public new DomContainer Empty() {
+            return (DomContainer) base.Empty();
+        }
+
+        public new DomContainer Remove() {
+            return (DomContainer) base.Remove();
+        }
+
+        public new DomContainer RemoveAttribute(string name) {
+            return (DomContainer) base.RemoveAttribute(name);
+        }
+
+        public new DomContainer RemoveClass(string className) {
+            return (DomContainer) base.RemoveClass(className);
+        }
+
+        public new DomContainer RemoveSelf() {
+            return (DomContainer) base.RemoveSelf();
+        }
     }
 
 }

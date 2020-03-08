@@ -1,13 +1,11 @@
 //
-// - Extensions.cs -
-//
-// Copyright 2014 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2014, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +23,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public static class Extensions {
 
-        public static IEnumerable<DomElement> Descendants(this DomContainer source, string name) {
+        public static DomElementCollection Descendants(this DomContainer source, string name) {
             if (source == null)
                 throw new ArgumentNullException("source");
             if (name == null)
@@ -33,10 +31,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (name.Length == 0)
                 throw Failure.EmptyString("name");
 
-            return FilterByName(source.Descendants, name);
+            return new DefaultDomElementCollection(source, s => FilterByName(s.Descendants, name));
         }
 
-        public static IEnumerable<DomElement> Descendants(this DomContainer source, string name, string xmlns) {
+        public static DomElementCollection Descendants(this DomContainer source, string name, string xmlns) {
             if (source == null)
                 throw new ArgumentNullException("source");
             if (name == null)
@@ -44,33 +42,33 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (name.Length == 0)
                 throw Failure.EmptyString("name");
 
-            return FilterByName(source.Descendants, name, xmlns);
+            return new DefaultDomElementCollection(source, s => FilterByName(s.Descendants, name, xmlns));
         }
 
-        public static IEnumerable<DomElement> Elements(this DomContainer source, string name) {
+        public static DomElementCollection Elements(this DomContainer source, string name) {
             if (source == null)
                 throw new ArgumentNullException("source");
-            return FilterByName(source.Elements, name, null);
+            return new DefaultDomElementCollection(source, s => FilterByName(s.Elements, name, null));
         }
 
-        public static IEnumerable<DomElement> Elements(this DomContainer source, string name, string xmlns) {
+        public static DomElementCollection Elements(this DomContainer source, string name, string xmlns) {
             if (source == null)
                 throw new ArgumentNullException("source");
-            return FilterByName(source.Elements, name, xmlns);
+            return new DefaultDomElementCollection(source, s => FilterByName(s.Elements, name, xmlns));
         }
 
-        public static IEnumerable<DomElement> FollowingSiblings(this DomElement source, string name) {
+        public static DomElementCollection FollowingSiblings(this DomElement source, string name) {
             if (source == null) {
                 throw new ArgumentNullException("source");
             }
-            return FilterByName(source.FollowingSiblings, name, null);
+            return new DefaultDomElementCollection(source, s => FilterByName(((DomElement) s).FollowingSiblings, name, null));
         }
 
-        public static IEnumerable<DomElement> FollowingSiblings(this DomElement source, string name, string xmlns) {
+        public static DomElementCollection FollowingSiblings(this DomElement source, string name, string xmlns) {
             if (source == null) {
                 throw new ArgumentNullException("source");
             }
-            return FilterByName(source.FollowingSiblings, name, xmlns);
+            return new DefaultDomElementCollection(source, s => FilterByName(((DomElement) s).FollowingSiblings, name, xmlns));
         }
 
         static IEnumerable<DomElement> FilterByName(IEnumerable<DomElement> elements,

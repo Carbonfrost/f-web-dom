@@ -221,7 +221,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                     return Array.Empty<DomNode>();
                 }
 
-                return (IReadOnlyList<DomNode>) Siblings;
+                return (IReadOnlyList<DomNode>) _Siblings;
             }
         }
 

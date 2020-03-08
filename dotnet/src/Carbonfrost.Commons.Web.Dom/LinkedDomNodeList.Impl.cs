@@ -257,7 +257,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         private LinkedDomNodeList list {
             get {
-                return (LinkedDomNodeList) Siblings;
+                return (LinkedDomNodeList) _Siblings;
             }
         }
 

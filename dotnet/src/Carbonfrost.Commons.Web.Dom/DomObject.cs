@@ -151,7 +151,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        internal IDomNodeCollection Siblings {
+        internal IDomNodeCollection _Siblings {
             get {
                 return _siblingsContent as IDomNodeCollection;
             }
@@ -199,7 +199,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
             set {
                 RemoveAnnotations<BaseUriAnnotation>();
-                AddAnnotation(new BaseUriAnnotation(value));
+                if (value != null) {
+                    AddAnnotation(new BaseUriAnnotation(value));
+                }
             }
         }
 
@@ -235,8 +237,8 @@ namespace Carbonfrost.Commons.Web.Dom {
                 if (this.SiblingAttributes != null)
                     return this.SiblingAttributes.OwnerElement;
 
-                else if (this.Siblings != null)
-                    return Siblings.OwnerNode;
+                else if (_Siblings != null)
+                    return _Siblings.OwnerNode;
 
                 else
                     return null;
