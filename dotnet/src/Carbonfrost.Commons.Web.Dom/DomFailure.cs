@@ -117,5 +117,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         public static InvalidOperationException CannotAppendChildNodeWithType(DomNodeType nodeType) {
             return Failure.Prepare(new InvalidOperationException(SR.CannotAppendChildNodeWithType(nodeType)));
         }
+
+        public static InvalidOperationException RequiresDocumentElementToSetInnerText() {
+            return Failure.Prepare(new InvalidOperationException(SR.RequiresDocumentElementToSetInnerText()));
+        }
     }
 }

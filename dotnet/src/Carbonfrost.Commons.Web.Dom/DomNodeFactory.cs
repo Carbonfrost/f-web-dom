@@ -17,6 +17,7 @@
 using System;
 
 using System.Collections.Generic;
+using System.Reflection;
 using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
@@ -180,7 +181,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
             // TODO Improve error handling here - it should be a domain exception if neither
             // .ctor(string) OR .ctor() exist
-            return (T) Activator.CreateInstance(type, nameOrTarget);
+            return (T) Activator.CreateInstance(
+                type,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                null,
+                new object[] { nameOrTarget },
+                null
+            );
         }
     }
 }

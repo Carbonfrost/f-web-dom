@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -53,19 +52,23 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public void Add(DomAttributeDefinition item) {
-            _items.Add(item);
+            AddItem(item);
         }
 
         public DomAttributeDefinition AddNew(string name) {
-            return _items.AddNew(name);
+            return AddNewItem(name);
         }
 
         public void Clear() {
-            _items.Clear();
+            ClearItems();
         }
 
         public bool Contains(DomAttributeDefinition item) {
             return _items.Contains(item);
+        }
+
+        public bool Contains(string name) {
+            return _items.Contains(name);
         }
 
         public void CopyTo(DomAttributeDefinition[] array, int arrayIndex) {
@@ -77,11 +80,27 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public bool Remove(DomAttributeDefinition item) {
-            return _items.Remove(item);
+            return RemoveItem(item);
         }
 
         IEnumerator IEnumerable.GetEnumerator() {
             return _items.GetEnumerator();
+        }
+
+        protected virtual void AddItem(DomAttributeDefinition item) {
+            _items.Add(item);
+        }
+
+        protected virtual DomAttributeDefinition AddNewItem(string name) {
+            return _items.AddNew(name);
+        }
+
+        protected virtual void ClearItems() {
+            _items.Clear();
+        }
+
+        protected virtual bool RemoveItem(DomAttributeDefinition item){
+            return _items.Remove(item);
         }
     }
 }

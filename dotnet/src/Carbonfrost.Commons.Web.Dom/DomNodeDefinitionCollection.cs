@@ -72,13 +72,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             return _items.TryGetValue(item.Name, out actual) && actual == item;
         }
 
+        public bool Contains(string name) {
+            return _items.ContainsKey(name);
+        }
+
         public void CopyTo(T[] array, int arrayIndex) {
             _items.Values.CopyTo(array, arrayIndex);
         }
 
         public bool Remove(T item) {
-            if (item == null)
+            if (item == null) {
                 throw new ArgumentNullException(nameof(item));
+            }
 
             if (Contains(item)) {
                 return _items.Remove(item.Name);
@@ -96,6 +101,9 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         internal void MakeReadOnly() {
             IsReadOnly = true;
+            foreach (var item in _items.Values) {
+                item.MakeReadOnly();
+            }
         }
 
         private void ThrowIfReadOnly() {

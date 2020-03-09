@@ -104,7 +104,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [Fact]
         public void ToXml_converts_to_correct_output() {
             DomDocument doc = new DomDocument();
-            // doc.AppendDocumentType("html");
             var html = doc.AppendElement("html");
             var body = html.AppendElement("body");
             body.AppendElement("h1").AppendText("Hello, world");
@@ -219,15 +218,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void InnerText_should_be_null() {
+        public void InnerText_should_be_null_in_empty_document() {
             DomDocument doc = new DomDocument();
-            Assert.Null(doc.InnerText);
-        }
-
-        [Fact]
-        public void InnerText_should_be_null_with_elements() {
-            DomDocument doc = new DomDocument();
-            doc.AppendElement("a");
             Assert.Null(doc.InnerText);
         }
 
@@ -355,6 +347,37 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var doc = new DomDocument();
             var node = action(doc);
             Assert.Same(doc, node.OwnerDocument);
+        }
+
+        [Fact]
+        public void Children_should_equal_the_document_element() {
+            var doc = new DomDocument();
+            var node = doc.AppendElement("root");
+            doc.PrependDocumentType("html");
+            Assert.HasCount(1, doc.Children);
+            Assert.Equal("root", doc.Children[0].NodeName);
+        }
+
+        [Fact]
+        public void InnerText_gets_contents_of_child_nodes() {
+            var doc = new DomDocument();
+            doc.LoadXml("<?xml version=\"1.0\" ?><!-- comment--><hello>world</hello>");
+            Assert.Equal("world", doc.InnerText);
+        }
+
+        [Fact]
+        public void InnerText_set_will_replace_inner_element_with_text() {
+            var doc = new DomDocument();
+            doc.LoadXml("<!-- comment--><hello></hello>");
+            doc.InnerText = "world";
+            Assert.Equal("<!-- comment--><hello>world</hello>", doc.OuterXml);
+        }
+
+        [Fact]
+        public void InnerText_set_will_throw_if_no_root_element() {
+            var doc = new DomDocument();
+            doc.AppendComment("comment");
+            Assert.Throws<InvalidOperationException>(() => doc.InnerText = "world");
         }
     }
 }
