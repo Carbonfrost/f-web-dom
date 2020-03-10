@@ -24,16 +24,14 @@ namespace Carbonfrost.Commons.Web.Dom {
         public static string ConvertToString(this ITextVisitor v, DomNode node) {
             var sb = new StringBuilder();
             v.SetBuffer(sb);
-            node.AcceptVisitor(v);
+            DomNodeVisitor.Visit(node, v);
             return sb.ToString();
         }
 
         public static string ConvertToString(this ITextVisitor v, IEnumerable<DomNode> nodes) {
             var sb = new StringBuilder();
             v.SetBuffer(sb);
-            foreach (var node in nodes) {
-                node.AcceptVisitor(v);
-            }
+            DomNodeVisitor.VisitAll(nodes, v);
             return sb.ToString();
         }
 

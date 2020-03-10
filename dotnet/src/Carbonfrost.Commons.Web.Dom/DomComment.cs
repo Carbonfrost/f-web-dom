@@ -60,13 +60,5 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return DomNodeType.Comment;
             }
         }
-
-        internal override void AcceptVisitor(IDomNodeVisitor visitor) {
-            visitor.Visit(this);
-        }
-
-        internal override TResult AcceptVisitor<TArgument, TResult>(IDomNodeVisitor<TArgument, TResult> visitor, TArgument argument) {
-            return visitor.Visit(this, argument);
-        }
     }
 }

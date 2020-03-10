@@ -1,7 +1,5 @@
 //
-// - IDomAttributeVisitor.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,21 +14,9 @@
 // limitations under the License.
 //
 
-using System;
-
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public interface IDomAttributeVisitor<TAttribute>
-        where TAttribute : DomAttribute<TAttribute>
-    {
-        void Dispatch(TAttribute attribute);
+    public interface IDomNodeVisitDispatcher {
+        void Dispatch(DomObject obj);
     }
-
-    public interface IDomAttributeVisitor<TAttribute, TArgument, TResult>
-        where TAttribute : DomAttribute<TAttribute>
-    {
-        TResult Dispatch(TAttribute attribute, TArgument argument);
-    }
-
-
 }

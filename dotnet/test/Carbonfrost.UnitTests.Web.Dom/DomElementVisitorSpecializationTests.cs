@@ -94,6 +94,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
     class RElement : DomElement<RElement> {
         public RElement(string name) : base(name) {}
     }
+    class RText : DomText {}
     class RProviderFactory : DomProviderFactory {
         protected override IDomNodeFactory CreateDomNodeFactory(IDomNodeTypeProvider nodeTypeProvider) {
             return new DomNodeFactory(
@@ -117,40 +118,5 @@ namespace Carbonfrost.UnitTests.Web.Dom {
     }
     class RProcessingInstruction : DomProcessingInstruction<RProcessingInstruction> {
         public RProcessingInstruction(string target) : base(target) {}
-    }
-    class RNodeVisitor : DomNodeVisitor, IDomAttributeVisitor<RAttribute>, IDomElementVisitor<RElement>, IDomProcessingInstructionVisitor<RProcessingInstruction> {
-        public int VisitInstructionCalledCount;
-        public int VisitAttributeCalledCount;
-        public int VisitElementCalledCount;
-        public int VisitDefaultElementCalledCount;
-
-        public void Visit(RAttribute attribute) {
-            VisitAttributeCalledCount += 1;
-        }
-
-        public void Visit(RElement element) {
-            VisitElementCalledCount += 1;
-        }
-
-        public void Visit(RProcessingInstruction instruction) {
-            VisitInstructionCalledCount += 1;
-        }
-
-        protected override void VisitElement(DomElement element) {
-            VisitDefaultElementCalledCount += 1;
-            base.VisitElement(element);
-        }
-
-        void IDomAttributeVisitor<RAttribute>.Dispatch(RAttribute attribute) {
-            Visit(attribute);
-        }
-
-        void IDomElementVisitor<RElement>.Dispatch(RElement element) {
-            Visit(element);
-        }
-
-        void IDomProcessingInstructionVisitor<RProcessingInstruction>.Dispatch(RProcessingInstruction instruction) {
-            Visit(instruction);
-        }
     }
 }

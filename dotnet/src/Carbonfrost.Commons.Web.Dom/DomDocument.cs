@@ -213,14 +213,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             CoreLoadXml(reader);
         }
 
-        internal override TResult AcceptVisitor<TArgument, TResult>(IDomNodeVisitor<TArgument, TResult> visitor, TArgument argument) {
-            return visitor.Visit(this, argument);
-        }
-
-        internal override void AcceptVisitor(IDomNodeVisitor visitor) {
-            visitor.Visit(this);
-        }
-
         public DomComment CreateComment() {
             return AddUnlinked(CreateCommentCore());
         }

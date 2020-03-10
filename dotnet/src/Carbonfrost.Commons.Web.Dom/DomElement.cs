@@ -20,8 +20,8 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public partial class DomElement : DomContainer, IDomContainerManipulationApiConventions<DomElement> {
 
-        private readonly DomAttributeCollection attributes;
-        private readonly string name;
+        private readonly DomAttributeCollection _attributes;
+        private readonly string _name;
 
         public bool HasElements {
             get {
@@ -58,7 +58,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected override DomAttributeCollection DomAttributes {
             get {
-                return this.attributes;
+                return _attributes;
             }
         }
 
@@ -114,7 +114,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public string Name {
             get {
-                return name;
+                return _name;
             }
         }
 
@@ -148,13 +148,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected internal DomElement() {
-            this.name = CheckName(RequireFactoryGeneratedName(GetType()));
-            this.attributes = new DomAttributeCollection(this);
+            _name = CheckName(RequireFactoryGeneratedName(GetType()));
+            _attributes = new DomAttributeCollection(this);
         }
 
         protected internal DomElement(string name) {
-            this.name = CheckName(name);
-            this.attributes = new DomAttributeCollection(this);
+            _name = CheckName(name);
+            _attributes = new DomAttributeCollection(this);
         }
 
         public override DomElementCollection DescendantsAndSelf {
@@ -168,7 +168,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override string NodeName {
             get {
-                return this.name;
+                return _name;
             }
         }
 
@@ -269,18 +269,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return base.UnwrapCore();
         }
 
-        internal override void AcceptVisitor(IDomNodeVisitor visitor) {
-            visitor.Visit(this);
-        }
-
-        internal override TResult AcceptVisitor<TArgument, TResult>(IDomNodeVisitor<TArgument, TResult> visitor, TArgument argument) {
-            return visitor.Visit(this, argument);
-        }
-
         public override DomNodeType NodeType {
-            get { return DomNodeType.Element; }
+            get {
+                return DomNodeType.Element;
+            }
         }
-
     }
 }
 
