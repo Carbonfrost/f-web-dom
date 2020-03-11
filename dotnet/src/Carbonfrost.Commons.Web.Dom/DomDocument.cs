@@ -73,16 +73,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public override DomElementCollection Elements {
-            get {
-                if (DocumentElement == null) {
-                    return DomElementCollection.Empty;
-                }
-
-                return DocumentElement.Elements;
-            }
-        }
-
         public override string NodeName {
             get {
                 return "#document";
@@ -91,9 +81,16 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override string InnerText {
             get {
-                return null;
+                if (DocumentElement == null) {
+                    return null;
+                }
+                return DocumentElement.InnerText;
             }
             set {
+                if (DocumentElement == null) {
+                    throw DomFailure.RequiresDocumentElementToSetInnerText();
+                }
+                DocumentElement.InnerText = value;
             }
         }
 
@@ -214,14 +211,6 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public void Load(XmlReader reader) {
             CoreLoadXml(reader);
-        }
-
-        internal override TResult AcceptVisitor<TArgument, TResult>(IDomNodeVisitor<TArgument, TResult> visitor, TArgument argument) {
-            return visitor.Visit(this, argument);
-        }
-
-        internal override void AcceptVisitor(IDomNodeVisitor visitor) {
-            visitor.Visit(this);
         }
 
         public DomComment CreateComment() {
@@ -372,11 +361,6 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected virtual DomNotation CreateNotationCore(string name) {
             return NodeFactory.CreateNotation(name);
-        }
-
-        public virtual DomElementDefinition GetElementDefinition(string name) {
-            // TODO Relocate this method, gather from infoset
-            return new DomElementDefinition(name);
         }
 
         internal void UpdateElementIndex(string id, DomElement element) {

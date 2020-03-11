@@ -1,13 +1,11 @@
 //
-// - DomProcessingInstruction.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,8 +21,8 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public partial class DomProcessingInstruction : DomNode {
 
-        private readonly string target;
-        private string data;
+        private readonly string _target;
+        private string _data;
 
         protected override DomAttributeCollection DomAttributes {
             get {
@@ -34,16 +32,16 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public string Target {
             get {
-                return target;
+                return _target;
             }
         }
 
         public string Data {
             get {
-                return data ?? string.Empty;
+                return _data ?? string.Empty;
             }
             set {
-                data = (value ?? string.Empty).Trim();
+                _data = (value ?? string.Empty).Trim();
             }
         }
 
@@ -57,16 +55,18 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected internal DomProcessingInstruction() {
-            this.target = RequireFactoryGeneratedName(GetType());
+            _target = RequireFactoryGeneratedName(GetType());
         }
 
         protected internal DomProcessingInstruction(string target) {
-            if (target == null)
-                throw new ArgumentNullException("target");
-            if (string.IsNullOrEmpty(target))
-                throw Failure.EmptyString("target");
+            if (target == null) {
+                throw new ArgumentNullException(nameof(target));
+            }
+            if (string.IsNullOrEmpty(target)) {
+                throw Failure.EmptyString(nameof(target));
+            }
 
-            this.target = target;
+            _target = target;
         }
 
         public override DomNodeType NodeType {
@@ -91,19 +91,27 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string Prefix {
-            get { return null; }
+            get {
+                return null;
+            }
         }
 
         public override string LocalName {
-            get { return null; }
+            get {
+                return null;
+            }
         }
 
         public override string NamespaceUri {
-            get { return null; }
+            get {
+                return null;
+            }
         }
 
         protected override DomNodeCollection DomChildNodes {
-            get { return DomNodeCollection.Empty; }
+            get {
+                return DomNodeCollection.Empty;
+            }
         }
 
         public DomProcessingInstructionDefinition ProcessingInstructionDefinition {
@@ -122,19 +130,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string ToString() {
-            return this.TextContent;
-        }
-
-        internal override void AcceptVisitor(IDomNodeVisitor visitor) {
-            visitor.Visit(this);
+            return Target;
         }
 
         public void AppendData(string data) {
-            this.Data += data;
-        }
-
-        internal override TResult AcceptVisitor<TArgument, TResult>(IDomNodeVisitor<TArgument, TResult> visitor, TArgument argument) {
-            return visitor.Visit(this, argument);
+            Data += data;
         }
     }
 }

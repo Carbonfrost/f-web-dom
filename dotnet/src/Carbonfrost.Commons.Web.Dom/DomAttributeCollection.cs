@@ -25,8 +25,7 @@ namespace Carbonfrost.Commons.Web.Dom {
     public class DomAttributeCollection : IList<DomAttribute>, IDomNodeCollection {
 
         internal static readonly DomAttributeCollection ReadOnly = new DomAttributeCollection(
-            null,
-            new ReadOnlyCollection<DomAttribute>(Array.Empty<DomAttribute>())
+            false
         );
 
         private readonly DomElement _owner;
@@ -45,13 +44,21 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        private DomAttributeCollection(bool dummy) {
+            _items = new ReadOnlyCollection<DomAttribute>(Array.Empty<DomAttribute>());
+            _map = new ReadOnlyDictionary<string, DomAttribute>(new Dictionary<string, DomAttribute>());
+        }
+
         internal DomAttributeCollection(DomElement owner)
             : this(owner, new List<DomAttribute>()) {
         }
 
         private DomAttributeCollection(DomElement owner, IList<DomAttribute> items) {
+            if (owner == null) {
+                throw new ArgumentNullException(nameof(owner));
+            }
             if (items == null) {
-                throw new ArgumentNullException("items");
+                throw new ArgumentNullException(nameof(items));
             }
 
             _owner = owner;
@@ -201,12 +208,13 @@ namespace Carbonfrost.Commons.Web.Dom {
 
             Entering(item);
             _map.Add(item.Name, item);
-            this.Items.Insert(index, item);
+            Items.Insert(index, item);
         }
 
         private void ClearItems() {
-            foreach (var m in Items)
+            foreach (var m in Items) {
                 m.Unlinked();
+            }
 
             _map.Clear();
             _items.Clear();
@@ -224,9 +232,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             var old = Items[index];
             Leaving(old);
             Entering(item);
-            this._map.Add(item.Name, item);
-            this._map.Remove(Items[index].Name);
-            this._items[index] = item;
+            _map.Add(item.Name, item);
+            _map.Remove(Items[index].Name);
+            _items[index] = item;
         }
 
         private void Entering(DomObject item) {

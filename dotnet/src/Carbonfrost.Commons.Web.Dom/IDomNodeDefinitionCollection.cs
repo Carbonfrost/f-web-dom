@@ -21,5 +21,6 @@ namespace Carbonfrost.Commons.Web.Dom {
     interface IDomNodeDefinitionCollection<T> : ICollection<T> where T : DomNodeDefinition {
         T this[string name] { get; }
         T AddNew(string name);
+        bool Contains(string name);
     }
 }

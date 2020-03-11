@@ -1,5 +1,5 @@
 //
-// Copyright 2013, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,12 +17,7 @@
 using System;
 
 namespace Carbonfrost.Commons.Web.Dom {
-
-    public abstract class DomAttribute<TAttribute> : DomAttribute
-        where TAttribute : DomAttribute<TAttribute>
-    {
-
-        protected DomAttribute() : base() {}
-        protected DomAttribute(string name) : base(name) {}
+    interface IPseudoEnum<T> : IEquatable<T>, IComparable<T>, IFormattable, IConvertible where T : struct {
+        int ToInt32();
     }
 }

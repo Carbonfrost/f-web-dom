@@ -50,19 +50,23 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public void Add(DomProcessingInstructionDefinition item) {
-            _items.Add(item);
+            AddItem(item);
         }
 
         public DomProcessingInstructionDefinition AddNew(string name) {
-            return _items.AddNew(name);
+            return AddNewItem(name);
         }
 
         public void Clear() {
-            _items.Clear();
+            ClearItems();
         }
 
         public bool Contains(DomProcessingInstructionDefinition item) {
             return _items.Contains(item);
+        }
+
+        public bool Contains(string name) {
+            return _items.Contains(name);
         }
 
         public void CopyTo(DomProcessingInstructionDefinition[] array, int arrayIndex) {
@@ -74,11 +78,27 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public bool Remove(DomProcessingInstructionDefinition item) {
-            return _items.Remove(item);
+            return RemoveItem(item);
         }
 
         IEnumerator IEnumerable.GetEnumerator() {
             return _items.GetEnumerator();
+        }
+
+        protected virtual void AddItem(DomProcessingInstructionDefinition item) {
+            _items.Add(item);
+        }
+
+        protected virtual DomProcessingInstructionDefinition AddNewItem(string name) {
+            return _items.AddNew(name);
+        }
+
+        protected virtual void ClearItems() {
+            _items.Clear();
+        }
+
+        protected virtual bool RemoveItem(DomProcessingInstructionDefinition item){
+            return _items.Remove(item);
         }
     }
 }

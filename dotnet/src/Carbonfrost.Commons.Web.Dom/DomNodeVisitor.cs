@@ -1,7 +1,5 @@
 //
-// - DomNodeVisitor.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,47 +16,86 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomNodeVisitor : IDomNodeVisitor {
+    public abstract class DomNodeVisitor : IDomNodeVisitor, IDomNodeVisitDispatcher {
 
         public static readonly DomNodeVisitor Null = new NullNodeVisitor();
 
-        protected DomNodeVisitor() {}
+        private readonly IDomNodeVisitDispatcher _dispatcher;
+
+        protected DomNodeVisitor() {
+            _dispatcher = new DomNodeVisitDispatcher(this);
+        }
 
         public static void Visit(DomNode node, Action<DomNode> visitor) {
             if (node == null) {
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
             }
             if (visitor == null) {
-                return;
+                throw new ArgumentNullException(nameof(visitor));
             }
             new ThunkVisitor(visitor).Visit(node);
         }
 
-        public static void Visit(DomObject obj, Action<DomObject> visitor) {
-            if (obj == null) {
-                throw new ArgumentNullException("obj");
+        public static void VisitAll(IEnumerable<DomObject> objs, Action<DomNode> visitor) {
+            if (objs == null) {
+                return;
             }
             if (visitor == null) {
-                return;
+                throw new ArgumentNullException(nameof(visitor));
+            }
+            new ThunkVisitor(visitor).VisitAll(objs);
+        }
+
+        public static void Visit(DomObject obj, Action<DomObject> visitor) {
+            if (obj == null) {
+                throw new ArgumentNullException(nameof(obj));
+            }
+            if (visitor == null) {
+                throw new ArgumentNullException(nameof(visitor));
             }
             new ThunkVisitor(visitor).Visit(obj);
         }
 
-        public virtual void Visit(DomObject obj) {
-            if (obj == null) {
-                throw new ArgumentNullException("obj");
+        public static void VisitAll(IEnumerable<DomObject> objs, Action<DomObject> visitor) {
+            if (objs == null) {
+                return;
             }
-
-            obj.AcceptVisitor(this);
+            if (visitor == null) {
+                throw new ArgumentNullException(nameof(visitor));
+            }
+            new ThunkVisitor(visitor).VisitAll(objs);
         }
 
-        public virtual void Visit(IEnumerable<DomObject> objects) {
+        public static void Visit(DomObject obj, IDomNodeVisitor visitor) {
+            if (obj == null) {
+                throw new ArgumentNullException(nameof(obj));
+            }
+            if (visitor == null) {
+                throw new ArgumentNullException(nameof(visitor));
+            }
+            DomNodeVisitDispatcher.Create(visitor).Dispatch(obj);
+        }
+
+        public static void VisitAll(IEnumerable<DomObject> objs, IDomNodeVisitor visitor) {
+            if (objs == null || visitor == null) {
+                return;
+            }
+            var d = DomNodeVisitDispatcher.Create(visitor);
+            foreach (var obj in objs) {
+                d.Dispatch(obj);
+            }
+        }
+
+        public void Visit(DomObject obj) {
+            ((IDomNodeVisitDispatcher) this).Dispatch(obj);
+        }
+
+        public void VisitAll(IEnumerable<DomObject> objects) {
             if (objects == null) {
-                throw new ArgumentNullException("objects");
+                return;
             }
 
             foreach (var obj in objects) {
@@ -68,95 +105,107 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected virtual void DefaultVisit(DomObject obj) {
             if (obj == null) {
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException(nameof(obj));
             }
 
             if (!obj.IsAttribute) {
-                Visit(((DomNode) obj).ChildNodes);
+                VisitAll(((DomNode) obj).ChildNodes);
             }
         }
 
         protected virtual void VisitElement(DomElement element) {
-            if (element == null)
-                throw new ArgumentNullException("element");
+            if (element == null) {
+                throw new ArgumentNullException(nameof(element));
+            }
 
             DefaultVisit(element);
-            Visit(element.Attributes);
+            VisitAll(element.Attributes);
         }
 
         protected virtual void VisitAttribute(DomAttribute attribute) {
-            if (attribute == null)
-                throw new ArgumentNullException("attribute");
+            if (attribute == null) {
+                throw new ArgumentNullException(nameof(attribute));
+            }
 
             DefaultVisit(attribute);
         }
 
         protected virtual void VisitDocument(DomDocument document) {
-            if (document == null)
-                throw new ArgumentNullException("document");
+            if (document == null) {
+                throw new ArgumentNullException(nameof(document));
+            }
 
             DefaultVisit(document);
         }
 
         protected virtual void VisitCDataSection(DomCDataSection section) {
-            if (section == null)
-                throw new ArgumentNullException("section");
+            if (section == null) {
+                throw new ArgumentNullException(nameof(section));
+            }
 
             DefaultVisit(section);
         }
 
         protected virtual void VisitComment(DomComment comment) {
-            if (comment == null)
-                throw new ArgumentNullException("comment");
+            if (comment == null) {
+                throw new ArgumentNullException(nameof(comment));
+            }
 
             DefaultVisit(comment);
         }
 
         protected virtual void VisitText(DomText text) {
-            if (text == null)
-                throw new ArgumentNullException("text");
+            if (text == null) {
+                throw new ArgumentNullException(nameof(text));
+            }
 
             DefaultVisit(text);
         }
 
         protected virtual void VisitProcessingInstruction(DomProcessingInstruction instruction) {
-            if (instruction == null)
-                throw new ArgumentNullException("instruction");
+            if (instruction == null) {
+                throw new ArgumentNullException(nameof(instruction));
+            }
 
             DefaultVisit(instruction);
         }
 
         protected virtual void VisitNotation(DomNotation notation) {
-            if (notation == null)
-                throw new ArgumentNullException("notation");
+            if (notation == null) {
+                throw new ArgumentNullException(nameof(notation));
+            }
 
             DefaultVisit(notation);
         }
 
         protected virtual void VisitDocumentType(DomDocumentType documentType) {
-            if (documentType == null)
-                throw new ArgumentNullException("documentType");
+            if (documentType == null) {
+                throw new ArgumentNullException(nameof(documentType));
+            }
 
             DefaultVisit(documentType);
         }
 
         protected virtual void VisitDocumentFragment(DomDocumentFragment fragment) {
-            if (fragment == null)
-                throw new ArgumentNullException("fragment");
+            if (fragment == null) {
+                throw new ArgumentNullException(nameof(fragment));
+            }
 
             DefaultVisit(fragment);
         }
 
         protected virtual void VisitEntityReference(DomEntityReference reference) {
-            if (reference == null)
-                throw new ArgumentNullException("reference");
+            if (reference == null) {
+                throw new ArgumentNullException(nameof(reference));
+            }
 
             DefaultVisit(reference);
         }
 
         protected virtual void VisitEntity(DomEntity entity) {
-            if (entity == null)
-                throw new ArgumentNullException("entity");
+            if (entity == null) {
+                throw new ArgumentNullException(nameof(entity));
+            }
 
             DefaultVisit(entity);
         }
@@ -207,6 +256,10 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         void IDomNodeVisitor.Visit(DomDocumentFragment fragment) {
             VisitDocumentFragment(fragment);
+        }
+
+        void IDomNodeVisitDispatcher.Dispatch(DomObject obj) {
+            _dispatcher.Dispatch(obj);
         }
 
         sealed class ThunkVisitor : DomNodeVisitor {

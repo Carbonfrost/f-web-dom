@@ -380,9 +380,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             _siblingsContent = unlinked;
         }
 
-        internal abstract void AcceptVisitor(IDomNodeVisitor visitor);
-        internal abstract TResult AcceptVisitor<TArgument, TResult>(IDomNodeVisitor<TArgument, TResult> visitor, TArgument argument);
-
         public DomObject Remove() {
             return RemoveSelf();
         }

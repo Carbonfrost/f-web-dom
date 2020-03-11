@@ -16,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
@@ -77,7 +76,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             // Invoke MoveNext() first so that we always check whether the
             // underlying enumerator was concurrently modified (even if this
             // causes more items to be cached than necessary)
-            while (MoveNext() && this.Count <= index) {
+            while (MoveNext() && cache.Count <= index) {
             }
         }
 

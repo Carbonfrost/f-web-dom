@@ -35,7 +35,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
 
             StartTag(element);
-            Visit(element.ChildNodes);
+            VisitAll(element.ChildNodes);
             EndTag(element);
         }
 
@@ -75,7 +75,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (document == null) {
                 throw new ArgumentNullException(nameof(document));
             }
-            Visit(document.ChildNodes);
+            VisitAll(document.ChildNodes);
         }
 
         protected override void VisitCDataSection(DomCDataSection section) {

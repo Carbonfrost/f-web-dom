@@ -31,14 +31,14 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (element == null) {
                 throw new ArgumentNullException(nameof(element));
             }
-            Visit(element.ChildNodes);
+            VisitAll(element.ChildNodes);
         }
 
         protected override void VisitDocument(DomDocument document) {
             if (document == null) {
                 throw new ArgumentNullException(nameof(document));
             }
-            Visit(document.ChildNodes);
+            VisitAll(document.ChildNodes);
         }
 
         protected override void VisitText(DomText text) {

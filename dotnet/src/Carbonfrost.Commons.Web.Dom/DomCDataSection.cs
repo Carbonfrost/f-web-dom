@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using System.Text.RegularExpressions;
 
 namespace Carbonfrost.Commons.Web.Dom {
@@ -37,13 +36,15 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override DomNodeType NodeType {
-            get { return DomNodeType.CDataSection; } }
+            get {
+                return DomNodeType.CDataSection;
+            }
+        }
 
         public override string NodeName {
-            get { return "#cdata-section"; } }
-
-        internal override void AcceptVisitor(IDomNodeVisitor visitor) {
-            visitor.Visit(this);
+            get {
+                return "#cdata-section";
+            }
         }
 
         public new DomCDataSection SplitText(int index) {
@@ -56,10 +57,6 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public new DomCDataSection SplitText(Regex pattern) {
             return (DomCDataSection) base.SplitText(pattern);
-        }
-
-        internal override TResult AcceptVisitor<TArgument, TResult>(IDomNodeVisitor<TArgument, TResult> visitor, TArgument argument) {
-            return visitor.Visit(this, argument);
         }
     }
 }

@@ -161,6 +161,13 @@ namespace Carbonfrost.Commons.Web.Dom.Resources {
         return string.Format(Culture, ResourceFinder("ParentNodeRequired") );
     }
 
+  /// <summary>Document has no root element to set inner text.</summary>
+    internal static string RequiresDocumentElementToSetInnerText(
+    
+    ) {
+        return string.Format(Culture, ResourceFinder("RequiresDocumentElementToSetInnerText") );
+    }
+
   /// <summary>Processing instruction target can be the empty string or contain whitespace characters.</summary>
     internal static string TargetCannotBeAllWhitepace(
     

@@ -271,6 +271,17 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void Append_to_element_should_reparent_attribute() {
+            var root = new DomDocument().AppendElement("html");
+            var head = root.AppendElement("head");
+            var body = root.AppendElement("body");
+            var attr = head.AppendAttribute("lang", "fr");
+
+            body.Append(attr);
+            Assert.Equal("<html><head></head><body lang=\"fr\"></body></html>", root.OuterXml);
+        }
+
+        [Fact]
         public void ParentElement_should_be_null_for_root() {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html");
