@@ -61,6 +61,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public override string OuterXml {
+            get {
+                return base.OuterXml;
+            }
+            set {
+                throw DomFailure.CannotReplaceDocument();
+            }
+        }
+
         internal override DomDocument OwnerDocumentOrSelf {
             get {
                 return this;

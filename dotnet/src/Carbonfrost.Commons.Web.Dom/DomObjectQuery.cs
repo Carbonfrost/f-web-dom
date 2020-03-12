@@ -34,6 +34,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public int Count {
+            get {
+                return _nodes.Count;
+            }
+        }
+
         public DomObjectQuery() {}
 
         public DomObjectQuery(IEnumerable<DomNode> nodes) {

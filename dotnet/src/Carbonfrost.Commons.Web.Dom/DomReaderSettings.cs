@@ -1,13 +1,11 @@
 //
-// - DomNodeReaderSettings.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,15 +22,40 @@ namespace Carbonfrost.Commons.Web.Dom {
     public class DomReaderSettings {
 
         public static readonly DomReaderSettings Empty;
+        private int _maxErrors = -1;
 
-        public bool IsReadOnly { get; private set; }
+        public int MaxErrors {
+            get {
+                return _maxErrors;
+            }
+            set {
+                ThrowIfReadOnly();
+                _maxErrors = value;
+            }
+        }
+
+        public bool IsReadOnly {
+            get;
+            private set;
+        }
 
         static DomReaderSettings() {
-            Empty = new DomReaderSettings();
-            Empty.MakeReadOnly();
+            Empty = ReadOnly(new DomReaderSettings());
         }
 
         protected DomReaderSettings() {}
+
+        public static DomReaderSettings ReadOnly(DomReaderSettings settings) {
+            if (settings == null) {
+                throw new ArgumentNullException(nameof(settings));
+            }
+            if (settings.IsReadOnly) {
+                return settings;
+            }
+            var s = settings.CloneReadOnly();
+            s.IsReadOnly = true;
+            return s;
+        }
 
         public DomReaderSettings Clone() {
             return CloneCore();
@@ -42,13 +65,16 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomReaderSettings) MemberwiseClone();
         }
 
-        protected void ThrowIfReadOnly() {
-            if (this.IsReadOnly)
-                throw Failure.Sealed();
+        protected virtual DomReaderSettings CloneReadOnly() {
+            var result = CloneCore();
+            result.IsReadOnly = true;
+            return result;
         }
 
-        public void MakeReadOnly() {
-            this.IsReadOnly = true;
+        protected void ThrowIfReadOnly() {
+            if (IsReadOnly) {
+                throw Failure.Sealed();
+            }
         }
     }
 }

@@ -16,56 +16,123 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Xml;
 using Carbonfrost.Commons.Core;
+using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
     public abstract class DomWriter : DisposableObject, IDomNodeVisitor {
 
+        public DomWriterSettings WriterSettings {
+            get {
+                return DomWriterSettings;
+            }
+        }
+
+        protected DomWriterSettings DomWriterSettings {
+            get;
+            private set;
+        }
+
+        protected DomWriter(DomWriterSettings writerSettings) {
+            DomWriterSettings = writerSettings ?? DomWriterSettings.Empty;
+        }
+
+        protected DomWriter() : this(null) {
+        }
+
+        public static DomWriter Create(TextWriter writer, DomWriterSettings settings) {
+            if (writer == null) {
+                throw new ArgumentNullException(nameof(writer));
+            }
+            if (settings == null) {
+                return Create(XmlWriter.Create(writer));
+            }
+
+            var pro = DomProviderFactory.ForProviderObject(settings) ?? DomProviderFactory.Default;
+            return pro.CreateWriter(writer, settings);
+        }
+
+        public static DomWriter Create(XmlWriter writer) {
+            if (writer == null) {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            return new XmlDomWriter(writer);
+        }
+
+        public static DomWriter Create(StreamContext output) {
+            return Create(output, null);
+        }
+
+        public static DomWriter Create(string outputUri) {
+            return Create(outputUri, null);
+        }
+
+        public static DomWriter Create(StreamContext output, DomWriterSettings settings) {
+            if (output == null) {
+                throw new ArgumentNullException(nameof(output));
+            }
+            var provider = DomProviderFactory.ForFileName(settings, Utility.LocalPath(output.Uri));
+            return provider.CreateWriter(output.AppendText(), settings);
+        }
+
+        public static DomWriter Create(string fileName, DomWriterSettings settings) {
+            if (fileName == null) {
+                throw new ArgumentNullException(nameof(fileName));
+            }
+            return Create(StreamContext.FromFile(fileName), settings);
+        }
+
         public void Close() {
             Dispose(true);
         }
 
-        public void Write(IEnumerable<DomObject> nodes) {
-            if (nodes == null)
-                throw new ArgumentNullException("nodes");
+        public void Write(IEnumerable<DomObject> objs) {
+            if (objs == null) {
+                throw new ArgumentNullException(nameof(objs));
+            }
 
-            Visit(nodes);
+            Visit(objs);
         }
 
-        public void Write(DomObject node) {
-            if (node == null)
-                throw new ArgumentNullException("node");
+        public void Write(DomObject obj) {
+            if (obj == null) {
+                throw new ArgumentNullException(nameof(obj));
+            }
 
-            DomNodeVisitor.Visit(node, this);
+            DomNodeVisitor.Visit(obj, this);
         }
 
-        public abstract void WriteStartElement(string name, string namespaceUri);
-        public abstract void WriteStartAttribute(string name, string namespaceUri);
-        public abstract void WriteEndAttribute();
+        public virtual void WriteStartElement(string name, string namespaceUri) {}
+        public virtual void WriteStartAttribute(string name, string namespaceUri) {}
+        public virtual void WriteEndAttribute() {}
 
-        public abstract void WriteValue(string value);
+        public virtual void WriteValue(string value) {}
 
-        public abstract void WriteEndDocument();
+        public virtual void WriteEndDocument() {}
 
-        public abstract void WriteDocumentType(string name, string publicId, string systemId);
+        public virtual void WriteDocumentType(string name, string publicId, string systemId) {}
 
-        public abstract void WriteEntityReference(string name);
-        public abstract void WriteProcessingInstruction(string target, string data);
+        public virtual void WriteEntityReference(string name) {}
+        public virtual void WriteProcessingInstruction(string target, string data) {}
 
-        public abstract void WriteNotation();
+        public virtual void WriteNotation() {}
 
-        public abstract void WriteComment(string data);
-        public abstract void WriteCDataSection(string data);
-        public abstract void WriteText(string data);
+        public virtual void WriteComment(string data) {}
+        public virtual void WriteCDataSection(string data) {}
+        public virtual void WriteText(string data) {}
 
-        public abstract void WriteStartDocument();
+        public virtual void WriteStartDocument() {}
 
-        public abstract void WriteEndElement();
+        public virtual void WriteEndElement() {}
 
-        public virtual void WriteElement(DomElement element) {
-            if (element == null)
-                throw new ArgumentNullException("element");
+        protected virtual void WriteElement(DomElement element) {
+            if (element == null) {
+                throw new ArgumentNullException(nameof(element));
+            }
 
             WriteStartElement(element.Name, element.NamespaceUri);
             Visit(element.Attributes);
@@ -73,18 +140,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             WriteEndElement();
         }
 
-        public virtual void WriteAttribute(DomAttribute attribute) {
-            if (attribute == null)
-                throw new ArgumentNullException("attribute");
+        protected virtual void WriteAttribute(DomAttribute attribute) {
+            if (attribute == null) {
+                throw new ArgumentNullException(nameof(attribute));
+            }
 
             WriteStartAttribute(attribute.Name, attribute.NamespaceUri);
             WriteValue(attribute.Value);
             WriteEndAttribute();
         }
 
-        public virtual void WriteDocument(DomDocument document) {
-            if (document == null)
-                throw new ArgumentNullException("document");
+        protected virtual void WriteDocument(DomDocument document) {
+            if (document == null) {
+                throw new ArgumentNullException(nameof(document));
+            }
 
             // Don't generate an empty document
             if (document.ChildNodes.Count == 0) {
@@ -95,66 +164,74 @@ namespace Carbonfrost.Commons.Web.Dom {
             WriteEndDocument();
         }
 
-        public virtual void WriteCDataSection(DomCDataSection section) {
-            if (section == null)
-                throw new ArgumentNullException("section");
+        protected virtual void WriteCDataSection(DomCDataSection section) {
+            if (section == null) {
+                throw new ArgumentNullException(nameof(section));
+            }
 
             WriteCDataSection(section.Data);
         }
 
-        public virtual void WriteComment(DomComment comment) {
-            if (comment == null)
-                throw new ArgumentNullException("comment");
+        protected virtual void WriteComment(DomComment comment) {
+            if (comment == null) {
+                throw new ArgumentNullException(nameof(comment));
+            }
 
             WriteComment(comment.Data);
         }
 
-        public virtual void WriteText(DomText text) {
-            if (text == null)
-                throw new ArgumentNullException("text");
+        protected virtual void WriteText(DomText text) {
+            if (text == null) {
+                throw new ArgumentNullException(nameof(text));
+            }
 
             WriteText(text.Data);
         }
 
-        public virtual void WriteProcessingInstruction(DomProcessingInstruction instruction) {
-            if (instruction == null)
-                throw new ArgumentNullException("instruction");
+        protected virtual void WriteProcessingInstruction(DomProcessingInstruction instruction) {
+            if (instruction == null) {
+                throw new ArgumentNullException(nameof(instruction));
+            }
 
             WriteProcessingInstruction(instruction.Target, instruction.Data);
         }
 
-        public virtual void WriteNotation(DomNotation notation) {
-            if (notation == null)
-                throw new ArgumentNullException("notation");
+        protected virtual void WriteNotation(DomNotation notation) {
+            if (notation == null) {
+                throw new ArgumentNullException(nameof(notation));
+            }
 
             // TODO Overloads for writing notations
         }
 
-        public virtual void WriteDocumentType(DomDocumentType documentType) {
-            if (documentType == null)
-                throw new ArgumentNullException("documentType");
+        protected virtual void WriteDocumentType(DomDocumentType documentType) {
+            if (documentType == null) {
+                throw new ArgumentNullException(nameof(documentType));
+            }
 
             WriteDocumentType(documentType.Name, documentType.PublicId, documentType.SystemId);
         }
 
-        public virtual void WriteEntityReference(DomEntityReference entityReference) {
-            if (entityReference == null)
-                throw new ArgumentNullException("entityReference");
+        protected virtual void WriteEntityReference(DomEntityReference entityReference) {
+            if (entityReference == null) {
+                throw new ArgumentNullException(nameof(entityReference));
+            }
 
             WriteEntityReference(entityReference.Data);
         }
 
-
-        public virtual void WriteEntity(DomEntity entity) {
-            if (entity == null)
-                throw new ArgumentNullException("entity");
+        protected virtual void WriteEntity(DomEntity entity) {
+            if (entity == null) {
+                throw new ArgumentNullException(nameof(entity));
+            }
 
             // TODO Overloads for writing entities
         }
 
-        public virtual void WriteDocumentFragment(DomDocumentFragment fragment) {
-            if (fragment == null)
-                throw new ArgumentNullException("fragment");
+        protected virtual void WriteDocumentFragment(DomDocumentFragment fragment) {
+            if (fragment == null) {
+                throw new ArgumentNullException(nameof(fragment));
+            }
 
             Visit(fragment.ChildNodes);
         }

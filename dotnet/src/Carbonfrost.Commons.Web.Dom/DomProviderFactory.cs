@@ -19,6 +19,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
+using Carbonfrost.Commons.Core;
 using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
@@ -26,6 +28,7 @@ namespace Carbonfrost.Commons.Web.Dom {
     [Providers]
     public abstract class DomProviderFactory : IDomDocumentFactory {
 
+        [DomProviderFactoryUsage(Extensions = ".xml")]
         public static readonly DomProviderFactory Default
             = new DefaultDomProviderFactory();
 
@@ -51,6 +54,8 @@ namespace Carbonfrost.Commons.Web.Dom {
 
             typeof(DomWriter),
             typeof(DomReader),
+            typeof(DomWriterSettings),
+            typeof(DomReaderSettings),
 
             typeof(DomSelector),
             typeof(CssSelector),
@@ -68,9 +73,30 @@ namespace Carbonfrost.Commons.Web.Dom {
             return App.GetProvider<DomProviderFactory>(name);
         }
 
+        public static DomProviderFactory FromCriteria(object criteria) {
+            return App.GetProvider<DomProviderFactory>(criteria);
+        }
+
+        internal static DomProviderFactory ForFileName(object settings, string fileName) {
+            if (string.IsNullOrEmpty(fileName)) {
+                throw Failure.NullOrEmptyString(nameof(fileName));
+            }
+
+            var result = (settings != null ? DomProviderFactory.ForProviderObject(settings) : null);
+            var fromCriteria = FromCriteria(new {
+                Extension = Path.GetExtension(fileName)
+            });
+
+            // If the one from criteria is more specific, prefer it
+            if (result is DefaultDomProviderFactory) {
+                return fromCriteria ?? result;
+            }
+            return result ?? fromCriteria ?? Default;
+        }
+
         public static DomProviderFactory ForProviderObject(object instance) {
             if (instance == null) {
-                throw new ArgumentNullException("instance");
+                throw new ArgumentNullException(nameof(instance));
             }
 
             var e = GetProvidersByLikelihood(instance.GetType());
@@ -79,7 +105,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public virtual bool IsProviderObject(Type providerObjectType) {
             if (providerObjectType == null) {
-                throw new ArgumentNullException("providerObjectType");
+                throw new ArgumentNullException(nameof(providerObjectType));
             }
 
             return ConsideredProviderObject(providerObjectType) && providerObjectType.GetTypeInfo().Assembly == GetType().GetTypeInfo().Assembly;
@@ -103,7 +129,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public bool IsProviderObject(object providerObject) {
             if (providerObject == null) {
-                throw new ArgumentNullException("providerObject");
+                throw new ArgumentNullException(nameof(providerObject));
             }
 
             return IsProviderObject(providerObject.GetType());
@@ -111,7 +137,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public static DomProviderFactory ForProviderObject(Type providerObjectType) {
             if (providerObjectType == null) {
-                throw new ArgumentNullException("providerObjectType");
+                throw new ArgumentNullException(nameof(providerObjectType));
             }
 
             var e = GetProvidersByLikelihood(providerObjectType);
@@ -143,6 +169,22 @@ namespace Carbonfrost.Commons.Web.Dom {
             return new DomNodeFactory(nodeTypeProvider);
         }
 
+        public DomWriter CreateWriter(TextWriter writer) {
+            return CreateWriter(writer, null);
+        }
+
+        public DomWriter CreateWriter(TextWriter writer, DomWriterSettings settings) {
+            if (writer == null) {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            return CreateDomWriter(writer, settings);
+        }
+
+        protected virtual DomWriter CreateDomWriter(TextWriter textWriter, DomWriterSettings settings) {
+            return new XmlDomWriter(XmlWriter.Create(textWriter));
+        }
+
         public DomNodeWriter CreateWriter(DomNode node, DomNodeWriterSettings settings) {
             return CreateDomWriter(node);
         }
@@ -153,7 +195,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected virtual DomNodeWriter CreateDomWriter(DomNode node) {
             if (node == null) {
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
             }
 
             return new DomNodeWriter(node);
@@ -161,7 +203,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected virtual DomNodeReader CreateDomReader(DomNode node) {
             if (node == null) {
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
             }
 
             return new DomNodeReader(node, null);
@@ -181,14 +223,14 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomReader CreateReader(TextReader reader, DomReaderSettings settings) {
             if (reader == null) {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
 
             return CreateDomReader(reader, settings);
         }
 
         protected virtual DomReader CreateDomReader(TextReader reader, DomReaderSettings settings) {
-            return DomReader.CreateXml(reader);
+            return DomReader.Create(XmlReader.Create(reader));
         }
 
         public DomSelector CreateSelector(string selector) {

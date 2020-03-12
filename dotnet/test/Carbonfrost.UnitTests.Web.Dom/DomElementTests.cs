@@ -77,7 +77,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void ToString_domelement() {
+        public void ToXmlString_domelement() {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html");
             var body = html.AppendElement("body");
@@ -87,7 +87,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             body.Attribute("class", "hl");
             body.AppendText("Hello, world!");
             string htmlText = "<html lang=\"en\" data-cast=\"true\"><body dir=\"ltr\" class=\"hl\">Hello, world!</body></html>";
-            Assert.Equal(htmlText, html.ToString());
+            Assert.Equal(htmlText, html.ToXmlString());
         }
 
         [Fact]
@@ -106,7 +106,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html");
             html.InnerXml = "<head> <title /> </head> <body c=\"f\"> </body>";
-            Assert.Equal("<html><head> <title /> </head> <body c=\"f\"> </body></html>", doc.ToXml());
+            Assert.Equal("<html><head> <title /> </head> <body c=\"f\"> </body></html>", doc.ToXmlString());
         }
 
         [Fact]
@@ -132,7 +132,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var h3 = doc.CreateElement("h3");
 
             var result = h1.ReplaceWith(h3, doc.CreateElement("h4"), doc.CreateElement("h5"));
-            Assert.Equal("<html><body><h3 /><h4 /><h5 /></body></html>", doc.ToXml());
+            Assert.Equal("<html><body><h3 /><h4 /><h5 /></body></html>", doc.ToXmlString());
             Assert.Same(h3, result);
         }
 
@@ -278,7 +278,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var attr = head.AppendAttribute("lang", "fr");
 
             body.Append(attr);
-            Assert.Equal("<html><head></head><body lang=\"fr\"></body></html>", root.OuterXml);
+            Assert.Equal("<html><head/><body lang=\"fr\"/></html>", root.OuterXml);
         }
 
         [Fact]
@@ -369,7 +369,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             e.AppendElement("v");
 
             e.Unwrap();
-            Assert.Equal("<m><u /><v /></m>", doc.ToXml());
+            Assert.Equal("<m><u /><v /></m>", doc.ToXmlString());
         }
 
         [Fact]
@@ -379,7 +379,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
                 .Attribute("t", "t");
 
             e.RemoveAttributes();
-            Assert.Equal("<m />", doc.ToXml());
+            Assert.Equal("<m />", doc.ToXmlString());
         }
 
         [Fact]
@@ -419,7 +419,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             doc.LoadXml("<html> <div> <s /> </div> </html>");
 
             var elem = doc.DocumentElement.FirstChild.Wrap("body");
-            Assert.Equal("<html> <body><div> <s /> </div></body> </html>", doc.ToXml());
+            Assert.Equal("<html> <body><div> <s /> </div></body> </html>", doc.ToXmlString());
             Assert.Equal("body", elem.Name);
             Assert.Equal(doc.DocumentElement.FirstChild, elem);
         }
@@ -431,7 +431,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             doc.LoadXml("<html> <title> <s /> </title> </html>");
 
             var elem = doc.DocumentElement.FirstChild.Wrap(head);
-            Assert.Equal("<html> <head profile=\"s\"><title> <s /> </title></head> </html>", doc.ToXml());
+            Assert.Equal("<html> <head profile=\"s\"><title> <s /> </title></head> </html>", doc.ToXmlString());
             Assert.Same(elem, head);
         }
 
@@ -442,7 +442,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var head = title.Wrap("head");
 
             Assert.Equal("head", head.Name);
-            Assert.Equal("<head><title /></head>", head.ToXml());
+            Assert.Equal("<head><title /></head>", head.ToXmlString());
         }
 
         [Fact]

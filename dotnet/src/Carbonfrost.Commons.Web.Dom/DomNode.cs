@@ -196,13 +196,18 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public virtual string OuterText {
             get {
-                return new OuterTextVisitor().ConvertToString(this);
+                return OuterTextWriter.ConvertToString(this);
             }
         }
 
         public virtual string OuterXml {
             get {
                 return new OuterXmlVisitor().ConvertToString(this);
+            }
+            set {
+                var frag = OwnerDocument.CreateDocumentFragment();
+                frag.LoadXml(value);
+                ReplaceWith(frag.ChildNodes);
             }
         }
 

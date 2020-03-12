@@ -33,8 +33,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (element == null) {
                 throw new ArgumentNullException(nameof(element));
             }
+            if (element.ChildNodes.Count == 0) {
+                StartTag(element, true);
+                return;
+            }
 
-            StartTag(element);
+            StartTag(element, false);
             VisitAll(element.ChildNodes);
             EndTag(element);
         }
@@ -45,9 +49,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             _sb.Append(">");
         }
 
-        private void StartTag(DomElement element) {
-            // TODO Respect Tag's rules for how to encapsulate SGML notation
-            // element.Tag
+        private void StartTag(DomElement element, bool close) {
             _sb.Append("<");
             _sb.Append(element.Name);
 
@@ -56,7 +58,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
 
             Visit(element.Attributes, " ");
-            _sb.Append(">");
+            _sb.Append(close ? "/>" : ">");
         }
 
         protected override void VisitAttribute(DomAttribute attribute) {

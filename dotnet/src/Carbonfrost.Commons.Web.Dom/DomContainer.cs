@@ -73,7 +73,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override string InnerText {
             get {
-                return new OuterTextVisitor().ConvertToString(ChildNodes);
+                return OuterTextWriter.ConvertToString(ChildNodes);
             }
             set {
                 Empty();
@@ -257,7 +257,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string ToString() {
-            return ToXml();
+            return NodeName;
         }
 
         internal virtual void AssertCanAppend(DomNode node, DomNode willReplace) {

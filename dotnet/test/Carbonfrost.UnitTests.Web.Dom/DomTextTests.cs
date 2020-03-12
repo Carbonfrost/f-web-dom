@@ -65,7 +65,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var head = doc.CreateElement("head");
             var result = html.ReplaceWith(head);
 
-            Assert.Equal("<head />", doc.ToXml());
+            Assert.Equal("<head />", doc.ToXmlString());
             Assert.Same(head, result);
         }
 

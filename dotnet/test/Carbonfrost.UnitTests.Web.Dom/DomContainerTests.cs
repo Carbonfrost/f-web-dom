@@ -44,5 +44,17 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var doc = new DomDocument();
             Assert.Throws<ArgumentException>(() => doc.AppendElement(" s"));
         }
+
+        [Fact]
+        public void OuterXml_set_should_replace_content() {
+            var doc = new DomDocument();
+            var ele = doc.AppendElement("w");
+            string xml = "<html><head/><body/></html>";;
+            ele.OuterXml = xml;
+
+            Assert.Equal("html", doc.DocumentElement.NodeName);
+            Assert.Equal(xml, doc.OuterXml);
+            Assert.True(ele.IsUnlinked);
+        }
     }
 }

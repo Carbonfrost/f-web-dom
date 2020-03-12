@@ -1,11 +1,11 @@
 //
-// Copyright 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,17 +15,27 @@
 //
 
 using System;
-using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using Carbonfrost.Commons.Core.Runtime;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
 namespace Carbonfrost.UnitTests.Web.Dom {
 
-    [DomProviderFactoryUsage]
+    [DomProviderFactoryUsage(Extensions = ".custom")]
     public class CustomDomProviderFactory : DomProviderFactory {
 
         public override string GenerateDefaultName(Type providerObjectType) {
             return "hey:" + providerObjectType.Name;
+        }
+
+        protected override DomWriter CreateDomWriter(TextWriter textWriter, DomWriterSettings settings) {
+            return new CustomWriter();
+        }
+
+        protected override DomReader CreateDomReader(TextReader textReader, DomReaderSettings settings) {
+            return new CustomReader();
         }
 
         public override bool IsProviderObject(Type providerObjectType) {
@@ -34,6 +44,35 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             return providerObjectType == typeof(CustomAttribute);
         }
 
+    }
+
+    class CustomWriter : DomWriter {}
+    class CustomReader : DomReader {
+        public override DomNodeType NodeType { get; }
+        public override string Name { get; }
+        public override string NamespaceUri { get; }
+        public override string Value { get; }
+        public override int AttributeCount { get; }
+        public override string BaseUri { get; }
+        public override int Depth { get; }
+        public override bool EOF { get; }
+        public override bool HasValue { get; }
+        public override bool IsEmptyElement { get; }
+        public override string LocalName { get; }
+        public override string Prefix { get; }
+        public override DomReadState ReadState { get; }
+
+        public override string GetAttribute(string name, string namespaceUri) {
+            throw new NotImplementedException();
+        }
+
+        public override string GetAttribute(string name) {
+            throw new NotImplementedException();
+        }
+
+        public override string GetAttribute(int index) {
+            throw new NotImplementedException();
+        }
     }
 
     public class CustomAttribute : DomAttribute<CustomAttribute> {
@@ -63,9 +102,48 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         public void Constructor_for_unknown_should_cause_error() {
             var ex = Record.Exception(() => new UnknownCustomAttribute());
             Assert.NotNull(ex);
-            // Assert.IsAssignableFrom<ArgumentException>(ex);
         }
 
-    }
+        [Fact]
+        public void DomWriter_Create_should_create_writer_for_custom_file_name() {
+            Assert.IsInstanceOf<CustomWriter>(
+                DomWriter.Create(new FSStreamContext(new Uri("hello.custom", UriKind.Relative)), DomWriterSettings.Empty)
+            );
+        }
 
+        [Fact]
+        public void DomReader_Create_should_create_reader_for_custom_file_name() {
+            Assert.IsInstanceOf<CustomReader>(
+                DomReader.Create(new FSStreamContext(new Uri("hello.custom", UriKind.Relative)), DomReaderSettings.Empty)
+            );
+        }
+
+        // TODO This is a workaround for f-core not supporting AppendText correctly
+
+        class FSStreamContext : StreamContext {
+            private readonly Uri _uri;
+
+            public FSStreamContext(Uri uri) {
+                _uri = uri;
+            }
+
+            public override Uri Uri {
+                get {
+                    return _uri;
+                }
+            }
+
+            public override StreamContext ChangePath(string relativePath) {
+                throw new NotImplementedException();
+            }
+
+            public override Stream Open() {
+                return Stream.Null;
+            }
+
+            public override StreamWriter AppendText(Encoding encoding) {
+                return StreamWriter.Null;
+            }
+        }
+    }
 }

@@ -40,7 +40,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             doc.Select("body").SetName("head");
 
             Assert.Equal("<html> <head a=\"false\"> <s /> <b /> </head> </html>",
-                doc.ToXml());
+                doc.ToXmlString());
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             doc.Select("s").Remove();
 
             Assert.Equal("<html> <body /> </html>",
-                doc.ToXml());
+                doc.ToXmlString());
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             doc.LoadXml(xml);
             doc.QuerySelectorAll("dl").QuerySelectorAll("> dd").Unwrap();
             Assert.Equal("<section>\n<dl>\n<dl />\n<dl />\n</dl>\n</section>",
-                doc.CompressWhitespace().ToXml());
+                doc.CompressWhitespace().ToXmlString());
         }
 
         public IEnumerable<PropertyInfo> DomNodeProperties {

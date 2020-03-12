@@ -74,6 +74,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        internal static string LocalPath(Uri uri) {
+            if (uri.IsAbsoluteUri) {
+                return uri.LocalPath;
+            }
+            return uri.ToString();
+        }
+
         public static T OptimalComposite<T>(IEnumerable<T> items, Func<T[], T> compositeFactory, T nullInstance)
             where T : class
         {

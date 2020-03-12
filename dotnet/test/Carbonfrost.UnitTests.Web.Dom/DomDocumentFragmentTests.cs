@@ -53,8 +53,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             var doc = new DomDocument();
             doc.AppendElement("html").Append(frag);
-            Assert.Equal("<html><a /> <b /> <c /></html>", doc.ToXml());
-            Assert.Equal("", frag.ToXml());
+            Assert.Equal("<html><a /> <b /> <c /></html>", doc.ToXmlString());
+            Assert.Equal("", frag.ToXmlString());
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var frag = doc.CreateDocumentFragment();
             doc.QuerySelectorAll("html > *").Wrap(frag);
 
-            Assert.Equal("<html>    </html>", doc.ToXml());
+            Assert.Equal("<html>    </html>", doc.ToXmlString());
         }
 
     }

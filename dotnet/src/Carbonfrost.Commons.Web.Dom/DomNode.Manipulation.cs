@@ -178,11 +178,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return this;
         }
 
-        public DomNode Append(string text) {
-            if (string.IsNullOrEmpty(text))
+        public DomNode Append(string markup) {
+            if (string.IsNullOrEmpty(markup))
                 return this;
 
-            using (var stringReader = new StringReader(text)) {
+            using (var stringReader = new StringReader(markup)) {
                 using (DomReader reader = this.OwnerDocument.ProviderFactory.CreateReader(stringReader)) {
 
                     var writer = this.OwnerDocument.ProviderFactory.CreateWriter(this, null);

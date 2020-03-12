@@ -171,6 +171,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public bool IsUnlinked {
+            get {
+                if (OwnerDocument == null) {
+                    return true;
+                }
+                return OwnerDocument.UnlinkedNodes.Contains(this);
+            }
+        }
+
         public int LinePosition {
             get {
                 if (OwnerDocument == null) {
