@@ -1,10 +1,10 @@
 case: Unwrapping a node
 input: >
     <div>
-        <section>
+        <target>
             <div class="a"> </div>
             <div class="b"> </div>
-        </section>
+        </target>
     </div>
 output: >
     <div>
@@ -15,10 +15,10 @@ output: >
 ---
 case: Unwrapping root node
 input: >
-    <section>
+    <target>
         <div class="a"> </div>
         <div class="b"> </div>
-    </section>
+    </target>
 output: >
     <div class="a"> </div>
     <div class="b"> </div>
@@ -27,7 +27,7 @@ output: >
 case: Unwrapping empty node
 input: >
     <div>
-        <section />
+        <target />
     </div>
 output: >
     <div>

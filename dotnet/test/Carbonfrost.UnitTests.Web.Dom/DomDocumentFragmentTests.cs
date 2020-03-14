@@ -65,6 +65,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             doc.QuerySelectorAll("html > *").Wrap(frag);
 
             Assert.Equal("<html>    </html>", doc.ToXmlString());
+            Assert.Equal("<a /><b /><c />", frag.ToXmlString());
         }
 
     }

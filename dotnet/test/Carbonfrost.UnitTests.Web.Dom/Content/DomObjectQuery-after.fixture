@@ -1,0 +1,13 @@
+case: After a node
+with: >
+    <a />
+input: >
+    <div>
+        <target />
+        <target />
+    </div>
+output: >
+    <div>
+        <target /><a />
+        <target /><a />
+    </div>

@@ -23,7 +23,7 @@ using Carbonfrost.Commons.Core.Runtime.Expressions;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomObject {
+    public abstract class DomObject  {
 
         private AnnotationList _annotations = AnnotationList.Empty;
         private IDomNodeCollection _siblingsContent;

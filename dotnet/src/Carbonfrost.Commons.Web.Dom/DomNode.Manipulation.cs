@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,11 +18,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    partial class DomNode : IDomNodeManipulation<DomNode>, IDomNodeAppendApiConventions, IDomNodeQuery<DomNode> {
+    partial class DomNode
+        : IDomNodeManipulation<DomNode>,
+          IDomNodeQuery<DomNode>,
+          IDomNodeAppendApiConventions {
 
         internal virtual DomDocument OwnerDocumentOrSelf {
             get {
@@ -74,10 +76,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            if (this.ParentNode == null)
-                throw DomFailure.ParentNodeRequired();
-
-            this.ParentNode.ChildNodes.Insert(this.NodePosition, node);
+            RequireParent().ChildNodes.Insert(this.NodePosition, node);
             return this;
         }
 
@@ -85,18 +84,22 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            if (this.ParentNode == null)
-                throw DomFailure.ParentNodeRequired();
-
-            this.ParentNode.ChildNodes.Insert(this.NodePosition + 1, node);
+            RequireParent().ChildNodes.Insert(this.NodePosition + 1, node);
             return this;
         }
 
-        public DomNode After(IEnumerable<DomNode> nodes) {
-            if (nodes == null) {
-                throw new ArgumentNullException("nodes");
+        public DomNode Before(IEnumerable<DomNode> previousSiblings) {
+            if (previousSiblings == null) {
+                throw new ArgumentNullException(nameof(previousSiblings));
             }
-            ParentNode.ChildNodes.InsertRange(NodePosition + 1, nodes);
+            return Before(previousSiblings.ToArray());
+        }
+
+        public DomNode After(IEnumerable<DomNode> nextSiblings) {
+            if (nextSiblings == null) {
+                throw new ArgumentNullException(nameof(nextSiblings));
+            }
+            RequireParent().ChildNodes.InsertRange(NodePosition + 1, nextSiblings);
             return this;
         }
 
@@ -115,13 +118,16 @@ namespace Carbonfrost.Commons.Web.Dom {
             return AppendMarkup(writer, markup);
         }
 
-        // TODO Before and After implementations
-
         public DomNode Before(params DomNode[] previousSiblings) {
-            if (previousSiblings == null || previousSiblings.Length == 0)
+            if (previousSiblings == null) {
+                throw new ArgumentNullException(nameof(previousSiblings));
+            }
+            if (previousSiblings.Length == 0) {
                 return this;
+            }
 
-            throw new NotImplementedException();
+            RequireParent().ChildNodes.InsertRange(NodePosition, previousSiblings);
+            return this;
         }
 
         public DomNode InsertBefore(DomNode other) {
@@ -145,8 +151,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode Append(IEnumerable<DomNode> childNodes) {
-            if (childNodes == null)
+            if (childNodes == null) {
                 return this;
+            }
 
             foreach (var e in childNodes) {
                 Append(e);
@@ -158,10 +165,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (child == null)
                 return this;
 
-            if (this.ChildNodes.IsReadOnly)
+            if (ChildNodes.IsReadOnly) {
                 throw DomFailure.CannotAppendChildNode();
+            }
 
-            this.ChildNodes.Add(child);
+            ChildNodes.Add(child);
             return this;
         }
 
@@ -170,7 +178,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return this;
 
             if (child.NodeType == DomNodeType.Attribute)
-                this.Attributes.Add((DomAttribute) child);
+                Attributes.Add((DomAttribute) child);
             else {
                 Append((DomNode) child);
             }
@@ -179,8 +187,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode Append(string markup) {
-            if (string.IsNullOrEmpty(markup))
+            if (string.IsNullOrEmpty(markup)) {
                 return this;
+            }
 
             using (var stringReader = new StringReader(markup)) {
                 using (DomReader reader = this.OwnerDocument.ProviderFactory.CreateReader(stringReader)) {
@@ -285,6 +294,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomNode) RemoveSelf();
         }
 
+        public new DomNode RemoveSelf() {
+            return (DomNode) base.RemoveSelf();
+        }
+
         public DomNode RemoveAttributes() {
             if (this.Attributes != null)
                 this.Attributes.Clear();
@@ -295,45 +308,30 @@ namespace Carbonfrost.Commons.Web.Dom {
         // TODO Verify that we can't replace certain types with others
 
         public DomNode ReplaceWith(DomNode other) {
-            if (other == null)
+            if (other == null) {
                 return this;
+            }
 
             return ReplaceWithCore(other);
         }
 
-        public DomNode ReplaceWith(params DomNode[] others) {
-            if (others == null || others.Length == 0) {
-                return this;
+        public DomObjectQuery ReplaceWith(params DomNode[] others) {
+            if (others == null) {
+                throw new ArgumentNullException(nameof(others));
             }
-
-            var current = this;
-            int index = 0;
-            foreach (var m in others) {
-                if (index == 0) {
-                    ReplaceWith(m);
-                } else {
-                    current.After(m);
-                }
-                current = m;
-                index++;
-            }
-
-            return others[0];
+            return new DomObjectQuery(this).ReplaceWith(others);
         }
 
-        public DomNode ReplaceWith(IEnumerable<DomNode> others) {
-            if (others == null)
-                throw new ArgumentNullException("others");
+        public DomObjectQuery ReplaceWith(IEnumerable<DomNode> others) {
+            if (others == null) {
+                throw new ArgumentNullException(nameof(others));
+            }
 
             return ReplaceWith(others.ToArray());
         }
 
-        public DomNode ReplaceWith(string markup) {
-            AppendMarkup(AppendAfter(), markup);
-
-            var nextSib = NextSiblingNode;
-            RemoveSelf();
-            return nextSib;
+        public DomObjectQuery ReplaceWith(string markup) {
+            return new DomObjectQuery(this).ReplaceWith(markup);
         }
 
         protected virtual DomNode ReplaceWithCore(DomNode other) {
@@ -373,10 +371,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomWriter PrependBefore() {
-            if (PreviousSiblingNode == null)
-                throw new NotImplementedException();
-            else
-                return PreviousSiblingNode.AppendAfter();
+            if (PreviousSiblingNode == null) {
+                return ParentElement.Prepend();
+            }
+
+            return PreviousSiblingNode.AppendAfter();
         }
 
         public DomNode PrependTo(DomNode parent) {
@@ -406,21 +405,33 @@ namespace Carbonfrost.Commons.Web.Dom {
             return newParent;
         }
 
-        public DomNode Unwrap() {
-            return UnwrapCore();
+        public DomObjectQuery Unwrap() {
+            return new DomObjectQuery(UnwrapCore());
         }
 
-        protected virtual DomNode UnwrapCore() {
+        internal virtual void AssertCanUnwrap() {
             RequireParent();
+        }
+
+        internal IEnumerable<DomNode> UnwrapCore() {
+            AssertCanUnwrap();
 
             if (ChildNodes.Count == 0) {
                 RemoveSelf();
-                return null;
+                return Enumerable.Empty<DomNode>();
             }
 
-            var firstChild = ChildNodes[0];
-            ReplaceWith(ChildNodes.ToList());
-            return firstChild;
+            var items = ChildNodes.ToList();
+            ReplaceWith(items);
+            return items;
+        }
+
+        public TNode ReplaceWith<TNode>(TNode other) where TNode : DomNode {
+            if (other == null) {
+                throw new ArgumentNullException(nameof(other));
+            }
+
+            return (TNode) ReplaceWith((DomNode) other);
         }
 
         private DomNode AppendMarkup(DomWriter writer, string markup) {
@@ -435,6 +446,5 @@ namespace Carbonfrost.Commons.Web.Dom {
 
             return this;
         }
-
     }
 }

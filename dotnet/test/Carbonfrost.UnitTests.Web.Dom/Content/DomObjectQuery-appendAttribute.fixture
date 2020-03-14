@@ -1,0 +1,5 @@
+case: Append attribute
+input: >
+    <target />
+output: >
+    <target this="data" />

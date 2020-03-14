@@ -35,7 +35,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             expectedOutput.LoadXml(f.Output);
 
             var op = FindOperation(f);
-            op((DomElement) input.Select("section").First());
+            op((DomElement) input.Select("target").First());
 
             // Compress whitespace to simplify comparison
             input.CompressWhitespace();

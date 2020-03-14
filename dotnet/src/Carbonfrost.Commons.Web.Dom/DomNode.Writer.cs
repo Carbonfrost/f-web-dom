@@ -54,16 +54,27 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public string ToXmlString(XmlWriterSettings settings) {
             StringWriter sw = new StringWriter();
-            using (XmlWriter xw = XmlWriter.Create(sw, settings)) {
+            using (XmlWriter xw = XmlWriter.Create(sw, ToXmlStringSettingsCore(settings))) {
                 WriteTo(xw);
             }
             return sw.ToString();
         }
 
         public string ToXmlString() {
-            return ToXmlString(new XmlWriterSettings {
-                OmitXmlDeclaration = true
-            });
+            return ToXmlString(ToXmlStringSettingsCore(null));
+        }
+
+        private XmlWriterSettings ToXmlStringSettingsCore(XmlWriterSettings settings) {
+            // To support document fragments, lower the conformance level
+            if (settings == null) {
+                return new XmlWriterSettings {
+                    OmitXmlDeclaration = true,
+                    ConformanceLevel = ConformanceLevel.Auto,
+                };
+            }
+            var result = settings.Clone();
+            result.ConformanceLevel = ConformanceLevel.Auto;
+            return settings;
         }
 
         public virtual DomWriter Prepend() {

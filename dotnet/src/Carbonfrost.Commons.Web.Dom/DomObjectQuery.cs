@@ -1,5 +1,5 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,81 +22,94 @@ using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public partial class DomObjectQuery : IDomNodeQuery<DomObjectQuery>, IEnumerable<DomNode> {
+    public partial class DomObjectQuery : IDomQuery<DomObject, DomObjectQuery> {
 
         internal static readonly DomObjectQuery _Empty = new DomObjectQuery();
 
-        private readonly List<DomNode> _nodes = new List<DomNode>();
+        private readonly DomObject[] _items = Array.Empty<DomObject>();
+        private DomNode[] _nodesCache;
+        private DomAttribute[] _attributesCache;
 
-        public DomNode this[int index] {
+        public DomObject this[int index] {
             get {
-                return _nodes[index];
+                return _items[index];
+            }
+        }
+
+        public DomElementQuery Elements {
+            get {
+                return new DomElementQuery(_items.OfType<DomElement>());
             }
         }
 
         public int Count {
             get {
-                return _nodes.Count;
+                return _items.Length;
             }
         }
 
         public DomObjectQuery() {}
 
-        public DomObjectQuery(IEnumerable<DomNode> nodes) {
-            if (nodes != null) {
-                _nodes.AddRange(nodes);
+        public DomObjectQuery(IEnumerable<DomObject> objs) {
+            if (objs == null) {
+                throw new ArgumentNullException(nameof(objs));
+            }
+            if (objs != null) {
+                _items = objs.Distinct().ToArray();
             }
         }
 
-        public DomObjectQuery(DomNode node) {
-            if (node != null) {
-                _nodes.Add(node);
+        public DomObjectQuery(DomObject item) {
+            if (item != null) {
+                _items = new [] { item };
             }
         }
 
-        public DomObjectQuery Add(DomNode node) {
-            if (node == null) {
+        private DomObjectQuery(DomObject[] items) {
+            _items = items;
+        }
+
+        public DomObjectQuery Add(DomObject item) {
+            if (item == null) {
                 return this;
             }
-            var nodes = new List<DomNode>(_nodes.Count + 1);
-            nodes.AddRange(_nodes);
-            nodes.Add(node);
-            return new DomObjectQuery(nodes);
+            return new DomObjectQuery(AddNonDuplicate(_items, item));
+        }
+
+        public DomObjectQuery AddRange(IEnumerable<DomObject> items) {
+            if (items == null) {
+                return this;
+            }
+            return new DomObjectQuery(ConcatItemsDistinct(_items, items));
         }
 
         public DomObjectQuery Concat(DomObjectQuery other) {
             if (other == null) {
-                throw new ArgumentNullException("other");
+                throw new ArgumentNullException(nameof(other));
             }
 
-            return this;
+            return new DomObjectQuery(ConcatItemsDistinct(_items, other._items));
         }
 
         public string Attribute(string name) {
             if (name == null) {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (string.IsNullOrEmpty(name)) {
-                throw Failure.EmptyString("name");
+                throw Failure.EmptyString(nameof(name));
             }
 
-            var node = this.FirstOrDefault();
-            if (node == null) {
-                return null;
-            }
-            else {
-                return node.Attribute(name);
-            }
+            return QueryFirstOrDefault(n => n.Attribute(name));
         }
 
         public DomObjectQuery Attribute(string name, object value) {
             if (name == null) {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (string.IsNullOrEmpty(name)) {
-                throw Failure.EmptyString("name");
+                throw Failure.EmptyString(nameof(name));
             }
-            foreach (var m in _nodes) {
+            foreach (var m in Nodes()) {
                 m.Attribute(name, value);
             }
 
@@ -105,13 +118,13 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public TValue Attribute<TValue>(string name) {
             if (name == null) {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (string.IsNullOrEmpty(name)) {
-                throw Failure.EmptyString("name");
+                throw Failure.EmptyString(nameof(name));
             }
 
-            var node = this.FirstOrDefault();
+            var node = Nodes().FirstOrDefault();
             if (node == null) {
                 return default(TValue);
             }
@@ -122,16 +135,16 @@ namespace Carbonfrost.Commons.Web.Dom {
         public DomObjectQuery Closest(string selector) {
             DomSelector s;
             if (!DomSelector.TryParse(selector, out s)) {
-                throw Failure.NotParsable("selector", typeof(DomSelector));
+                throw Failure.NotParsable(nameof(selector), typeof(DomSelector));
             }
             return Closest(s);
         }
 
         public DomObjectQuery Closest(DomSelector selector) {
             if (selector == null) {
-                throw new ArgumentNullException("selector");
+                throw new ArgumentNullException(nameof(selector));
             }
-            return new DomObjectQuery(this.Select(e => e.Closest(selector)).NonNull());
+            return new DomObjectQuery(Nodes().Select(e => e.Closest(selector)).NonNull());
         }
 
         public DomObjectQuery RemoveSelf() {
@@ -139,44 +152,102 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObjectQuery Empty() {
-            return Remove();
+            foreach (var m in Nodes()) {
+                m.Empty();
+            }
+            return this;
+        }
+
+        public DomObjectQuery RemoveChildNodes() {
+            return Empty();
         }
 
         public DomObjectQuery Remove() {
-            foreach (var m in _nodes) {
+            foreach (var m in _items) {
                 m.RemoveSelf();
             }
             return _Empty;
         }
 
         public DomObjectQuery ChildNode(int index) {
-            return Select(s => s.ChildNode(index));
+            return Query(s => s.ChildNode(index));
         }
 
         public bool HasAttribute(string name) {
-            throw new NotImplementedException();
+            return QueryFirstOrDefault(n => n.HasAttribute(name));
         }
 
         public bool HasClass(string name) {
-            throw new NotImplementedException();
+            return QueryFirstOrDefault(n => n.HasAttribute(name));
         }
 
-        public DomObjectQuery QuerySelectorAll(string selector) {
-            return new DomObjectQuery(_nodes.SelectMany(t => t.QuerySelectorAll(selector)));
+        public DomObjectQuery Select(string selector) {
+            return new DomObjectQuery(
+                Nodes().SelectMany(n => n.Select(selector))
+            );
         }
 
-        public DomNode QuerySelector(string selector) {
-            return _nodes.Select(t => t.QuerySelector(selector)).FirstOrDefault();
+        public DomElementQuery QuerySelectorAll(string selector) {
+            return new DomElementQuery(Nodes().SelectMany(t => t.QuerySelectorAll(selector)));
         }
 
-        public IEnumerator<DomNode> GetEnumerator() {
-            return _nodes.GetEnumerator();
+        public DomElement QuerySelector(string selector) {
+            return Nodes().Select(t => t.QuerySelector(selector)).FirstOrDefault();
+        }
+
+        public DomObjectQuery Select(DomSelector selector) {
+            return new DomObjectQuery(
+                Nodes().SelectMany(n => n.Select(selector))
+            );
+        }
+
+        public DomElementQuery QuerySelectorAll(DomSelector selector) {
+            return new DomElementQuery(Nodes().SelectMany(t => t.QuerySelectorAll(selector)));
+        }
+
+        public DomElement QuerySelector(DomSelector selector) {
+            return Nodes().Select(t => t.QuerySelector(selector)).FirstOrDefault();
+        }
+
+        public IEnumerator<DomObject> GetEnumerator() {
+            return ((IEnumerable<DomObject>) _items).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() {
             return GetEnumerator();
         }
 
+        private IReadOnlyList<DomNode> Nodes() {
+            if (_nodesCache == null) {
+                _nodesCache = _items.OfType<DomNode>().ToArray();
+            }
+            return _nodesCache;
+        }
+
+        private IReadOnlyList<DomAttribute> Attributes() {
+            if (_attributesCache == null) {
+                _attributesCache = _items.OfType<DomAttribute>().ToArray();
+            }
+            return _attributesCache;
+        }
+
+        internal static T[] AddNonDuplicate<T>(T[] items, T item) {
+            if (items.Contains(item)) {
+                return items;
+            }
+            int len = items.Length;
+            var newItems = new T[len + 1];
+            Array.Copy(items, newItems, len);
+            newItems[len] = item;
+            return newItems;
+        }
+
+        internal static T[] ConcatItemsDistinct<T>(T[] items1, IEnumerable<T> items2) {
+            if (ReferenceEquals(items1, items2)) {
+                return items1;
+            }
+            return items1.Concat(items2.Except(items1)).ToArray();
+        }
     }
 
 }

@@ -232,6 +232,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return lhs.Name == rhs.Name && lhs.content == rhs.content;
         }
 
+        internal static DomAttribute[] CloneAll(DomAttribute[] items) {
+            return Array.ConvertAll(items, i => i.Clone());
+        }
+
         public override string ToString() {
             return Name;
         }

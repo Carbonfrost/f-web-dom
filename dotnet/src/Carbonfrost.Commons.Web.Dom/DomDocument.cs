@@ -66,7 +66,11 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return base.OuterXml;
             }
             set {
-                throw DomFailure.CannotReplaceDocument();
+                // TODO Should detect malformed document sooner
+                // TODO Should use correct provider to parse
+                var frag = CreateDocumentFragment();
+                frag.LoadXml(value);
+                Append(frag.ChildNodes.ToList());
             }
         }
 

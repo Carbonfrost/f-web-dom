@@ -1,0 +1,6 @@
+case: Remove attribute
+named: takeme
+input: >
+    <target takeme="1" other="2" />
+output: >
+    <target other="2" />

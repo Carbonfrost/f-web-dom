@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+using System;
 using System.Linq;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
@@ -133,7 +134,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             var result = h1.ReplaceWith(h3, doc.CreateElement("h4"), doc.CreateElement("h5"));
             Assert.Equal("<html><body><h3 /><h4 /><h5 /></body></html>", doc.ToXmlString());
-            Assert.Same(h3, result);
         }
 
         [Fact]
@@ -383,12 +383,15 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void Unwrap_returns_first_child() {
+        public void Unwrap_returns_child_nodes() {
             DomDocument doc = new DomDocument();
-            var e = doc.AppendElement("t");
-            var firstChild = e.AppendElement("u");
+            var e = doc.AppendElement("root").AppendElement("t");
+            e.AppendElement("u");
+            e.AppendElement("v");
+            var results = e.Unwrap();
 
-            Assert.Same(firstChild, e.Unwrap());
+            Assert.HasCount(2, results);
+            Assert.Equal(new [] { "u", "v" }, doc.DocumentElement.Children.NodeNames());
         }
 
         [Fact]
@@ -396,7 +399,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             DomDocument doc = new DomDocument();
             var e = doc.AppendElement("t");
 
-            Assert.Null(e.Unwrap());
+            Assert.HasCount(0, e.Unwrap());
             Assert.Null(doc.DocumentElement);
         }
 
@@ -408,7 +411,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var secondChild = e.AppendElement("u");
 
             var ex = Record.Exception(() => e.Unwrap());
-            // Assert.IsType<InvalidOperationException>(ex);
+            Assert.IsInstanceOf<InvalidOperationException>(ex);
             Assert.Equal(DomFailure.CannotUnwrapWouldCreateMalformedDocument().Message,
                          ex.Message);
         }

@@ -38,7 +38,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         TResult RemoveAnnotations(Type type);
         TResult RemoveAnnotations<T>() where T : class;
         TResult RemoveAttribute(string name);
+        TResult RemoveAttributes();
         TResult RemoveClass(string className);
+        TResult RemoveChildNodes();
         TResult RemoveSelf();
         TResult SetName(string name);
         TResult Wrap(DomNode newParent);

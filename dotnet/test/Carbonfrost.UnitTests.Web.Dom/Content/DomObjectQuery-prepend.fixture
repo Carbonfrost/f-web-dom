@@ -1,0 +1,14 @@
+case: Prepend markup
+with: raw <m /> &amp;
+input: >
+    <root>
+      <target>
+        <target />
+      </target>
+    </root>
+output: >
+    <root>
+      <target>raw <m /> &amp;
+        <target>raw <m /> &amp;</target>
+      </target>
+    </root>

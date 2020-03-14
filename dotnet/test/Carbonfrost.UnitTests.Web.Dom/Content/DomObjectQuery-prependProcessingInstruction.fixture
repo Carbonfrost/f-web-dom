@@ -1,0 +1,5 @@
+case: Prepend processing instruction
+input: >
+    <target><a /></target>
+output: >
+    <target><?this data?><a /></target>

@@ -1,0 +1,5 @@
+case: Prepend element
+input: >
+    <target><existing /></target>
+output: >
+    <target><this /><existing /></target>

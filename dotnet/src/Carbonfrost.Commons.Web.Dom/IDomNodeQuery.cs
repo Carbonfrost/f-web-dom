@@ -15,18 +15,20 @@
 //
 
 namespace Carbonfrost.Commons.Web.Dom {
-
     interface IDomNodeQuery<T> where T : IDomNodeQuery<T> {
         string Attribute(string name);
         TValue Attribute<TValue>(string name);
         T Attribute(string name, object value);
-        T ChildNode(int index);
         T RemoveAttribute(string name);
 
         bool HasAttribute(string name);
         bool HasClass(string name);
-        DomObjectQuery QuerySelectorAll(string selector);
-        DomNode QuerySelector(string selector);
+        DomElementQuery QuerySelectorAll(string selector);
+        DomElement QuerySelector(string selector);
+        DomElementQuery QuerySelectorAll(DomSelector selector);
+        DomElement QuerySelector(DomSelector selector);
+        DomObjectQuery Select(string selector);
+        DomObjectQuery Select(DomSelector selector);
         T Closest(string selector);
         T Closest(DomSelector selector);
     }

@@ -1,9 +1,9 @@
 case: Remove attributes
 input: >
     <div>
-        <section class="a" id="b" style="f" />
+        <target class="a" id="b" style="f" />
     </div>
 output: >
     <div>
-        <section />
+        <target />
     </div>

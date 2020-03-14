@@ -1,0 +1,9 @@
+case: Wrap
+input: >
+    <root>
+      <target />
+    </root>
+output: >
+    <root>
+      <this><target /></this>
+    </root>

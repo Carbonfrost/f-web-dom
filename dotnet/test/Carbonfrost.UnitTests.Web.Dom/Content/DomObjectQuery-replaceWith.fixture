@@ -1,0 +1,13 @@
+case: Replace with nodes
+input: >
+    <root>
+      <target />
+      <target />
+    </root>
+with: >
+    <t><ree /></t>
+output: >
+    <root>
+      <t><ree /></t>
+      <t><ree /></t>
+    </root>

@@ -1,11 +1,11 @@
 //
-// Copyright 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -23,7 +22,7 @@ using Carbonfrost.Commons.Web.Dom;
 
 namespace Carbonfrost.UnitTests.Web.Dom {
 
-    public class DomObjectQueryTests {
+    public partial class DomObjectQueryTests {
 
         [Fact]
         public void Closest_should_return_closest_element() {
@@ -52,6 +51,40 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             Assert.Equal("<html> <body /> </html>",
                 doc.ToXmlString());
+        }
+
+        [Fact]
+        public void ReplaceWith_with_multiple_nodes_does_clone() {
+            var xml = "<html> <s /><s /><s /> </html>";
+            var doc = new DomDocument();
+            doc.LoadXml(xml);
+            var replacement = doc.CreateElement("t");
+            doc.Select("s").ReplaceWith(replacement);
+
+            Assert.Equal("<html> <t /><t /><t /> </html>", doc.ToXmlString());
+        }
+
+        [Fact]
+        public void ReplaceWith_with_multiple_nodes_keeps_the_replacement() {
+            var xml = "<html> <s /><s /><s /> </html>";
+            var doc = new DomDocument();
+            doc.LoadXml(xml);
+            var replacement = doc.CreateElement("t");
+            var result = doc.Select("s").ReplaceWith(replacement);
+
+            // We use the actual instance for the first replacement, then clone the rest
+            Assert.Same(doc.DocumentElement.FirstChild, replacement);
+            Assert.HasCount(3, result);
+        }
+
+        [Fact]
+        public void ReplaceWith_returns_the_node_set() {
+            var xml = "<html><s /><s /></html>";
+            var doc = new DomDocument();
+            doc.LoadXml(xml);
+            var result = doc.Select("s").ReplaceWith("<a /><b /><c />");
+
+            Assert.HasCount(6, result);
         }
 
         [Fact]

@@ -117,7 +117,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             _sb.Append(instruction.Target);
             _sb.Append(" ");
             _sb.Append(instruction.Data);
-            _sb.Append("-->");
+            _sb.Append("?>");
         }
 
         protected override void VisitNotation(DomNotation notation) {

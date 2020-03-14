@@ -1,11 +1,11 @@
 case: Append
 input: >
     <div>
-        <section><a></a></section>
+        <target><a></a></target>
     </div>
 output: >
     <div>
-        <section><a></a>#text</section>
+        <target><a></a>#text</target>
     </div>
 
 ---
