@@ -59,7 +59,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public bool HasClass(string name) {
-            var list = DomStringTokenList.Parse(Attribute("class"));
+            var list = Attribute<DomStringTokenList>("class");
+            if (list == null) {
+                return false;
+            }
             var names = DomStringTokenList.Parse(name);
             if (names.Count == 0) {
                 return false;
@@ -92,7 +95,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string ToString() {
-            return NodeValue;
+            return NodeName;
         }
 
         public bool HasAttributes {

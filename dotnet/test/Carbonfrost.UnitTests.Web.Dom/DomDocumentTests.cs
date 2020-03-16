@@ -283,6 +283,17 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void Append_should_relocate_elements_between_documents() {
+            var doc1 = new DomDocument();
+            var doc2 = new DomDocument();
+            var ele1 = doc1.AppendElement("left");
+            var ele2 = doc2.AppendElement("right");
+
+            ele1.Append(ele2);
+            Assert.Same(doc1, ele2.OwnerDocument);
+        }
+
+        [Fact]
         public void CreateElement_should_throw_on_empty_string() {
             var doc = new DomDocument();
             Assert.Throws<ArgumentException>(() => doc.CreateElement(""));

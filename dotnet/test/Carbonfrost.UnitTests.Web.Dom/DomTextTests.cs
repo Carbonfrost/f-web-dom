@@ -52,7 +52,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             string ws = "leading ws";
             var html = doc.AppendElement("html").AppendText(ws);
 
-            Assert.Equal(ws, html.ToString());
             Assert.Equal(ws, html.TextContent);
             Assert.Equal(ws, html.Data);
             Assert.Equal(ws, html.NodeValue);
