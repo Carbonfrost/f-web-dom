@@ -89,7 +89,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
             while (!CanFastDispatch(type)) {
                 if (DispatchCache.TryGetValue(type, out MethodInfo method)) {
-                    method.Invoke(_visitor, new[] { obj });
+                    method.InvokeWithUnwrap(_visitor, new[] { obj });
                     return;
                 }
                 type = type.BaseType;
