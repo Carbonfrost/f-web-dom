@@ -1,0 +1,14 @@
+case: Append markup
+with: text <m /> &amp;
+input: >
+    <root>
+      <target>
+        <target />
+      </target>
+    </root>
+output: >
+    <root>
+      <target>
+        <target>text <m /> &amp;</target>
+        text <m /> &amp;</target>
+    </root>

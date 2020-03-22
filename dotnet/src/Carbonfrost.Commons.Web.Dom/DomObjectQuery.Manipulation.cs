@@ -1,11 +1,11 @@
 //
-// Copyright 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,41 +20,97 @@ using System.Linq;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    partial class DomObjectQuery : IDomNodeManipulation<DomObjectQuery> {
+    partial class DomObjectQuery
+        : IDomNodeManipulation<DomObjectQuery>,
+          IDomAttributeManipulation<DomObjectQuery>,
+          IDomNodeQueryManipulation {
 
-        private DomObjectQuery Select(Func<DomNode, DomNode> f) {
-            return new DomObjectQuery(Enumerable.Select(this, f).NonNull());
+        private DomObjectQuery Query(Func<DomNode, DomNode> f) {
+            return new DomObjectQuery(Nodes().Select(f).NonNull());
         }
 
-        private DomObjectQuery SelectMany(Func<DomNode, IEnumerable<DomNode>> f) {
-            return new DomObjectQuery(Enumerable.SelectMany(this, f).NonNull());
+        private TValue QueryFirstOrDefault<TValue>(Func<DomNode, TValue> f) {
+            var node = Nodes().FirstOrDefault();
+            if (node == null) {
+                return default(TValue);
+            }
+            else {
+                return f(node);
+            }
+        }
+
+        private DomObjectQuery QueryMany(Func<DomNode, IEnumerable<DomNode>> f) {
+            return new DomObjectQuery(Nodes().SelectMany(f).NonNull());
+        }
+
+        private DomObjectQuery QueryMany(Func<DomNode, IEnumerable<DomNode>> first, Func<DomNode, IEnumerable<DomNode>> rest) {
+            var nodes = Nodes();
+            var firstNode = nodes.FirstOrDefault();
+            if (firstNode == null) {
+                return this;
+            }
+            return new DomObjectQuery(Enumerable.Concat(
+                first(firstNode),
+                nodes.Skip(1).Cast<DomNode>().SelectMany(n => rest(n))
+            ));
         }
 
         private DomObjectQuery Each(Action<DomNode> f) {
-            foreach (var n in this) {
+            foreach (var n in Nodes()) {
                 f(n);
             }
             return this;
         }
 
+        private DomObjectQuery Each(Action<DomNode> first, Action<DomNode> rest) {
+            var e = Nodes().FirstOrDefault();
+            if (e == null) {
+                return this;
+            }
+            first(e);
+            foreach (var n in Nodes().Skip(1)) {
+                rest(n);
+            }
+            return this;
+        }
+
+        private DomObjectQuery Each(Action<DomAttribute> f) {
+            foreach (var n in Attributes()) {
+                f(n);
+            }
+            return this;
+        }
+
+        private DomObjectQuery Each(Action<DomAttribute> first, Action<DomAttribute> rest) {
+            var e = Attributes().FirstOrDefault();
+            if (e == null) {
+                return this;
+            }
+            first(e);
+            foreach (var n in Attributes().Skip(1)) {
+                rest(n);
+            }
+            return this;
+        }
+
         public DomObjectQuery Unwrap() {
-            return Select(m => m.Unwrap());
+            return QueryMany(m => m.UnwrapCore());
         }
 
         public DomObjectQuery RemoveAttributes() {
-            return Select(m => m.RemoveAttributes());
+            return Query(m => m.RemoveAttributes());
         }
 
         public DomObjectQuery RemoveAttribute(string name) {
-            return Select(m => m.RemoveAttribute(name));
+            return Query(m => m.RemoveAttribute(name));
         }
 
         public DomObjectQuery AddClass(string className) {
-            return Select(m => m.AddClass(className));
+            return Query(m => m.AddClass(className));
         }
 
         public DomObjectQuery RemoveClass(string className) {
-            return Select(m => m.RemoveClass(className));
+            return Query(m => m.RemoveClass(className));
         }
 
         public DomObjectQuery SetName(string name) {
@@ -62,43 +118,47 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObjectQuery Wrap(string element) {
-            return Select(m => m.Wrap(element));
+            return Each(m => m.Wrap(element));
         }
 
         public DomObjectQuery Wrap(DomNode newParent) {
-            return Select(m => m.Wrap(newParent));
+            if (newParent == null) {
+                throw new ArgumentNullException(nameof(newParent));
+            }
+            newParent.RemoveSelf();
+            return Each(m => m.Wrap(newParent.Clone()), m => m.Wrap(newParent.Clone()));
         }
 
         public DomObjectQuery After(DomNode nextSibling) {
-            throw new NotImplementedException();
+            return Each(n => n.After(nextSibling));
         }
 
         public DomObjectQuery After(params DomNode[] nextSiblings) {
-            throw new NotImplementedException();
+            return Each(n => n.After(nextSiblings), n => n.After(DomNode.CloneAll(nextSiblings)));
         }
 
-        public DomObjectQuery After(string text) {
-            throw new NotImplementedException();
+        public DomObjectQuery After(string markup) {
+            return After(Parse(markup));
         }
 
         public DomObjectQuery InsertAfter(DomNode other) {
-            throw new NotImplementedException();
+            return Each(n => n.InsertAfter(other));
         }
 
         public DomObjectQuery Before(DomNode previousSibling) {
-            throw new NotImplementedException();
-
+            return Each(n => n.Before(previousSibling));
         }
+
         public DomObjectQuery Before(params DomNode[] previousSiblings) {
-            throw new NotImplementedException();
+            return Each(n => n.Before(previousSiblings), n => n.Before(DomNode.CloneAll(previousSiblings)));
         }
 
-        public DomObjectQuery Before(string text) {
-            throw new NotImplementedException();
+        public DomObjectQuery Before(string markup) {
+            return Before(Parse(markup));
         }
 
         public DomObjectQuery InsertBefore(DomNode other) {
-            throw new NotImplementedException();
+            return Each(n => n.InsertBefore(other));
         }
 
         public DomWriter Append() {
@@ -106,15 +166,19 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObjectQuery Append(DomNode child) {
-            throw new NotImplementedException();
+            return Each(n => n.Append(child), n => n.Append(child.Clone()));
         }
 
-        public DomObjectQuery Append(string text) {
-            throw new NotImplementedException();
+        public DomObjectQuery Append(string markup) {
+            return Append(Parse(markup));
+        }
+
+        public DomObjectQuery Append(params DomNode[] nodes) {
+            return Each(n => n.Append(nodes), n => n.Append(DomNode.CloneAll(nodes)));
         }
 
         public DomObjectQuery AppendTo(DomNode parent) {
-            throw new NotImplementedException();
+            return Each(n => n.AppendTo(parent));
         }
 
         public DomWriter Prepend() {
@@ -122,31 +186,68 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObjectQuery Prepend(DomNode child) {
-            throw new NotImplementedException();
+            return Each(n => n.Prepend(child), n => n.Prepend(child.Clone()));
         }
 
-        public DomObjectQuery Prepend(string text) {
-            throw new NotImplementedException();
+        public DomObjectQuery Prepend(params DomNode[] nodes) {
+            return Each(n => n.Prepend(nodes), n => n.Prepend(DomNode.CloneAll(nodes)));
+        }
+
+        public DomObjectQuery Prepend(string markup) {
+            return Prepend(Parse(markup));
         }
 
         public DomObjectQuery PrependTo(DomNode parent) {
-            throw new NotImplementedException();
+            return Each(n => n.PrependTo(parent));
         }
 
         public DomObjectQuery ReplaceWith(DomNode other) {
-            throw new NotImplementedException();
+            if (other == null) {
+                return RemoveSelf();
+            }
+            return ReplaceWith(new [] { other });
         }
 
         public DomObjectQuery ReplaceWith(params DomNode[] others) {
-            throw new NotImplementedException();
+            if (others == null) {
+                throw new ArgumentNullException(nameof(others));
+            }
+
+            if (others.Length == 0) {
+                return RemoveSelf();
+            }
+
+            return QueryMany(n => _ReplaceWith(n, others), n => _ReplaceWith(n, DomNode.CloneAll(others)));
         }
 
-        public DomObjectQuery ReplaceWith(string text) {
-            throw new NotImplementedException();
+        public DomObjectQuery ReplaceWith(IEnumerable<DomNode> others) {
+            if (others == null) {
+                throw new ArgumentNullException(nameof(others));
+            }
+            return ReplaceWith(others.ToArray());
+        }
+
+        internal static IEnumerable<DomNode> _ReplaceWith(DomNode node, DomNode[] others) {
+            var current = node;
+            int index = 0;
+            foreach (var m in others) {
+                if (index == 0) {
+                    node.ReplaceWith(m);
+                } else {
+                    current.After(m);
+                }
+                current = m;
+                index++;
+            }
+            return others;
+        }
+
+        public DomObjectQuery ReplaceWith(string markup) {
+            return ReplaceWith(Parse(markup));
         }
 
         private IEnumerable<DomNode> SetNameInternal(string name) {
-            foreach (var m in this) {
+            foreach (var m in Nodes()) {
                 if (m.IsAttribute || m.IsElement) {
                     yield return m.SetName(name);
                 } else {
@@ -156,55 +257,55 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObjectQuery AncestorNodes() {
-            return SelectMany(n => n.AncestorNodes);
+            return QueryMany(n => n.AncestorNodes);
         }
 
         public DomObjectQuery AncestorNodesAndSelf() {
-            return SelectMany(n => n.AncestorNodesAndSelf);
+            return QueryMany(n => n.AncestorNodesAndSelf);
         }
 
         public DomObjectQuery DescendantNodes() {
-            return SelectMany(n => n.DescendantNodes);
+            return QueryMany(n => n.DescendantNodes);
         }
 
         public DomObjectQuery DescendantNodesAndSelf() {
-            return SelectMany(n => n.DescendantNodesAndSelf);
+            return QueryMany(n => n.DescendantNodesAndSelf);
         }
 
         public DomObjectQuery FirstChildNode() {
-            return Select(n => n.FirstChildNode);
+            return Query(n => n.FirstChildNode);
         }
 
         public DomObjectQuery FollowingNodes() {
-            return SelectMany(n => n.FollowingNodes);
+            return QueryMany(n => n.FollowingNodes);
         }
 
         public DomObjectQuery FollowingSiblingNodes() {
-            return SelectMany(n => n.FollowingSiblingNodes);
+            return QueryMany(n => n.FollowingSiblingNodes);
         }
 
         public DomObjectQuery LastChildNode() {
-            return Select(n => n.LastChildNode);
+            return Query(n => n.LastChildNode);
         }
 
         public DomObjectQuery NextSiblingNode() {
-            return Select(n => n.NextSiblingNode);
+            return Query(n => n.NextSiblingNode);
         }
 
         public DomObjectQuery ParentNode() {
-            return Select(n => n.ParentNode);
+            return Query(n => n.ParentNode);
         }
 
         public DomObjectQuery PrecedingNodes() {
-            return SelectMany(n => n.PrecedingNodes);
+            return QueryMany(n => n.PrecedingNodes);
         }
 
         public DomObjectQuery PrecedingSiblingNodes() {
-            return SelectMany(n => n.PrecedingSiblingNodes);
+            return QueryMany(n => n.PrecedingSiblingNodes);
         }
 
         public DomObjectQuery PreviousSiblingNode() {
-            return Select(n => n.PreviousSiblingNode);
+            return Query(n => n.PreviousSiblingNode);
         }
 
         // These methods provide the operations that match IDomNodeAppendApiConventions
@@ -264,6 +365,97 @@ namespace Carbonfrost.Commons.Web.Dom {
         public DomObjectQuery PrependDocumentType(string name) {
             return Each(s => s.PrependDocumentType(name));
         }
-    }
 
+        private DomNode[] Parse(string markup) {
+            // TODO Depends on provider factory
+            var doc = new DomDocument();
+            var frag = doc.CreateDocumentFragment();
+            frag.LoadXml(markup);
+            return frag.ChildNodes.ToArray();
+        }
+
+        public DomObjectQuery After(IEnumerable<DomNode> nextSiblings) {
+            if (nextSiblings == null) {
+                throw new ArgumentNullException(nameof(nextSiblings));
+            }
+            return After(nextSiblings.ToArray());
+        }
+
+        public DomObjectQuery Before(IEnumerable<DomNode> previousSiblings) {
+            if (previousSiblings == null) {
+                throw new ArgumentNullException(nameof(previousSiblings));
+            }
+            return Before(previousSiblings.ToArray());
+        }
+
+        public DomObjectQuery Append(IEnumerable<DomNode> children) {
+            if (children == null) {
+                throw new ArgumentNullException(nameof(children));
+            }
+            return Append(children.ToArray());
+        }
+
+        public DomObjectQuery Prepend(IEnumerable<DomNode> children) {
+            if (children == null) {
+                throw new ArgumentNullException(nameof(children));
+            }
+            return Prepend(children.ToArray());
+        }
+
+        public DomObjectQuery Before(DomAttribute previousAttribute) {
+            if (previousAttribute == null) {
+                throw new ArgumentNullException(nameof(previousAttribute));
+            }
+            return Each(n => n.Before(previousAttribute));
+        }
+
+        public DomObjectQuery Before(params DomAttribute[] previousAttributes) {
+            if (previousAttributes == null) {
+                throw new ArgumentNullException(nameof(previousAttributes));
+            }
+            return Each(n => n.Before(previousAttributes), n => n.Before(DomAttribute.CloneAll(previousAttributes)));
+        }
+
+        public DomObjectQuery Before(IEnumerable<DomAttribute> previousAttributes) {
+            if (previousAttributes == null) {
+                throw new ArgumentNullException(nameof(previousAttributes));
+            }
+            return Before(previousAttributes.ToArray());
+        }
+
+        public DomObjectQuery InsertBefore(DomAttribute other) {
+            if (other == null) {
+                throw new ArgumentNullException(nameof(other));
+            }
+            return Each(n => n.InsertBefore(other));
+        }
+
+        public DomObjectQuery After(DomAttribute nextAttribute) {
+            if (nextAttribute == null) {
+                throw new ArgumentNullException(nameof(nextAttribute));
+            }
+            return After(new [] { nextAttribute });
+        }
+
+        public DomObjectQuery After(params DomAttribute[] nextAttributes) {
+            if (nextAttributes == null) {
+                throw new ArgumentNullException(nameof(nextAttributes));
+            }
+            return Each(n => n.After(nextAttributes), n => n.After(DomAttribute.CloneAll(nextAttributes)));
+        }
+
+        public DomObjectQuery After(IEnumerable<DomAttribute> nextAttributes) {
+            if (nextAttributes == null) {
+                throw new ArgumentNullException(nameof(nextAttributes));
+            }
+            return After(nextAttributes.ToArray());
+        }
+
+        public DomObjectQuery InsertAfter(DomAttribute other) {
+            if (other == null) {
+                throw new ArgumentNullException(nameof(other));
+            }
+            return Each(n => n.InsertBefore(other));
+        }
+    }
 }

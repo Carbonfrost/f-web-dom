@@ -227,6 +227,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomElement) base.Empty();
         }
 
+        public new DomElement RemoveChildNodes() {
+            return (DomElement) base.RemoveChildNodes();
+        }
+
         public new DomElement Attribute(string name, object value) {
             return (DomElement) base.Attribute(name, value);
         }
@@ -237,6 +241,10 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public new DomElement RemoveAttribute(string name) {
             return (DomElement) base.RemoveAttribute(name);
+        }
+
+        public new DomElement RemoveAttributes() {
+            return (DomElement) base.RemoveAttributes();
         }
 
         public new DomElement RemoveSelf() {
@@ -262,11 +270,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return ReplaceWith(newElement);
         }
 
-        protected override DomNode UnwrapCore() {
+        internal override void AssertCanUnwrap() {
             if (IsDocumentElement && Elements.Count > 1) {
                 throw DomFailure.CannotUnwrapWouldCreateMalformedDocument();
             }
-            return base.UnwrapCore();
         }
 
         public override DomNodeType NodeType {
@@ -276,4 +283,3 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
     }
 }
-

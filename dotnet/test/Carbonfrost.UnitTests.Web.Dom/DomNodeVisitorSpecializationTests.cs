@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+using System;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
@@ -57,8 +58,19 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Equal(1, r.VisitTextCallCount); // Because Visit(RTextDerived) does not exist
             Assert.Equal(0, r.VisitDefaultTextCalledCount);
         }
+
+        [Fact]
+        public void Visit_should_unwrap_reflection_exceptions() {
+            var doc = new DomDocument();
+            var ele = doc.AppendElement("ok");
+            ele.Append(new RTextDerived());
+
+            var r = new RNodeVisitorThatThrows();
+            Assert.Throws<ExpectedException>(() => DomNodeVisitor.Visit(doc, r));
+        }
     }
 
+    class ExpectedException : Exception {}
     class RTextDerived : RText {}
     class RTextDerivedAlso : RTextDerived {}
 
@@ -83,7 +95,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             VisitAttributeCalledCount += 1;
         }
 
-        public void Visit(RElement element) {
+        public virtual void Visit(RElement element) {
             VisitElementCalledCount += 1;
         }
 
@@ -91,7 +103,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             VisitInstructionCalledCount += 1;
         }
 
-        public void Visit(RText text) {
+        public virtual void Visit(RText text) {
             VisitTextCallCount += 1;
         }
 
@@ -107,6 +119,12 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         protected override void VisitText(DomText text) {
             VisitDefaultTextCalledCount += 1;
             base.VisitText(text);
+        }
+    }
+
+    class RNodeVisitorThatThrows : RNodeVisitor {
+        public override void Visit(RText element) {
+            throw new ExpectedException();
         }
     }
 }

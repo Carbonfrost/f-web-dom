@@ -1,0 +1,19 @@
+case: Before a node
+with: >
+    <a> before </a>
+    <!-- comment -->
+    <b c="a" />
+input: >
+    <div>
+        <target />
+        <target />
+    </div>
+output: >
+    <div>
+        <a> before </a>
+        <!-- comment -->
+        <b c="a" /><target />
+        <a> before </a>
+        <!-- comment -->
+        <b c="a" /><target />
+    </div>

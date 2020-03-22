@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,28 @@ using Carbonfrost.Commons.Web.Dom;
 namespace Carbonfrost.UnitTests.Web.Dom {
 
     public class DomAttributeTests {
+
+        [Fact]
+        public void After_sets_attributes_after() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            var attr1 = html.AppendAttribute("lang", "en");
+            var attr2 = doc.CreateAttribute("profile", "dotcom");
+
+            attr1.After(attr2);
+            Assert.Equal("<html lang=\"en\" profile=\"dotcom\"/>", doc.OuterXml);
+        }
+
+        [Fact]
+        public void After_should_preserve_order_of_list() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            var attr = html.AppendAttribute("first", "");
+            var attr1 = doc.CreateAttribute("lang", "en");
+            var attr2 = doc.CreateAttribute("profile", "dotcom");
+            attr.After(attr1, attr2);
+            Assert.Equal("<html first=\"\" lang=\"en\" profile=\"dotcom\"/>", doc.OuterXml);
+        }
 
         [Fact]
         public void Attribute_implies_new_instance() {

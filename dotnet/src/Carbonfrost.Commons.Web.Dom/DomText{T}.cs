@@ -14,12 +14,34 @@
 // limitations under the License.
 //
 
+using System.Text.RegularExpressions;
+
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomText<TProcessingInstruction> : DomText
-        where TProcessingInstruction : DomText<TProcessingInstruction>
+    public abstract class DomText<TText> : DomText, IDomCharacterData<TText>
+        where TText : DomText<TText>
     {
 
         protected DomText() : base() {}
+
+        public new TText AppendData(string data) {
+            return (TText) base.AppendData(data);
+        }
+
+        public new TText SetData(string value) {
+            return (TText) base.SetData(value);
+        }
+
+        public new TText SplitText(int index) {
+            return (TText) base.SplitText(index);
+        }
+
+        public new TText SplitText(int index, int length) {
+            return (TText) base.SplitText(index, length);
+        }
+
+        public new TText SplitText(Regex pattern) {
+            return (TText) base.SplitText(pattern);
+        }
     }
 }

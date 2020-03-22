@@ -23,7 +23,7 @@ using Carbonfrost.Commons.Core.Runtime.Expressions;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomObject {
+    public abstract class DomObject  {
 
         private AnnotationList _annotations = AnnotationList.Empty;
         private IDomNodeCollection _siblingsContent;
@@ -171,6 +171,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public bool IsUnlinked {
+            get {
+                if (OwnerDocument == null) {
+                    return true;
+                }
+                return OwnerDocument.UnlinkedNodes.Contains(this);
+            }
+        }
+
         public int LinePosition {
             get {
                 if (OwnerDocument == null) {
@@ -207,14 +216,18 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomDocument OwnerDocument {
             get {
+                return DomOwnerDocument;
+            }
+        }
+
+        private protected virtual DomDocument DomOwnerDocument {
+            get {
                 if (OwnerNode == null) {
                     return null;
                 }
-
                 if (OwnerNode.NodeType == DomNodeType.Document) {
                     return (DomDocument) OwnerNode;
                 }
-
                 return OwnerNode.OwnerDocument;
             }
         }
@@ -234,14 +247,15 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         private DomNode OwnerNode {
             get {
-                if (this.SiblingAttributes != null)
-                    return this.SiblingAttributes.OwnerElement;
+                if (SiblingAttributes != null) {
+                    return SiblingAttributes.OwnerElement;
+                }
 
-                else if (_Siblings != null)
+                if (_Siblings != null) {
                     return _Siblings.OwnerNode;
+                }
 
-                else
-                    return null;
+                return null;
             }
         }
 

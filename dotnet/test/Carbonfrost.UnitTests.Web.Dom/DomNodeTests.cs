@@ -209,7 +209,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
           var result = h4.SetName("h5");
           Assert.NotSame(h4, result); // should create a new one
-          Assert.Equal("<h5 a=\"true\"><b /><i /></h5>", doc.ToXml());
+          Assert.Equal("<h5 a=\"true\"><b /><i /></h5>", doc.ToXmlString());
         }
 
         [Theory]

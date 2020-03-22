@@ -84,6 +84,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
     }
 
+    class RDocumentFragment : DomDocumentFragment {}
     class RDocument : DomDocument {
         protected override DomProviderFactory DomProviderFactory {
             get {
@@ -118,5 +119,22 @@ namespace Carbonfrost.UnitTests.Web.Dom {
     }
     class RProcessingInstruction : DomProcessingInstruction<RProcessingInstruction> {
         public RProcessingInstruction(string target) : base(target) {}
+    }
+
+    [DomProviderFactoryUsage(Extensions = ".rrr")]
+    public class RDomProviderFactory : DomProviderFactory {
+
+        protected override DomDocument CreateDomDocument() {
+            return new RDocument();
+        }
+
+        public override string GenerateDefaultName(Type providerObjectType) {
+            return "r:" + providerObjectType.Name;
+        }
+
+        public override bool IsProviderObject(Type providerObjectType) {
+            return providerObjectType.Name[0] == 'R' && providerObjectType.Namespace == "Carbonfrost.UnitTests.Web.Dom";
+        }
+
     }
 }

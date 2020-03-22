@@ -52,7 +52,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             string ws = "leading ws";
             var html = doc.AppendElement("html").AppendText(ws);
 
-            Assert.Equal(ws, html.ToString());
             Assert.Equal(ws, html.TextContent);
             Assert.Equal(ws, html.Data);
             Assert.Equal(ws, html.NodeValue);
@@ -65,7 +64,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var head = doc.CreateElement("head");
             var result = html.ReplaceWith(head);
 
-            Assert.Equal("<head />", doc.ToXml());
+            Assert.Equal("<head />", doc.ToXmlString());
             Assert.Same(head, result);
         }
 
@@ -93,9 +92,9 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [Fact]
         public void SetValue_is_equivalent_to_Data_property() {
             DomContainer doc = new DomDocument().AppendElement("s");
-            var html = doc.AppendText(" ").SetValue("nyc");
+            var html = doc.AppendText(" ").SetData("nyc");
 
-            // Assert.IsAssignableFrom<DomText>(html);
+            Assert.IsInstanceOf<DomText>(html);
             Assert.Equal("nyc", html.Data);
         }
 

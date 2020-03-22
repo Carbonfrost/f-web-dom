@@ -1,0 +1,10 @@
+case: Remove class
+named: me
+input: >
+    <target class="me" />
+    <target class="hear me" />
+    <target class="me hear" />
+output: >
+    <target class="" />
+    <target class="hear" />
+    <target class="hear" />

@@ -90,7 +90,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         public void OuterXml_should_escape_XML_entities_in_attributes() {
             var doc = new DomDocument();
             doc.AppendElement("e").Attribute("s", "& < \" > '");
-            Assert.Equal("<e s=\"&amp; &lt; &quot; &gt; &apos;\"></e>", doc.OuterXml);
+            Assert.Equal("<e s=\"&amp; &lt; &quot; &gt; &apos;\"/>", doc.OuterXml);
         }
 
         [Fact]
@@ -110,7 +110,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             html.Attribute("lang", "en");
 
             // N.B. By default, xml decl is omitted
-            Assert.Equal("<html lang=\"en\"><body><h1>Hello, world</h1></body></html>", doc.ToXml());
+            Assert.Equal("<html lang=\"en\"><body><h1>Hello, world</h1></body></html>", doc.ToXmlString());
         }
 
         [Fact]
@@ -204,10 +204,10 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void ToString_should_return_basic_xml() {
+        public void ToXmlString_should_return_basic_xml() {
             var doc = new DomDocument();
             doc.Append(doc.CreateElement("el"));
-            Assert.Equal("<el />", doc.ToString());
+            Assert.Equal("<el />", doc.ToXmlString());
         }
 
         [Fact]
@@ -283,6 +283,22 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void Append_should_relocate_elements_between_documents() {
+            var doc1 = new DomDocument();
+            var doc2 = new DomDocument();
+            var ele1 = doc1.AppendElement("left");
+            var root = doc2.AppendElement("root");
+            var elements = new [] {
+                root.AppendElement("right1"),
+                root.AppendElement("right2"),
+                root.AppendElement("right3"),
+            };
+
+            ele1.Append(root.ChildNodes);
+            Assert.Same(doc1, elements[0].OwnerDocument);
+        }
+
+        [Fact]
         public void CreateElement_should_throw_on_empty_string() {
             var doc = new DomDocument();
             Assert.Throws<ArgumentException>(() => doc.CreateElement(""));
@@ -299,7 +315,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var doc = new DomDocument();
             var xml = "<html> <body a=\"true\" b=\"false\"> Text <p a=\"b\" /> <span> <time /> </span>  </body> </html>";
             doc.LoadXml(xml);
-            Assert.Equal(xml, doc.ToXml());
+            Assert.Equal(xml, doc.ToXmlString());
         }
 
         [Theory]
@@ -309,7 +325,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         public void LoadXml_parses_leading_and_or_trailing_ws(string input) {
             var d = new DomDocument();
             d.LoadXml(input);
-            Assert.Equal(input, d.ToXml());
+            Assert.Equal(input, d.ToXmlString());
         }
 
         [Fact]

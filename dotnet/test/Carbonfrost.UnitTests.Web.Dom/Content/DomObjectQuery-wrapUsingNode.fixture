@@ -1,0 +1,13 @@
+case: Wrap using node
+input: >
+    <div>
+      <target />
+      <target />
+    </div>
+with: >
+    <hello class="A"><existing /></hello>
+output: >
+    <div>
+      <hello class="A"><existing /><target /></hello>
+      <hello class="A"><existing /><target /></hello>
+    </div>

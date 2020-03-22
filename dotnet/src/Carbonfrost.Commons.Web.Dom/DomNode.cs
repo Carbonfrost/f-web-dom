@@ -44,10 +44,10 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public string Attribute(string name) {
             if (name == null) {
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
             }
             if (name.Length == 0) {
-                throw Failure.EmptyString("name");
+                throw Failure.EmptyString(nameof(name));
             }
 
             if (Attributes == null) {
@@ -59,7 +59,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public bool HasClass(string name) {
-            var list = DomStringTokenList.Parse(Attribute("class"));
+            var list = Attribute<DomStringTokenList>("class");
+            if (list == null) {
+                return false;
+            }
             var names = DomStringTokenList.Parse(name);
             if (names.Count == 0) {
                 return false;
@@ -76,6 +79,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return this;
         }
 
+        public DomNode RemoveChildNodes() {
+            return Empty();
+        }
+
         public bool HasAttribute(string name) {
             return HasAttributes && Attributes.Contains(name);
         }
@@ -88,7 +95,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string ToString() {
-            return NodeValue;
+            return NodeName;
         }
 
         public bool HasAttributes {
@@ -196,7 +203,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public virtual string OuterText {
             get {
-                return new OuterTextVisitor().ConvertToString(this);
+                return OuterTextWriter.ConvertToString(this);
             }
         }
 
@@ -204,14 +211,19 @@ namespace Carbonfrost.Commons.Web.Dom {
             get {
                 return new OuterXmlVisitor().ConvertToString(this);
             }
+            set {
+                var frag = OwnerDocument.CreateDocumentFragment();
+                frag.LoadXml(value);
+                ReplaceWith(frag.ChildNodes);
+            }
         }
 
         public sealed override DomNode PreviousSiblingNode {
             get {
-                if (ParentNode == null)
+                if (ParentNode == null) {
                     return null;
-                else
-                    return ParentNode.ChildNodes.GetPreviousSibling(this);
+                }
+                return ParentNode.ChildNodes.GetPreviousSibling(this);
             }
         }
 
@@ -277,20 +289,25 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         private DomNode RequireParent() {
-            if (ParentNode == null)
+            if (ParentNode == null) {
                 throw DomFailure.ParentNodeRequired();
+            }
 
             return ParentNode;
         }
 
         public DomNode Clone() {
-            return this.CloneCore();
+            return CloneCore();
         }
 
         protected virtual DomNode CloneCore() {
-            var clone = (DomNode) base.MemberwiseClone();
-            this.OwnerDocument.UnlinkedNodes.Add((DomNode) clone);
+            var clone = (DomNode) MemberwiseClone();
+            OwnerDocument.UnlinkedNodes.Add((DomNode) clone);
             return clone;
+        }
+
+        internal static DomNode[] CloneAll(DomNode[] items) {
+            return Array.ConvertAll(items, i => i.Clone());
         }
 
         // One day C# would support covariance here...
@@ -304,29 +321,44 @@ namespace Carbonfrost.Commons.Web.Dom {
         public DomContainer Closest(string selector) {
             DomSelector s;
             if (!DomSelector.TryParse(selector, out s)) {
-                throw Failure.NotParsable("selector", typeof(DomSelector));
+                throw Failure.NotParsable(nameof(selector), typeof(DomSelector));
             }
             return Closest(s);
         }
 
         public DomContainer Closest(DomSelector selector) {
             if (selector == null) {
-                throw new ArgumentNullException("selector");
+                throw new ArgumentNullException(nameof(selector));
             }
             return (DomContainer) ContainerOrSelf.AncestorsAndSelf.FirstOrDefault(t => selector.Matches(t));
         }
 
-        public DomObjectQuery QuerySelectorAll(string selector) {
-            return Select(selector);
+        public DomElementQuery QuerySelectorAll(string selector) {
+            return Select(selector).Elements;
         }
 
-        public DomNode QuerySelector(string selector) {
+        public DomElementQuery QuerySelectorAll(DomSelector selector) {
+            return Select(selector).Elements;
+        }
+
+        public DomElement QuerySelector(string selector) {
+            return QuerySelectorAll(selector).FirstOrDefault();
+        }
+
+        public DomElement QuerySelector(DomSelector selector) {
             return QuerySelectorAll(selector).FirstOrDefault();
         }
 
         public DomObjectQuery Select(string selector) {
             var sl = FindProviderFactory().CreateSelector(selector);
             return sl.Select(this);
+        }
+
+        public DomObjectQuery Select(DomSelector selector) {
+            if (selector == null) {
+                throw new ArgumentNullException(nameof(selector));
+            }
+            return selector.Select(this);
         }
 
         public DomNode CompressWhitespace() {

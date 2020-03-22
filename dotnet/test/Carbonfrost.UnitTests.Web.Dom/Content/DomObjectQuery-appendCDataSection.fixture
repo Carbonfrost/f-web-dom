@@ -1,0 +1,5 @@
+case: Prepend CDATA section
+input: >
+    <target><a/></target>
+output: >
+    <target><a/><![CDATA[some example data]]></target>

@@ -1,0 +1,5 @@
+case: Prepend a comment
+input: >
+    <target><e /></target>
+output: >
+    <target><!--some example data--><e /></target>

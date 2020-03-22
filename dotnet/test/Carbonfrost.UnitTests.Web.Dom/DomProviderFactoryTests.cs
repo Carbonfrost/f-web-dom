@@ -16,7 +16,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
@@ -57,6 +57,28 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [Fact]
         public void FromName_should_obtain_default_by_name() {
             Assert.Equal(DomProviderFactory.Default, DomProviderFactory.FromName("Default"));
+        }
+
+        [Fact]
+        public void FromCriteria_should_obtain_default_by_name() {
+            Assert.Equal(
+                DomProviderFactory.Default,
+                DomProviderFactory.FromCriteria(new { Extension = ".xml" })
+            );
+        }
+
+        [Fact]
+        public void FromCriteria_should_obtain_by_file_extension() {
+            Assert.IsInstanceOf<CustomDomProviderFactory>(
+                DomProviderFactory.FromCriteria(new { Extension = ".custom" })
+            );
+        }
+
+        [Fact]
+        public void ForFileName_should_create_specific_to_Url() {
+            Assert.IsInstanceOf<CustomDomProviderFactory>(
+                DomProviderFactory.ForFileName(DomWriterSettings.Empty, "hello.custom")
+            );
         }
 
         [Theory]

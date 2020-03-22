@@ -38,19 +38,19 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public string Data {
             get {
-                return _data ?? string.Empty;
+                return TextContent;
             }
             set {
-                _data = (value ?? string.Empty).Trim();
+                TextContent = value;
             }
         }
 
         public override string TextContent {
             get {
-                return this.Data;
+                return _data ?? string.Empty;
             }
             set {
-                this.Data = value;
+                _data = (value ?? string.Empty).Trim();
             }
         }
 
@@ -69,19 +69,19 @@ namespace Carbonfrost.Commons.Web.Dom {
             _target = target;
         }
 
-        public override DomNodeType NodeType {
+        public sealed override DomNodeType NodeType {
             get {
                 return DomNodeType.ProcessingInstruction;
             }
         }
 
-        public override string NodeName {
+        public sealed override string NodeName {
             get {
                 return Target;
             }
         }
 
-        public override string NodeValue {
+        public sealed override string NodeValue {
             get {
                 return Data;
             }
@@ -133,8 +133,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Target;
         }
 
-        public void AppendData(string data) {
+        public DomProcessingInstruction AppendData(string data) {
             Data += data;
+            return this;
         }
     }
 }

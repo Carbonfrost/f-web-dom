@@ -1,0 +1,8 @@
+case: Add class
+named: new
+input: >
+    <target />
+    <target class="old" />
+output: >
+    <target class="new" />
+    <target class="old new" />

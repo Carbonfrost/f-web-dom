@@ -1,11 +1,11 @@
 case: Prepend
 input: >
     <div>
-        <section><a></a></section>
+        <target><a></a></target>
     </div>
 output: >
     <div>
-        <section>#text<a></a></section>
+        <target>#text<a></a></target>
     </div>
 
 ---

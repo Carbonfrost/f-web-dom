@@ -1,13 +1,11 @@
 //
-// - DomNode.Writer.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +16,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -30,18 +27,21 @@ namespace Carbonfrost.Commons.Web.Dom {
         // TODO Support cloning
 
         public void CopyTo(DomNode parent) {
-            if (parent == null)
-                throw new ArgumentNullException("parent");
+            if (parent == null) {
+                throw new ArgumentNullException(nameof(parent));
+            }
 
             parent.Append(this.Clone());
         }
 
         public void CopyContentsTo(DomNode parent) {
-            if (parent == null)
-                throw new ArgumentNullException("parent");
+            if (parent == null) {
+                throw new ArgumentNullException(nameof(parent));
+            }
 
-            foreach (var child in this.ChildNodes)
+            foreach (var child in ChildNodes) {
                 parent.Append(child.Clone());
+            }
         }
 
         public DomNodeReader CreateReader() {
@@ -52,24 +52,36 @@ namespace Carbonfrost.Commons.Web.Dom {
             return new DomNodeReader(this, settings);
         }
 
-        public string ToXml(XmlWriterSettings settings) {
+        public string ToXmlString(XmlWriterSettings settings) {
             StringWriter sw = new StringWriter();
-            using (XmlWriter xw = XmlWriter.Create(sw, settings))
+            using (XmlWriter xw = XmlWriter.Create(sw, ToXmlStringSettingsCore(settings))) {
                 WriteTo(xw);
+            }
             return sw.ToString();
         }
 
-        public string ToXml() {
-            XmlWriterSettings s = new XmlWriterSettings();
-            s.OmitXmlDeclaration = true;
-            return ToXml(s);
+        public string ToXmlString() {
+            return ToXmlString(ToXmlStringSettingsCore(null));
+        }
+
+        private XmlWriterSettings ToXmlStringSettingsCore(XmlWriterSettings settings) {
+            // To support document fragments, lower the conformance level
+            if (settings == null) {
+                return new XmlWriterSettings {
+                    OmitXmlDeclaration = true,
+                    ConformanceLevel = ConformanceLevel.Auto,
+                };
+            }
+            var result = settings.Clone();
+            result.ConformanceLevel = ConformanceLevel.Auto;
+            return settings;
         }
 
         public virtual DomWriter Prepend() {
-            if (PreviousSiblingNode == null)
+            if (PreviousSiblingNode == null) {
                 return RequireParent().Append();
-            else
-                return PreviousSiblingNode.AppendAfter();
+            }
+            return PreviousSiblingNode.AppendAfter();
         }
 
         public virtual DomWriter Append() {
@@ -80,46 +92,56 @@ namespace Carbonfrost.Commons.Web.Dom {
             return OwnerDocument.ProviderFactory.CreateWriter(this, null);
         }
 
-        public virtual void WriteTo(TextWriter writer) {
-            if (writer == null)
-                throw new ArgumentNullException("writer");
+        public void WriteTo(TextWriter writer) {
+            if (writer == null){
+                throw new ArgumentNullException(nameof(writer));
+            }
 
-            WriteTo(XmlWriter.Create(writer));
+            WriteTo(
+                CreateDefaultTextWriter(writer)
+            );
         }
 
         public void WriteTo(XmlWriter writer) {
-            if (writer == null)
-                throw new ArgumentNullException("writer");
+            if (writer == null){
+                throw new ArgumentNullException(nameof(writer));
+            }
 
             WriteTo(new XmlDomWriter(writer));
         }
 
         public void WriteTo(DomWriter writer) {
-            if (writer == null)
-                throw new ArgumentNullException("writer");
+            if (writer == null){
+                throw new ArgumentNullException(nameof(writer));
+            }
 
             writer.Write(this);
         }
 
         public void WriteContentsTo(TextWriter writer) {
-            if (writer == null)
-                throw new ArgumentNullException("writer");
+            if (writer == null) {
+                throw new ArgumentNullException(nameof(writer));
+            }
 
-            WriteContentsTo(XmlWriter.Create(writer));
+            WriteContentsTo(
+                CreateDefaultTextWriter(writer)
+            );
         }
 
         public void WriteContentsTo(XmlWriter writer) {
-            if (writer == null)
-                throw new ArgumentNullException("writer");
+            if (writer == null){
+                throw new ArgumentNullException(nameof(writer));
+            }
 
             WriteContentsTo(new XmlDomWriter(writer));
         }
 
         public void WriteContentsTo(DomWriter writer) {
-            if (writer == null)
-                throw new ArgumentNullException("writer");
+            if (writer == null){
+                throw new ArgumentNullException(nameof(writer));
+            }
 
-            writer.Write(this.ChildNodes);
+            writer.Write(ChildNodes);
         }
 
         XmlSchema IXmlSerializable.GetSchema() {
@@ -133,6 +155,10 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         void IXmlSerializable.WriteXml(XmlWriter writer) {
             WriteTo(writer);
+        }
+
+        private DomWriter CreateDefaultTextWriter(TextWriter writer) {
+            return FindProviderFactory().CreateWriter(writer);
         }
     }
 

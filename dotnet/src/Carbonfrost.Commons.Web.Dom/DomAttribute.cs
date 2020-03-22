@@ -176,11 +176,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return (TValue) obj;
             }
             if (CONVERSION_TYPES.TryGetValue(typeof(TValue), out var method)) {
-                try {
-                    return (TValue) method.Invoke(null, new [] { this });
-                } catch (TargetInvocationException ex) {
-                    throw ex.InnerException;
-                }
+                return (TValue) method.InvokeWithUnwrap(null, new [] { this });
             }
             if (DomValue is TValue value) {
                 return value;
@@ -230,6 +226,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
 
             return lhs.Name == rhs.Name && lhs.content == rhs.content;
+        }
+
+        internal static DomAttribute[] CloneAll(DomAttribute[] items) {
+            return Array.ConvertAll(items, i => i.Clone());
         }
 
         public override string ToString() {

@@ -1,0 +1,7 @@
+case: Remove attributes
+input: >
+    <target a="a" b="b" c="c" />
+    <target a="a" />
+output: >
+    <target />
+    <target />

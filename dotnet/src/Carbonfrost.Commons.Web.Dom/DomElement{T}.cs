@@ -78,6 +78,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (TElement) base.Empty();
         }
 
+        public new TElement RemoveChildNodes() {
+            return (TElement) base.RemoveChildNodes();
+        }
+
         public new TElement Remove() {
             return (TElement) base.Remove();
         }
@@ -96,6 +100,10 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public new TElement RemoveAttribute(string name) {
             return (TElement) base.RemoveAttribute(name);
+        }
+
+        public new TElement RemoveAttributes() {
+            return (TElement) base.RemoveAttributes();
         }
 
         public new TElement RemoveClass(string className) {

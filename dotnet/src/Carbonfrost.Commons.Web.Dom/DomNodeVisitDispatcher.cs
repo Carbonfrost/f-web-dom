@@ -22,8 +22,17 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public class DomNodeVisitDispatcher : IDomNodeVisitDispatcher {
 
-        private readonly IDictionary<Type, MethodInfo> _dispatchCache;
+        private static readonly IDictionary<Type, DispatchCacheImpl> _allDispatchCaches = new Dictionary<Type, DispatchCacheImpl>();
         private readonly IDomNodeVisitor _visitor;
+
+        private DispatchCacheImpl DispatchCache {
+            get {
+                return _allDispatchCaches.GetValueOrCache(
+                    _visitor.GetType(),
+                    t => new DispatchCacheImpl(t)
+                );
+            }
+        }
 
         public DomNodeVisitDispatcher(IDomNodeVisitor visitor) {
             if (visitor == null) {
@@ -31,7 +40,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
 
             _visitor = visitor;
-            _dispatchCache = NewDispatchCache(visitor);
         }
 
         public static IDomNodeVisitDispatcher Create(IDomNodeVisitor visitor) {
@@ -39,7 +47,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return d;
             }
             var result = new DomNodeVisitDispatcher(visitor);
-            if (result._dispatchCache.Count == 0) {
+            if (result.DispatchCache.IsEmpty) {
                 return new FastDispatcher(visitor);
             }
             return result;
@@ -80,8 +88,8 @@ namespace Carbonfrost.Commons.Web.Dom {
             var type = obj.GetType();
 
             while (!CanFastDispatch(type)) {
-                if (_dispatchCache.TryGetValue(type, out MethodInfo method)) {
-                    method.Invoke(_visitor, new[] { obj });
+                if (DispatchCache.TryGetValue(type, out MethodInfo method)) {
+                    method.InvokeWithUnwrap(_visitor, new[] { obj });
                     return;
                 }
                 type = type.BaseType;
@@ -139,6 +147,39 @@ namespace Carbonfrost.Commons.Web.Dom {
                 case DomNotation _:
                     v.Visit((DomNotation) obj);
                     return;
+            }
+        }
+
+        class DispatchCacheImpl {
+            private readonly Dictionary<Type, MethodInfo> _dispatch;
+
+            public DispatchCacheImpl(Type type) {
+                _dispatch = new Dictionary<Type, MethodInfo>();
+                foreach (var face in type.GetInterfaces()) {
+                    if (!typeof(IDomNodeVisitor).IsAssignableFrom(face)) {
+                        continue;
+                    }
+                    if (typeof(IDomNodeVisitor) == face) {
+                        continue;
+                    }
+                    var mapping = type.GetInterfaceMap(face);
+                    for (int i = 0; i < mapping.InterfaceMethods.Length; i++) {
+                        if (mapping.InterfaceMethods[i].Name == "Visit") {
+                            var elementType = mapping.InterfaceMethods[i].GetParameters()[0].ParameterType;
+                            _dispatch[elementType] = mapping.TargetMethods[i];
+                        }
+                    }
+                }
+            }
+
+            public bool IsEmpty {
+                get {
+                    return _dispatch.Count == 0;
+                }
+            }
+
+            public bool TryGetValue(Type type, out MethodInfo method) {
+                return _dispatch.TryGetValue(type, out method);
             }
         }
 

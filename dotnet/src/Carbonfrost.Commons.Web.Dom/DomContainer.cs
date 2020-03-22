@@ -73,7 +73,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override string InnerText {
             get {
-                return new OuterTextVisitor().ConvertToString(ChildNodes);
+                return OuterTextWriter.ConvertToString(ChildNodes);
             }
             set {
                 Empty();
@@ -160,7 +160,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public bool IsEmpty {
             get {
-                return this.ChildNodes.Count == 0;
+                return ChildNodes.Count == 0;
             }
         }
 
@@ -189,12 +189,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomElement Child(int index) {
-            return this.Elements.ElementAtOrDefault(index);
+            return Elements.ElementAtOrDefault(index);
         }
 
         public DomContainer AddRange(params object[] content) {
-            foreach (var o in content)
+            foreach (var o in content) {
                 Add(o);
+            }
             return this;
         }
 
@@ -211,20 +212,24 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomContainer Add(object content) {
-            if (content == null)
+            if (content == null) {
                 return this;
+            }
 
             var n = content as DomNode;
-            if (n != null)
+            if (n != null) {
                 return (DomContainer) Append(n);
+            }
 
             string s = content as string;
-            if (s != null)
+            if (s != null) {
                 return AddString(s);
+            }
 
             var a = content as DomAttribute;
-            if (a != null)
+            if (a != null) {
                 return (DomContainer) Append(a);
+            }
 
             var array = content as object[];
             if (array != null) {
@@ -244,8 +249,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         private DomContainer AddString(string s) {
-            if (s.Length == 0)
+            if (s.Length == 0) {
                 return this;
+            }
 
             if (LastChildNode == null || !LastChildNode.IsCharacterData) {
                 AppendText(s);
@@ -257,7 +263,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string ToString() {
-            return ToXml();
+            return NodeName;
         }
 
         internal virtual void AssertCanAppend(DomNode node, DomNode willReplace) {
@@ -265,7 +271,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         internal void CoreLoadXml(XmlReader reader) {
             if (reader == null) {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException(nameof(reader));
             }
 
             DomContainer currentContainer = this;
@@ -299,8 +305,11 @@ namespace Carbonfrost.Commons.Web.Dom {
                     case XmlNodeType.Entity:
                     case XmlNodeType.DocumentType:
                     case XmlNodeType.Notation:
-                    case XmlNodeType.ProcessingInstruction:
                         throw new NotImplementedException();
+
+                    case XmlNodeType.ProcessingInstruction:
+                        currentContainer.AppendProcessingInstruction(reader.Name, reader.Value);
+                        break;
 
                     case XmlNodeType.Whitespace:
                     case XmlNodeType.SignificantWhitespace:
@@ -336,7 +345,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 queue.Enqueue(ele);
 
             } else {
-                this.QueueChildren(queue);
+                QueueChildren(queue);
             }
 
             while (queue.Count > 0) {
@@ -347,7 +356,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         private void QueueChildren(Queue<DomElement> queue) {
-            foreach (var child in this.Elements)
+            foreach (var child in Elements)
                 queue.Enqueue(child);
         }
 
@@ -383,12 +392,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomContainer) base.Empty();
         }
 
+        public new DomContainer RemoveChildNodes() {
+            return (DomContainer) base.RemoveChildNodes();
+        }
+
         public new DomContainer Remove() {
             return (DomContainer) base.Remove();
         }
 
         public new DomContainer RemoveAttribute(string name) {
             return (DomContainer) base.RemoveAttribute(name);
+        }
+
+        public new DomContainer RemoveAttributes() {
+            return (DomContainer) base.RemoveAttributes();
         }
 
         public new DomContainer RemoveClass(string className) {

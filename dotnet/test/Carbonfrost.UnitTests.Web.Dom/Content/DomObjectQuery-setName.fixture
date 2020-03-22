@@ -1,0 +1,5 @@
+case: Set name
+input: >
+    <target><existing /></target>
+output: >
+    <this><existing /></this>

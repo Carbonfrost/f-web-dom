@@ -14,18 +14,20 @@
 // limitations under the License.
 //
 
-using System;
-using System.IO;
-using System.Xml;
-using Carbonfrost.Commons.Core.Runtime;
+using System.Collections.Generic;
+using System.Linq;
+using Carbonfrost.Commons.Web.Dom;
 
-namespace Carbonfrost.Commons.Web.Dom {
-    interface IDomDocumentLoaderApiConventions {
-        void Load(string fileName);
-        void Load(Stream input);
-        void Load(StreamContext input);
-        void Load(Uri source);
-        void Load(XmlReader reader);
-        void LoadXml(string xml);
+namespace Carbonfrost.UnitTests.Web.Dom {
+
+    static class TestExtensions {
+
+        public static IEnumerable<string> NodeNames(this DomNodeCollection source) {
+            return source.Select(n => n.NodeName);
+        }
+
+        public static IEnumerable<string> NodeNames(this DomElementCollection source) {
+            return source.Select(n => n.NodeName);
+        }
     }
 }

@@ -1,0 +1,11 @@
+case: Unwrapping a node
+input: >
+    <div>
+        <target>
+            <e class="a"> </e>
+        </target>
+    </div>
+output: >
+    <div>
+        <e class="a"> </e>
+    </div>

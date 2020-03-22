@@ -20,23 +20,23 @@ using System.Text.RegularExpressions;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomCharacterData : DomNode {
+    public abstract class DomCharacterData : DomNode, IDomCharacterData<DomCharacterData> {
 
         public string Data {
             get {
-                return (string) this.content;
+                return (string) content;
             }
             set {
-                this.content = value;
+                content = value;
             }
         }
 
         public override string TextContent {
             get {
-                return this.Data;
+                return Data;
             }
             set {
-                this.Data = value;
+                Data = value;
             }
         }
 
@@ -51,8 +51,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public void AppendData(string data) {
-            this.Data += data;
+        public DomCharacterData AppendData(string data) {
+            Data += data;
+            return this;
         }
 
         internal override void TryCompressWS() {
@@ -90,6 +91,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             var myItems = items.Where(t => t.Length > 0);
             After(myItems.Skip(1).Select(n => document.CreateText(n)));
             Data = myItems.FirstOrDefault() ?? string.Empty;
+            return this;
+        }
+
+        public DomCharacterData SetData(string value) {
+            Data = value;
             return this;
         }
     }
