@@ -92,9 +92,9 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [Fact]
         public void SetValue_is_equivalent_to_Data_property() {
             DomContainer doc = new DomDocument().AppendElement("s");
-            var html = doc.AppendText(" ").SetValue("nyc");
+            var html = doc.AppendText(" ").SetData("nyc");
 
-            // Assert.IsAssignableFrom<DomText>(html);
+            Assert.IsInstanceOf<DomText>(html);
             Assert.Equal("nyc", html.Data);
         }
 

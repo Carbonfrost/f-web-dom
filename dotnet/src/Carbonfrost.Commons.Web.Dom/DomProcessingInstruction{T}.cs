@@ -21,5 +21,9 @@ namespace Carbonfrost.Commons.Web.Dom {
     {
         protected DomProcessingInstruction() : base() {}
         protected DomProcessingInstruction(string name) : base(name) {}
+
+        public new TProcessingInstruction AppendData(string data) {
+            return (TProcessingInstruction) base.AppendData(data);
+        }
     }
 }

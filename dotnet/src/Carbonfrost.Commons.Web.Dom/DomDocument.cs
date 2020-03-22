@@ -23,7 +23,7 @@ using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public partial class DomDocument : DomContainer, IDomNodeFactory, IDomNodeFactoryApiConventions, IDomDocumentLoaderApiConventions {
+    public partial class DomDocument : DomContainer, IDomNodeFactory, IDomNodeFactoryApiConventions, IDomXmlLoader<DomDocument> {
 
         private readonly IDomUnlinkedNodeCollection _unlinked;
         private IDomNodeFactory _nodeFactory;
@@ -187,43 +187,46 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomElement) Select("#" + id).FirstOrDefault();
         }
 
-        public void Load(string fileName) {
-            Load(StreamContext.FromFile(fileName));
+        public DomDocument Load(string fileName) {
+            return Load(StreamContext.FromFile(fileName));
         }
 
-        public void Load(Uri source) {
-            Load(StreamContext.FromSource(source));
+        public DomDocument Load(Uri source) {
+            return Load(StreamContext.FromSource(source));
         }
 
-        public void Load(Stream input) {
-            Load(StreamContext.FromStream(input));
+        public DomDocument Load(Stream input) {
+            return Load(StreamContext.FromStream(input));
         }
 
-        public void Load(StreamContext input) {
-            if (input == null)
-                throw new ArgumentNullException("input");
+        public DomDocument Load(StreamContext input) {
+            if (input == null) {
+                throw new ArgumentNullException(nameof(input));
+            }
 
             LoadText(input.OpenText());
+            return this;
         }
 
         protected virtual void LoadText(TextReader input) {
-            if (input == null)
-                throw new ArgumentNullException("input");
+            if (input == null) {
+                throw new ArgumentNullException(nameof(input));
+            }
 
-            var reader = this.ProviderFactory.CreateReader(input);
-
-            // TODO By default, use document semantics on loading
-            throw new NotImplementedException();
+            var reader = ProviderFactory.CreateReader(input);
+            reader.CopyTo(this);
         }
 
-        public void LoadXml(string xml) {
+        public DomDocument LoadXml(string xml) {
             using (var xr = XmlReader.Create(new StringReader(xml))) {
                 Load(xr);
             }
+            return this;
         }
 
-        public void Load(XmlReader reader) {
+        public DomDocument Load(XmlReader reader) {
             CoreLoadXml(reader);
+            return this;
         }
 
         public DomComment CreateComment() {

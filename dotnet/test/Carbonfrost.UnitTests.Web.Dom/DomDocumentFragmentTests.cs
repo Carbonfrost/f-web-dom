@@ -68,5 +68,18 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Equal("<a /><b /><c />", frag.ToXmlString());
         }
 
+        [Fact]
+        public void Constructor_can_create_document_fragment_with_implicit_internal_document() {
+            var frag = new DomDocumentFragment();
+            Assert.NotNull(frag.OwnerDocument);
+        }
+
+        [Fact]
+        public void Constructor_can_create_document_fragment_with_implicit_internal_document_using_specialized_type() {
+            var frag = new RDocumentFragment();
+            Assert.NotNull(frag.OwnerDocument);
+            Assert.IsInstanceOf<RDocument>(frag.OwnerDocument);
+        }
+
     }
 }

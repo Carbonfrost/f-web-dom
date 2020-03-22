@@ -1,11 +1,11 @@
 //
-// Copyright 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2016, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,13 +22,13 @@ using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    interface IDomXmlLoader {
-        void Load(string fileName);
-        void Load(Uri source);
-        void Load(Stream input);
-        void Load(StreamContext input);
-        void Load(XmlReader reader);
-        void LoadXml(string xml);
+    interface IDomXmlLoader<T> where T : DomContainer {
+        T Load(string fileName);
+        T Load(Uri source);
+        T Load(Stream input);
+        T Load(StreamContext input);
+        T Load(XmlReader reader);
+        T LoadXml(string xml);
     }
 
 }

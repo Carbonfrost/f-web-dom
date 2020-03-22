@@ -1,7 +1,5 @@
 //
-// - IDomElementVisitor.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,20 +14,15 @@
 // limitations under the License.
 //
 
-using System;
+using System.Text.RegularExpressions;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public interface IDomElementVisitor<TElement>
-        where TElement : DomElement<TElement>
-    {
-        void Dispatch(TElement element);
+    interface IDomCharacterData<TSelf> {
+        TSelf AppendData(string data);
+        TSelf SetData(string value);
+        TSelf SplitText(int index);
+        TSelf SplitText(int index, int length);
+        TSelf SplitText(Regex pattern);
     }
-
-    public interface IDomElementVisitor<TElement, TArgument, TResult>
-        where TElement : DomElement<TElement>
-    {
-        TResult Dispatch(TElement element, TArgument argument);
-    }
-
 }

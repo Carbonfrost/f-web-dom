@@ -22,7 +22,9 @@ using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public partial class DomDocumentFragment : DomContainer, IDomDocumentLoaderApiConventions {
+    public partial class DomDocumentFragment : DomContainer, IDomXmlLoader<DomDocumentFragment> {
+
+        private DomDocument _implicitOwnerDocument;
 
         public override DomNodeType NodeType {
             get {
@@ -42,51 +44,62 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        protected internal DomDocumentFragment() {
+        private protected override DomDocument DomOwnerDocument {
+            get {
+                var doc = _implicitOwnerDocument ?? base.DomOwnerDocument;
+                if (doc == null) {
+                    doc = _implicitOwnerDocument = DomProviderFactory.ForProviderObject(GetType()).CreateDocument();
+                }
+                return doc;
+            }
         }
 
-        public void Load(string fileName) {
-            Load(StreamContext.FromFile(fileName));
+        public DomDocumentFragment() {
         }
 
-        public void Load(Uri source) {
-            Load(StreamContext.FromSource(source));
+        public DomDocumentFragment Load(string fileName) {
+            return Load(StreamContext.FromFile(fileName));
         }
 
-        public void Load(Stream input) {
-            Load(StreamContext.FromStream(input));
+        public DomDocumentFragment Load(Uri source) {
+            return Load(StreamContext.FromSource(source));
         }
 
-        public void Load(StreamContext input) {
+        public DomDocumentFragment Load(Stream input) {
+            return Load(StreamContext.FromStream(input));
+        }
+
+        public DomDocumentFragment Load(StreamContext input) {
             if (input == null) {
                 throw new ArgumentNullException("input");
             }
 
             LoadText(input.OpenText());
+            return this;
         }
 
         protected virtual void LoadText(TextReader input) {
             if (input == null) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
 
-            var reader = OwnerDocument.ProviderFactory.CreateReader(input);
-
-            // TODO By default, use document semantics on loading
-            throw new NotImplementedException();
+            var reader = FindProviderFactory().CreateReader(input);
+            reader.CopyTo(this);
         }
 
-        public void LoadXml(string xml) {
+        public DomDocumentFragment LoadXml(string xml) {
             var settings = new XmlReaderSettings {
                 ConformanceLevel = ConformanceLevel.Fragment,
             };
             using (var xr = XmlReader.Create(new StringReader(xml), settings)) {
                 Load(xr);
             }
+            return this;
         }
 
-        public void Load(XmlReader reader) {
+        public DomDocumentFragment Load(XmlReader reader) {
             CoreLoadXml(reader);
+            return this;
         }
     }
 }

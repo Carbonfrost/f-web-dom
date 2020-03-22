@@ -18,7 +18,7 @@ using System.Text.RegularExpressions;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public partial class DomText : DomCharacterData {
+    public partial class DomText : DomCharacterData, IDomCharacterData<DomText> {
 
         protected internal DomText() : base() {
         }
@@ -35,21 +35,24 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public override DomNodeType NodeType {
+        public sealed override DomNodeType NodeType {
             get {
                 return DomNodeType.Text;
             }
         }
 
-        public override string NodeName {
+        public sealed override string NodeName {
             get {
                 return "#text";
             }
         }
 
-        public DomText SetValue(string value) {
-            Data = value;
-            return this;
+        public new DomText AppendData(string data) {
+            return (DomText) base.AppendData(data);
+        }
+
+        public new DomText SetData(string value) {
+            return (DomText) base.SetData(value);
         }
 
         public new DomText SplitText(int index) {

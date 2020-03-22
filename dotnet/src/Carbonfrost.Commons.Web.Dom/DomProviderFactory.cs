@@ -98,9 +98,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (instance == null) {
                 throw new ArgumentNullException(nameof(instance));
             }
-
-            var e = GetProvidersByLikelihood(instance.GetType());
-            return e.FirstOrDefault(t => t.IsProviderObject(instance));
+            return ForProviderObject(instance.GetType());
         }
 
         public virtual bool IsProviderObject(Type providerObjectType) {

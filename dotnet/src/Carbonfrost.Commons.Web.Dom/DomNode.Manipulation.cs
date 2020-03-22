@@ -155,7 +155,10 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return this;
             }
 
-            foreach (var e in childNodes) {
+            // TODO We always copy the child nodes because it is possible this is operating on a
+            // collection that will be concurrently modified.  We could detect this situation (performance)
+
+            foreach (var e in childNodes.ToList()) {
                 Append(e);
             }
             return this;

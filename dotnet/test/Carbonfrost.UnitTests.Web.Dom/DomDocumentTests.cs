@@ -287,10 +287,15 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var doc1 = new DomDocument();
             var doc2 = new DomDocument();
             var ele1 = doc1.AppendElement("left");
-            var ele2 = doc2.AppendElement("right");
+            var root = doc2.AppendElement("root");
+            var elements = new [] {
+                root.AppendElement("right1"),
+                root.AppendElement("right2"),
+                root.AppendElement("right3"),
+            };
 
-            ele1.Append(ele2);
-            Assert.Same(doc1, ele2.OwnerDocument);
+            ele1.Append(root.ChildNodes);
+            Assert.Same(doc1, elements[0].OwnerDocument);
         }
 
         [Fact]

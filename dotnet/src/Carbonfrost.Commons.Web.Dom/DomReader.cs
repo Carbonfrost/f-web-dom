@@ -54,6 +54,14 @@ namespace Carbonfrost.Commons.Web.Dom {
             throw new NotImplementedException();
         }
 
+        public void CopyTo(DomNode node) {
+            if (node == null) {
+                throw new ArgumentNullException(nameof(node));
+            }
+            var writer = node.FindProviderFactory().CreateWriter(node, null);
+            CopyTo(writer);
+        }
+
         public void Close() {
             Dispose(true);
         }
