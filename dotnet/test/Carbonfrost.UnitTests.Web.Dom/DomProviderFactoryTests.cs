@@ -41,6 +41,10 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
                     typeof(DomWriter),
                     typeof(DomReader),
+                    typeof(DomSelector),
+                    typeof(CssSelector),
+                    typeof(DomObjectQuery),
+                    typeof(DomElementQuery),
                 };
             }
         }

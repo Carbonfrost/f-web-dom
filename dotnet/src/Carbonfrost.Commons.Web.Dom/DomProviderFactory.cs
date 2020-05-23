@@ -32,6 +32,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         public static readonly DomProviderFactory Default
             = new DefaultDomProviderFactory();
 
+        private DomElementQuery _elementQueryCache;
+        private DomObjectQuery _objectQueryCache;
+
         internal static readonly Assembly THIS_ASSEMBLY = typeof(DefaultDomProviderFactory).GetTypeInfo().Assembly;
         static readonly HashSet<Type> PROVIDER_TYPES = new HashSet<Type> {
             typeof(DomNode),
@@ -59,9 +62,29 @@ namespace Carbonfrost.Commons.Web.Dom {
 
             typeof(DomSelector),
             typeof(CssSelector),
+            typeof(DomElementQuery),
+            typeof(DomObjectQuery),
 
             // TODO This is an incomplete list, possible DomNode/DomContainer shouldn't be used since non-leaf types
         };
+
+        internal DomObjectQuery EmptyObjectQuery {
+            get {
+                if (_objectQueryCache == null) {
+                    _objectQueryCache = CreateObjectQuery(Array.Empty<DomObject>());
+                }
+                return _objectQueryCache;
+            }
+        }
+
+        internal DomElementQuery EmptyElementQuery {
+            get {
+                if (_elementQueryCache == null) {
+                    _elementQueryCache = CreateElementQuery(Array.Empty<DomElement>());
+                }
+                return _elementQueryCache;
+            }
+        }
 
         private static IEnumerable<DomProviderFactory> All {
             get {
@@ -229,6 +252,22 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected virtual DomReader CreateDomReader(TextReader reader, DomReaderSettings settings) {
             return DomReader.Create(XmlReader.Create(reader));
+        }
+
+        public DomObjectQuery CreateObjectQuery(IEnumerable<DomObject> items) {
+            return CreateDomObjectQuery(items);
+        }
+
+        protected virtual DomObjectQuery CreateDomObjectQuery(IEnumerable<DomObject> items) {
+            return new DomObjectQuery(items);
+        }
+
+        public DomElementQuery CreateElementQuery(IEnumerable<DomElement> items) {
+            return CreateDomElementQuery(items);
+        }
+
+        protected virtual DomElementQuery CreateDomElementQuery(IEnumerable<DomElement> items) {
+            return new DomElementQuery(items);
         }
 
         public DomSelector CreateSelector(string selector) {
