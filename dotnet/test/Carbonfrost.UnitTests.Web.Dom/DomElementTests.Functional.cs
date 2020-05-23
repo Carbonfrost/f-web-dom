@@ -1,5 +1,5 @@
 //
-// Copyright 2013, 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
 //
 
 using System;
-using System.IO;
 using System.Linq;
-using System.Xml;
+using System.Text.RegularExpressions;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
@@ -38,8 +37,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             op((DomElement) input.Select("target").First());
 
             // Compress whitespace to simplify comparison
-            input.CompressWhitespace();
-            expectedOutput.CompressWhitespace();
+            input.CollapseWS();
+            expectedOutput.CollapseWS();
 
             Assert.Equal(expectedOutput.InnerXml.Trim(), input.InnerXml.Trim());
         }
