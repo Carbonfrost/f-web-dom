@@ -15,36 +15,31 @@
 //
 
 using System;
+using System.Reflection;
+using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    partial class DomDocument {
+    public partial class DomValue : IDomValue {
 
-        public DomSchema Schema {
-            get;
-            private set;
+        internal static IDomValue Create() {
+            return new Automatic();
         }
 
-        public DomDocument WithSchema(DomSchema schema) {
-            var result = this; // TODO Should clone the instance
-            result.Schema = schema;
-            return result;
-        }
+        internal class Automatic : DomValue {}
 
-        private DomAttribute ApplySchema(DomAttribute attr) {
-            if (Schema == null) {
-                return attr;
+        public static IDomValue Create(Type valueType) {
+            if (valueType == null) {
+                throw new ArgumentNullException(nameof(valueType));
             }
-            var def = Schema.AttributeDefinitions[attr.Name];
-            if (def != null && def.ValueType != null) {
-                attr.DomValue = DomValue.Create(def.ValueType);
+            if (typeof(IDomValue).IsAssignableFrom(valueType)) {
+                return Activation.CreateInstance<IDomValue>(valueType);
             }
-            return attr;
-        }
 
-        private DomElement ApplySchema(DomElement attr) {
-            return attr;
+            return (IDomValue) Activator.CreateInstance(
+                typeof(DomValue<>).MakeGenericType(valueType)
+            );
         }
     }
-
 }
+

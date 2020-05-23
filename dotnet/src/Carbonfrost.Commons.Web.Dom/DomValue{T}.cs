@@ -14,30 +14,41 @@
 // limitations under the License.
 //
 
-using System;
-using System.Collections.Generic;
-
+using System.Linq;
 using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public class DomValue<T> : IDomValue {
+    public class DomValue<T> : IDomValue, IDomValue<T> {
 
-        private T _valueCache;
-        private string _textCache;
-        private Action<object> _appendValueThunk;
+        private readonly DomValue.Impl<T> _impl;
 
         public T TypedValue {
             get {
-                return _valueCache;
+                return _impl.Value;
             }
             set {
-                _valueCache = value;
-                _textCache = ConvertBack(value);
+                _impl.Value = value;
             }
         }
 
-        protected virtual void Initialize(DomAttribute attribute) {}
+        private bool HasOverriddenConversion {
+            get {
+                var type = GetType();
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(DomValue<>)) {
+                    return false;
+                }
+                var overrides = new [] {
+                    type.GetMethod("Convert"),
+                    type.GetMethod("ConvertBack"),
+                };
+                return overrides.Any(o => o != null);
+            }
+        }
+
+        protected virtual void Initialize(DomAttribute attribute) {
+            _impl.Initialize(attribute);
+        }
 
         void IDomValue.Initialize(DomAttribute attribute) {
             Initialize(attribute);
@@ -59,22 +70,32 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public string Value {
             get {
-                if (_textCache == null) {
-                    _textCache = ConvertBack(TypedValue);
-                }
-                return _textCache;
+                return _impl.Text;
             }
             set {
-                _textCache = value;
-                _valueCache = Convert(value);
+                _impl.Text = value;
+            }
+        }
+
+        object IDomValue.TypedValue {
+            get {
+                return TypedValue;
+            }
+            set {
+                TypedValue = (T) value;
+            }
+        }
+
+        public DomValue() {
+            if (HasOverriddenConversion) {
+                _impl = DomValue.CreateUserDefinedImpl(Convert, ConvertBack);
+            } else {
+                _impl = DomValue.CreateImpl<T>();
             }
         }
 
         public virtual void AppendValue(object value) {
-            if (_appendValueThunk == null) {
-                _appendValueThunk = AppendValueThunk();
-            }
-            _appendValueThunk(value);
+            _impl.AppendValue(value);
         }
 
         public virtual DomValue<T> Clone() {
@@ -83,20 +104,6 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         IDomValue IDomValue.Clone() {
             return Clone();
-        }
-
-        private Action<object> AppendValueThunk() {
-            // If the user implements DomValue<T> where T is a collection type, we use
-            // add method to do the work of appending a value
-            var collectionType = typeof(T).GetInterface(typeof(ICollection<>).FullName);
-            if (collectionType != null) {
-                var collection = typeof(T).GetInterfaceMap(collectionType);
-                var index = Array.FindIndex(collection.InterfaceMethods, m => m.Name == "Add");
-                var addMethod = collection.TargetMethods[index];
-                return (value) => addMethod.Invoke(TypedValue, new [] { value });
-            }
-
-            return (value) => Value += value;
         }
     }
 }

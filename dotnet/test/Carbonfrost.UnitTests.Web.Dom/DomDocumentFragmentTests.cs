@@ -23,6 +23,19 @@ namespace Carbonfrost.UnitTests.Web.Dom {
     public class DomDocumentFragmentTests {
 
         [Fact]
+        public void CreateAttribute_uses_primitive_value_specified_by_schema() {
+            var schema = new DomSchema("custom");
+            var attrDef = schema.AttributeDefinitions.AddNew("lcid");
+            attrDef.ValueType = typeof(int);
+
+            var doc = new DomDocumentFragment().WithSchema(schema);
+            Assert.IsInstanceOf<DomValue<int>>(
+                doc.CreateAttribute("lcid").DomValue
+            );
+        }
+
+
+        [Fact]
         public void NodeName_equals_special_name() {
             var doc = new DomDocumentFragment();
             Assert.Equal("#document-fragment", doc.NodeName);

@@ -157,6 +157,18 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             );
         }
 
+        [Fact]
+        public void CreateAttribute_uses_primitive_value_specified_by_schema() {
+            var schema = new DomSchema("custom");
+            var attrDef = schema.AttributeDefinitions.AddNew("lcid");
+            attrDef.ValueType = typeof(int);
+
+            var doc = new DomDocument().WithSchema(schema);
+            Assert.IsInstanceOf<DomValue<int>>(
+                doc.CreateAttribute("lcid").DomValue
+            );
+        }
+
         class PDomValue : DomValue<string> {
         }
 

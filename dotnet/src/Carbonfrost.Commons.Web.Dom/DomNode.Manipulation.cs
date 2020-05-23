@@ -44,7 +44,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return this;
 
             var attr = this.Attributes.GetByNameOrCreate(name);
-            attr.SetTypedValue(value);
+            attr.SetValue(value);
             return this;
         }
 
