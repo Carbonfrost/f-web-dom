@@ -11,6 +11,8 @@
     </Description>
     <PackageProjectUrl>https://github.com/Carbonfrost/f-web-dom</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Carbonfrost/f-web-dom</RepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
