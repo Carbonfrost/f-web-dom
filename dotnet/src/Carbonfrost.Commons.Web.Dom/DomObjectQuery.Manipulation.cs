@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Carbonfrost.Commons.Web.Dom {
@@ -367,10 +368,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         private DomNode[] Parse(string markup) {
-            // TODO Depends on provider factory
-            var doc = new DomDocument();
-            var frag = doc.CreateDocumentFragment();
-            frag.LoadXml(markup);
+            var reader = ProviderFactory.CreateReader(new StringReader(markup));
+            var frag = ProviderFactory.CreateDocumentFragment();
+            reader.CopyTo(frag);
             return frag.ChildNodes.ToArray();
         }
 

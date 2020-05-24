@@ -28,6 +28,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         T Load(Stream input);
         T Load(StreamContext input);
         T Load(XmlReader reader);
+        T Load(DomReader reader);
         T LoadXml(string xml);
     }
 

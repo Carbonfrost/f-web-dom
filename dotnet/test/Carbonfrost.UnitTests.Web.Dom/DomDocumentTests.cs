@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.IO;
 using System.Linq;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
@@ -350,6 +351,21 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var d = new DomDocument();
             d.LoadXml(input);
             Assert.Equal(input, d.ToXmlString());
+        }
+
+        [Fact]
+        public void Parse_will_convert_from_string() {
+            var frag = DomDocument.Parse("<r1> <a/> </r1> <r2/>");
+            Assert.Equal("<r1> <a/> </r1> <r2/>", frag.OuterXml);
+        }
+
+        [Fact]
+        public void Load_will_load_from_DomReader() {
+            var frag = new DomDocument();
+            var reader = DomReader.Create(new StringReader("<a /> <b />"), DomReaderSettings.Empty);
+            frag.Load(reader);
+
+            Assert.Equal("<a />< b/>", frag.OuterText);
         }
 
         [Fact]

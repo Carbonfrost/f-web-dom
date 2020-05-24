@@ -285,5 +285,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         protected virtual DomDocument CreateDomDocument() {
             return new DomDocument();
         }
+
+        public DomDocumentFragment CreateDocumentFragment() {
+            return CreateDomDocumentFragment();
+        }
+
+        protected virtual DomDocumentFragment CreateDomDocumentFragment() {
+            return new DomDocumentFragment();
+        }
     }
 }

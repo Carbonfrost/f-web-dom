@@ -204,16 +204,16 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(input));
             }
 
-            LoadText(input.OpenText());
+            LoadText(input.OpenText(), null);
             return this;
         }
 
-        protected virtual void LoadText(TextReader input) {
+        protected virtual void LoadText(TextReader input, DomReaderSettings settings) {
             if (input == null) {
                 throw new ArgumentNullException(nameof(input));
             }
 
-            var reader = ProviderFactory.CreateReader(input);
+            var reader = ProviderFactory.CreateReader(input, settings);
             reader.CopyTo(this);
         }
 
@@ -227,6 +227,23 @@ namespace Carbonfrost.Commons.Web.Dom {
         public DomDocument Load(XmlReader reader) {
             CoreLoadXml(reader);
             return this;
+        }
+
+        public DomDocument Load(DomReader reader) {
+            reader.CopyTo(this);
+            return this;
+        }
+
+        public static DomDocument Parse(string text) {
+            return Parse(text, null);
+        }
+
+        public static DomDocument Parse(string text, DomReaderSettings settings) {
+            settings = settings ?? DomReaderSettings.Empty;
+
+            var result = DomProviderFactory.ForProviderObject(settings).CreateDocument();
+            result.LoadText(new StringReader(text), settings);
+            return result;
         }
 
         public DomComment CreateComment() {

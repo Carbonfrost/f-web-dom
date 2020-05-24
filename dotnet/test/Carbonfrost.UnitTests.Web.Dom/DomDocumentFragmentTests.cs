@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.IO;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
@@ -94,5 +95,19 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.IsInstanceOf<RDocument>(frag.OwnerDocument);
         }
 
+        [Fact]
+        public void Parse_will_convert_from_string() {
+            var frag = DomDocumentFragment.Parse("<r1> <a/> </r1> <r2/>");
+            Assert.Equal("<r1> <a/> </r1> <r2/>", frag.OuterXml);
+        }
+
+        [Fact]
+        public void Load_will_load_from_DomReader() {
+            var frag = new DomDocumentFragment();
+            var reader = DomReader.Create(new StringReader("<a /> <b />"), DomReaderSettings.Empty);
+            frag.Load(reader);
+
+            Assert.Equal("<a />< b/>", frag.OuterText);
+        }
     }
 }

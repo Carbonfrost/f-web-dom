@@ -141,7 +141,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(reader));
             }
 
-            throw new NotImplementedException();
+            return new XmlDomReader(reader, DomReaderSettings.Empty);
         }
 
         public static DomReader Create(StreamContext input) {
