@@ -43,7 +43,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (this.Attributes == null)
                 return this;
 
-            var attr = this.Attributes.GetByNameOrCreate(name);
+            var attr = AttributeByNameOrCreate(name);
             attr.SetValue(value);
             return this;
         }
@@ -74,7 +74,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomNode Before(DomNode node) {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             RequireParent().ChildNodes.Insert(this.NodePosition, node);
             return this;
@@ -82,7 +82,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomNode After(DomNode node) {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             RequireParent().ChildNodes.Insert(this.NodePosition + 1, node);
             return this;
@@ -132,7 +132,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomNode InsertBefore(DomNode other) {
             if (other == null)
-                throw new ArgumentNullException("other");
+                throw new ArgumentNullException(nameof(other));
 
             other.Before(this);
             return this;
@@ -207,18 +207,18 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomNode AppendTo(DomNode parent) {
             if (parent == null)
-                throw new ArgumentNullException("parent");
+                throw new ArgumentNullException(nameof(parent));
 
             parent.Append(this);
             return this;
         }
 
         public DomAttribute AppendAttribute(string name, object value) {
-            return Attributes.GetByNameOrCreate(name).AppendValue(value);
+            return AttributeByNameOrCreate(name).AppendValue(value);
         }
 
         public DomAttribute PrependAttribute(string name, object value) {
-            return Attributes.GetByNameOrCreate(name, true).AppendValue(value);
+            return AttributeByNameOrCreate(name, true).AppendValue(value);
         }
 
         public DomElement AppendElement(string name) {
@@ -383,7 +383,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomNode PrependTo(DomNode parent) {
             if (parent == null)
-                throw new ArgumentNullException("parent");
+                throw new ArgumentNullException(nameof(parent));
 
             parent.Prepend(this);
             return this;
@@ -399,7 +399,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomNode Wrap(DomNode newParent) {
             if (newParent == null) {
-                throw new ArgumentNullException("newParent");
+                throw new ArgumentNullException(nameof(newParent));
             }
             if (ParentNode != null && !newParent.IsDocumentFragment) {
                 After(newParent);
@@ -435,6 +435,25 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
 
             return (TNode) ReplaceWith((DomNode) other);
+        }
+
+        internal DomAttribute AttributeByNameOrCreate(string name, bool insertFirst = false) {
+            var attr = Attributes[name];
+            if (attr == null) {
+                // Owner doc could be null (rare)
+                var doc = OwnerDocument;
+                if (doc == null) {
+                    attr = DomProviderFactory.ForProviderObject(this).CreateNodeFactory(null).CreateAttribute(name);
+                } else {
+                    attr = doc.CreateAttribute(name);
+                }
+                if (insertFirst) {
+                    Attributes.Insert(0, attr);
+                } else {
+                    Attributes.Add(attr);
+                }
+            }
+            return attr;
         }
 
         private DomNode AppendMarkup(DomWriter writer, string markup) {

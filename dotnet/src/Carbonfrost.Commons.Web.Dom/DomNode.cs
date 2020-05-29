@@ -302,7 +302,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected virtual DomNode CloneCore() {
             var clone = (DomNode) MemberwiseClone();
-            OwnerDocument.UnlinkedNodes.Add((DomNode) clone);
+            OwnerDocument.Track(clone);
             return clone;
         }
 

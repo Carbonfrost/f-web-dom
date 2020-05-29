@@ -204,7 +204,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void ReplaceWith_attribute_replace_with_attribute() {
+        public void ReplaceWith_attribute_replace_with_attribute_and_unlinks() {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html");
             var attr = html.AppendAttribute("lang", "en");
@@ -212,9 +212,19 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             Assert.Same(attr2, attr.ReplaceWith(attr2));
             Assert.Equal(1, html.Attributes.Count);
-            Assert.Same(attr2, html.Attributes[0]);
-            Assert.True(doc.UnlinkedNodes.Contains(attr));
-            Assert.False(doc.UnlinkedNodes.Contains(attr2));
+            Assert.Equal(attr2, html.Attributes[0]);
+            Assert.DoesNotContain(attr2, doc.UnlinkedNodes);
+            Assert.Contains(attr, doc.UnlinkedNodes);
+        }
+
+        [Fact]
+        public void ReplaceWith_attribute_same_is_nop() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            var attr = html.AppendAttribute("lang", "en");
+
+            Assert.Same(attr, attr.ReplaceWith(attr));
+            Assert.Equal(1, html.Attributes.Count);
         }
 
         [Fact]
@@ -225,6 +235,54 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             attr.ReplaceWith(null);
 
             Assert.Equal(0, html.Attributes.Count);
+        }
+
+        [Fact]
+        public void ReplaceWith_updates_attribute_at_same_index() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            html.Attribute("lang", "en");
+            html.Attribute("dir", "rtl");
+            var attr = html.Attributes[0];
+            attr.ReplaceWith(doc.CreateAttribute("lang", "fr"));
+
+            Assert.Equal(2, html.Attributes.Count);
+            Assert.Equal("lang", html.Attributes[0].Name);
+            Assert.Equal("fr", html.Attributes[0].Value);
+        }
+
+        [Fact]
+        public void ReplaceWith_works_if_parent_is_unlinked() {
+            DomDocument doc = new DomDocument();
+            var html = doc.CreateElement("html");
+            html.Attribute("lang", "en");
+
+            var alt = doc.CreateAttribute("dir", "rtl");
+            var old = html.Attributes[0];
+            old.ReplaceWith(alt);
+
+            Assert.Equal(1, html.Attributes.Count);
+            Assert.Equal("dir", html.Attributes[0].Name);
+            Assert.Equal("rtl", html.Attributes[0].Value);
+            Assert.True(old.IsUnlinked);
+        }
+
+        [Theory]
+        [InlineData("exists other1")]
+        [InlineData("other1 exists")]
+        public void ReplaceWith_when_name_already_exists_preserves_uniqueness(string attributes) {
+            var doc = new DomDocument();
+            var attr = doc.CreateAttribute("exists", "expected value");
+            var e = doc.AppendElement("e");
+            foreach (var attrName in attributes.Split()) {
+                e.Attribute(attrName, 2);
+            }
+
+            // Replacing the second attribute collides with the first by name,
+            // so the first by name is removed
+            e.Attributes["other1"].ReplaceWith(attr);
+            Assert.HasCount(1, e.Attributes);
+            Assert.Equal("expected value", e.Attributes[0].Value);
         }
 
         [Fact]

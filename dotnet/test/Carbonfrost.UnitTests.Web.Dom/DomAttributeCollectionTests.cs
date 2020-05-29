@@ -14,12 +14,11 @@
 // limitations under the License.
 //
 
-using System;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
 namespace Carbonfrost.UnitTests.Web.Dom {
-
+    
     public class DomAttributeCollectionTests {
 
         [Fact]
@@ -60,26 +59,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Same(doc, attr1.OwnerDocument);
             Assert.Null(attr1.OwnerElement); // spec
             Assert.Null(attr1.ParentElement);
-        }
-
-        [Fact]
-        public void ReadOnly_is_read_only() {
-            Assert.True(DomAttributeCollection.ReadOnly.IsReadOnly);
-        }
-
-        [Fact]
-        public void ReadOnly_cannot_add_or_clear() {
-            DomDocument doc = new DomDocument();
-            var html = doc.AppendElement("html");
-            var attr = html.AppendAttribute("lang", "en");
-
-            Assert.Throws<NotSupportedException>(() => {
-                DomAttributeCollection.ReadOnly.Add(attr);
-            });
-
-            Assert.Throws<NotSupportedException>(() => {
-                DomAttributeCollection.ReadOnly.Clear();
-            });
         }
 
         [Fact]

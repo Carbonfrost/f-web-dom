@@ -149,12 +149,12 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected internal DomElement() {
             _name = CheckName(RequireFactoryGeneratedName(GetType()));
-            _attributes = new DomAttributeCollection(this);
+            _attributes = new DomAttributeCollectionApi(this, new DomAttributeCollectionImpl());
         }
 
         protected internal DomElement(string name) {
             _name = CheckName(name);
-            _attributes = new DomAttributeCollection(this);
+            _attributes = new DomAttributeCollectionApi(this, new DomAttributeCollectionImpl());
         }
 
         public override DomElementCollection DescendantsAndSelf {

@@ -20,8 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 
-using Carbonfrost.Commons.Core;
-
 namespace Carbonfrost.Commons.Web.Dom {
 
     // Facilitates treating DomDocument sort of like an element, but
@@ -34,11 +32,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         internal DomContainer(bool useLL) {
-            if (useLL) {
-                content = new LinkedDomNodeList(this);
-            } else {
-                content = new DomNodeCollectionImpl(this);
-            }
+            content = new DomNodeCollectionApi(this, NewNodeStorage(useLL));
         }
 
         protected override DomNodeCollection DomChildNodes {
@@ -94,11 +88,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomElement Descendant(string name) {
-            return this.GetElementsByTagName(name).FirstOrDefault();
+            return GetElementsByTagName(name).FirstOrDefault();
         }
 
         public DomElement Descendant(string name, string xmlns) {
-            return this.GetElementsByTagName(name, xmlns).FirstOrDefault();
+            return GetElementsByTagName(name, xmlns).FirstOrDefault();
         }
 
         public DomElementCollection Children {
@@ -121,20 +115,12 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomElement Element(string name) {
-            if (name == null)
-                throw new ArgumentNullException("name");
-            if (name.Length == 0)
-                throw Failure.EmptyString("name");
-
+            CheckName(name);
             return Elements.FirstOrDefault(t => t.Name == name);
         }
 
         public DomElement Element(string name, string xmlns) {
-            if (name == null)
-                throw new ArgumentNullException("name");
-            if (name.Length == 0)
-                throw Failure.EmptyString("name");
-
+            CheckName(name);
             return Elements.FirstOrDefault(t => t.Name == name && t.NamespaceUri == xmlns);
         }
 
@@ -414,6 +400,14 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public new DomContainer RemoveSelf() {
             return (DomContainer) base.RemoveSelf();
+        }
+
+        private DomNodeCollection NewNodeStorage(bool useLL) {
+            if (useLL) {
+                return new LinkedDomNodeList();
+            } else {
+                return new ListDomNodeCollection();
+            }
         }
     }
 

@@ -159,10 +159,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (other == null) {
                 return RemoveSelf();
             }
-
-            var oldParent = OwnerElement;
-            RemoveSelf();
-            oldParent.Attributes.Add(other);
+            OwnerElement.Attributes[SiblingIndex] = other;
             return other;
         }
 

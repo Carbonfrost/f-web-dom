@@ -23,7 +23,7 @@ using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomElementCollection : IReadOnlyList<DomElement> {
+    public abstract class DomElementCollection : IReadOnlyList<DomElement>, IList<DomElement> {
 
         public static readonly DomElementCollection Empty = new EmptyImpl();
 
@@ -45,12 +45,66 @@ namespace Carbonfrost.Commons.Web.Dom {
             get;
         }
 
+        bool ICollection<DomElement>.IsReadOnly {
+            get {
+                return true;
+            }
+        }
+
+        DomElement IList<DomElement>.this[int index] {
+            get {
+                return this[index];
+            }
+            set {
+                throw Failure.ReadOnlyCollection();
+            }
+        }
+
         protected DomElementCollection() {}
 
         public abstract IEnumerator<DomElement> GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() {
             return GetEnumerator();
+        }
+
+        public virtual int IndexOf(DomElement item) {
+            int index = 0;
+            foreach (var e in this) {
+                if (item == e) {
+                    return index;
+                }
+                index++;
+            }
+            return -1;
+        }
+
+        void IList<DomElement>.Insert(int index, DomElement item) {
+            throw Failure.ReadOnlyCollection();
+        }
+
+        void IList<DomElement>.RemoveAt(int index) {
+            throw Failure.ReadOnlyCollection();
+        }
+
+        void ICollection<DomElement>.Add(DomElement item) {
+            throw Failure.ReadOnlyCollection();
+        }
+
+        void ICollection<DomElement>.Clear() {
+            throw Failure.ReadOnlyCollection();
+        }
+
+        public virtual bool Contains(DomElement item) {
+            return IndexOf(item) >= 0;
+        }
+
+        void ICollection<DomElement>.CopyTo(DomElement[] array, int arrayIndex) {
+            Utility.CopyToArray(this, array, arrayIndex);
+        }
+
+        bool ICollection<DomElement>.Remove(DomElement item) {
+            throw Failure.ReadOnlyCollection();
         }
 
         class EmptyImpl : DomElementCollection {
@@ -72,7 +126,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 }
             }
 
-            public override  IEnumerator<DomElement> GetEnumerator() {
+            public override IEnumerator<DomElement> GetEnumerator() {
                 return Enumerable.Empty<DomElement>().GetEnumerator();
             }
         }

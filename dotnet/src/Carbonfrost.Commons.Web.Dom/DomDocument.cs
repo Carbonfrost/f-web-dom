@@ -175,7 +175,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected override DomNode ReplaceWithCore(DomNode other) {
             if (other == null)
-                throw new ArgumentNullException("other");
+                throw new ArgumentNullException(nameof(other));
             if (other == this)
                 return this;
 
@@ -383,8 +383,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         private T AddUnlinked<T>(T item) where T : DomObject {
-            _unlinked.Add(item);
+            Track(item);
             return item;
+        }
+
+        internal void Track(DomObject item) {
+            item.Link(_unlinked);
+            _unlinked.UnsafeAdd(item);
         }
     }
 

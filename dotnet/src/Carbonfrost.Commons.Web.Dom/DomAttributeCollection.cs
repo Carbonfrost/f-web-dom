@@ -1,5 +1,5 @@
 //
-// Copyright 2013, 2016, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,126 +15,33 @@
 //
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-
 using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public class DomAttributeCollection : IList<DomAttribute>, IDomNodeCollection {
+    public abstract class DomAttributeCollection : IList<DomAttribute>, IReadOnlyList<DomAttribute> {
 
-        internal static readonly DomAttributeCollection ReadOnly = new DomAttributeCollection(
-            false
-        );
+        public abstract DomAttribute this[int index] {
+            get;
+            set;
+        }
 
-        private readonly DomElement _owner;
-        private readonly IDictionary<string, DomAttribute> _map;
-        private readonly IList<DomAttribute> _items;
+        public abstract DomAttribute this[string name] {
+            get;
+        }
 
-        protected internal DomElement OwnerElement {
+        public abstract int Count { get; }
+        public virtual bool IsReadOnly {
             get {
-                return _owner;
+                return false;
             }
-        }
-
-        private IList<DomAttribute> Items {
-            get {
-                return _items;
-            }
-        }
-
-        private DomAttributeCollection(bool dummy) {
-            _items = new ReadOnlyCollection<DomAttribute>(Array.Empty<DomAttribute>());
-            _map = new ReadOnlyDictionary<string, DomAttribute>(new Dictionary<string, DomAttribute>());
-        }
-
-        internal DomAttributeCollection(DomElement owner)
-            : this(owner, new List<DomAttribute>()) {
-        }
-
-        private DomAttributeCollection(DomElement owner, IList<DomAttribute> items) {
-            if (owner == null) {
-                throw new ArgumentNullException(nameof(owner));
-            }
-            if (items == null) {
-                throw new ArgumentNullException(nameof(items));
-            }
-
-            _owner = owner;
-            _items = items;
-            _map = new Dictionary<string, DomAttribute>();
-        }
-
-        public bool IsReadOnly {
-            get {
-                return Items.IsReadOnly;
-            }
-        }
-
-        public DomAttribute this[string name] {
-            get {
-                return GetByName(name);
-            }
-        }
-
-        private DomAttribute GetByName(string name) {
-            DomAttribute result;
-            if (TryGetValue(RequireName(name), out result)) {
-                return result;
-            } else {
-                return null;
-            }
-        }
-
-        public bool Remove(string name) {
-            DomAttribute attr;
-
-            if (TryGetValue(RequireName(name), out attr)) {
-                RemoveAt(IndexOf(attr));
-                return true;
-            }
-
-            return false;
-        }
-
-        public int IndexOf(string name) {
-            RequireName(name);
-
-            for (int i = 0; i < Items.Count; i++) {
-                if (Items[i].Name == name)
-                    return i;
-            }
-            return -1;
-        }
-
-        internal DomAttribute GetByNameOrCreate(string name, bool insertFirst = false) {
-            var attr = GetByName(name);
-            if (attr == null) {
-                // Owner doc could be null (rare)
-                var doc = OwnerElement.OwnerDocument;
-                if (doc == null) {
-                    attr = DomProviderFactory.ForProviderObject(OwnerElement).CreateNodeFactory(null).CreateAttribute(name);
-                } else {
-                    attr = doc.CreateAttribute(name);
-                }
-                if (insertFirst) {
-                    Insert(0, attr);
-                } else {
-                    Add(attr);
-                }
-            }
-
-            return attr;
-        }
-
-        private bool TryGetValue(string name, out DomAttribute result) {
-            return _map.TryGetValue(name, out result);
         }
 
         public virtual void InsertRange(int index, IEnumerable<DomAttribute> items) {
             if (items == null) {
-                throw new ArgumentNullException("items");
+                throw new ArgumentNullException(nameof(items));
             }
 
             foreach (var element in items) {
@@ -142,195 +49,77 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public virtual bool Contains(string name) {
-            return IndexOf(name) >= 0;
-        }
-
-        internal static string RequireName(string name) {
-            if (name == null) {
-                throw new ArgumentNullException("name");
-            }
-            if (name.Length == 0) {
-                throw Failure.EmptyString("name");
+        public virtual void AddRange(IEnumerable<DomAttribute> items) {
+            if (items == null) {
+                throw new ArgumentNullException(nameof(items));
             }
 
-            return name;
-        }
-
-        // TODO Comparer should be by name
-
-        void IDomNodeCollection.UnsafeRemove(DomObject node) {
-            var attr = node as DomAttribute;
-            if (attr != null) {
-                Items.Remove(attr);
+            foreach (var element in items) {
+                Add(element);
             }
         }
 
-        void IDomNodeCollection.UnsafeAdd(DomObject node) {
-            var attr = node as DomAttribute;
-            if (attr != null) {
-                Items.Add(attr);
-            }
+        public abstract void Add(DomAttribute item);
+        public abstract void Clear();
+        public abstract bool Contains(DomAttribute item);
+
+        public void CopyTo(DomAttribute[] array, int arrayIndex) {
+            Utility.CopyToArray(this, array, arrayIndex);
         }
 
-        bool IDomNodeCollection.Remove(DomObject node) {
-            var attr = node as DomAttribute;
-            if (attr != null && Items.Remove(attr)) {
-                attr.Unlinked();
-                return true;
-            }
-            return false;
-        }
+        public abstract IEnumerator<DomAttribute> GetEnumerator();
+        public abstract int IndexOf(DomAttribute item);
+        public abstract void Insert(int index, DomAttribute item);
+        public abstract bool Remove(DomAttribute item);
+        public abstract void RemoveAt(int index);
 
-        int IDomNodeCollection.GetSiblingIndex(DomObject node) {
-            var dn = node as DomAttribute;
-            if (dn != null) {
-                return IndexOf(dn);
+        public virtual int IndexOf(string name) {
+            RequireName(name);
+
+            for (int i = 0; i < Count; i++) {
+                if (this[i].Name == name) {
+                    return i;
+                }
             }
             return -1;
         }
 
-        DomNode IDomNodeCollection.OwnerNode {
-            get {
-                return OwnerElement;
+        public bool Remove(string name) {
+            var attr = IndexOf(name);
+            if (attr < 0) {
+                return false;
             }
+            RemoveAt(attr);
+            return true;
         }
 
-        private void InsertItem(int index, DomAttribute item) {
-            int existing = IndexOf(item.Name);
-
-            if (existing < 0) {
-
-            } else if (this.Items[existing] == item)
-                return;
-            else
-                throw DomFailure.AttributeWithGivenNameExists(item.Name, "item");
-
-            Entering(item);
-            _map.Add(item.Name, item);
-            Items.Insert(index, item);
+        public virtual bool Contains(string name) {
+            return IndexOf(name) >= 0;
         }
 
-        private void ClearItems() {
-            foreach (var m in Items) {
-                m.Unlinked();
-            }
-
-            _map.Clear();
-            _items.Clear();
-        }
-
-        private void RemoveItem(int index) {
-            var m = Items[index];
-
-            m.Unlinked();
-            _map.Remove(m.Name);
-            _items.RemoveAt(index);
-        }
-
-        private void SetItem(int index, DomAttribute item) {
-            var old = Items[index];
-            Leaving(old);
-            Entering(item);
-            _map.Add(item.Name, item);
-            _map.Remove(Items[index].Name);
-            _items[index] = item;
-        }
-
-        private void Entering(DomObject item) {
-            item.SetSiblingNodes(this);
-        }
-
-        private void Leaving(DomAttribute item) {
-            int old = item.AttributePosition;
-            item.SetSiblingNodes((DomNodeCollection) null);
-        }
-
-        public int IndexOf(DomAttribute item) {
-            if (item == null) {
-                throw new ArgumentNullException("item");
-            }
-
-            if (item.SiblingAttributes != this) {
-                return -1;
-            }
-            return Items.IndexOf(item);
-        }
-
-        public void Insert(int index, DomAttribute item) {
-            if (item == null) {
-                throw new ArgumentNullException("item");
-            }
-
-            InsertItem(index, item);
-        }
-
-        public void RemoveAt(int index) {
-            if (index < 0 || index >= Count) {
-                throw Failure.IndexOutOfRange("index", index, 0, Count - 1);
-            }
-
-            RemoveItem(index);
-        }
-
-        public DomAttribute this[int index] {
-            get {
-                return _items[index];
-            }
-            set {
-                if (value == null) {
-                    throw new ArgumentNullException("value");
-                }
-
-                SetItem(index, value);
-            }
-        }
-
-        public void Add(DomAttribute item) {
-            if (item == null) {
-                throw new ArgumentNullException("item");
-            }
-
-            InsertItem(Count, item);
-        }
-
-        public void Clear() {
-            ClearItems();
-        }
-
-        public bool Contains(DomAttribute item) {
-            return IndexOf(item) >= 0;
-        }
-
-        public void CopyTo(DomAttribute[] array, int arrayIndex) {
-            Items.CopyTo(array, arrayIndex);
-        }
-
-        public bool Remove(DomAttribute item) {
-            if (item == null) {
-                throw new ArgumentNullException("item");
-            }
-
-            int index = IndexOf(item);
-            bool bounds = index >= 0;
-            if (bounds)
-                RemoveItem(index);
-
-            return bounds;
-        }
-
-        public int Count {
-            get {
-                return _items.Count;
-            }
-        }
-
-        public IEnumerator<DomAttribute> GetEnumerator() {
-            return _items.GetEnumerator();
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+        IEnumerator IEnumerable.GetEnumerator() {
             return GetEnumerator();
+        }
+
+        internal void CheckIndex(int index) {
+            if (index < 0) {
+                throw Failure.IndexOutOfRange(nameof(index), index);
+            }
+            if (index >= Count) {
+                throw Failure.IndexOutOfRange(nameof(index), index);
+            }
+        }
+
+
+        internal static string RequireName(string name) {
+            if (name == null) {
+                throw new ArgumentNullException(nameof(name));
+            }
+            if (name.Length == 0) {
+                throw Failure.EmptyString(nameof(name));
+            }
+
+            return name;
         }
     }
 
