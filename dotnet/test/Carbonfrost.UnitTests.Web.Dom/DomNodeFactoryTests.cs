@@ -36,5 +36,31 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         public void ApiConventions_are_nonvirtual(MethodInfo convention) {
             Assert.True(convention.IsFinal);
         }
+
+        class PAttribute : DomAttribute {
+            public PAttribute() : base("myname") {}
+        }
+
+        class PAttributeWithName : DomAttribute {
+            public PAttributeWithName(string name) : base(name) {}
+        }
+
+        [Fact]
+        public void CreateAttribute_using_late_bound_instancing() {
+            var fac = new DomNodeFactory(
+                DomNodeTypeProvider.Create((nodeType, name) => typeof(PAttribute))
+            );
+            Assert.IsInstanceOf<PAttribute>(fac.CreateAttribute("myname"));
+        }
+
+        [Fact]
+        public void CreateAttribute_using_late_bound_instancing_has_name() {
+            var fac = new DomNodeFactory(
+                DomNodeTypeProvider.Create((nodeType, name) => typeof(PAttributeWithName))
+            );
+            Assert.IsInstanceOf<PAttributeWithName>(fac.CreateAttribute("expected"));
+            Assert.Equal("expected", fac.CreateAttribute("expected").Name);
+
+        }
     }
 }

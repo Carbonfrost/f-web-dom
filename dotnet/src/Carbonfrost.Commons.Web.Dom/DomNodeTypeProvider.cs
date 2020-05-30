@@ -37,6 +37,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             );
         }
 
+        public static IDomNodeTypeProvider Create(Func<DomNodeType, string, Type> getter) {
+            if (getter == null) {
+                throw new ArgumentNullException(nameof(getter));
+            }
+            return new ThunkProvider(getter);
+        }
+
         public virtual Type GetAttributeNodeType(string name) {
             return typeof(DomAttribute);
         }

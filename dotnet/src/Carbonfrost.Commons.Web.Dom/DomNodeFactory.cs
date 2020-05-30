@@ -25,6 +25,8 @@ namespace Carbonfrost.Commons.Web.Dom {
     [Providers]
     public class DomNodeFactory : IDomNodeFactory, IDomNodeFactoryApiConventions {
 
+        private readonly IDictionary<Type, NodeConstructorInfo> _cache = new Dictionary<Type, NodeConstructorInfo>();
+
         [DomNodeFactoryUsage]
         public static readonly IDomNodeFactory Null = new NullDomNodeFactory();
 
@@ -179,15 +181,38 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (type == typeof(T) || type == null) {
                 return ctor(nameOrTarget);
             }
-            // TODO Improve error handling here - it should be a domain exception if neither
-            // .ctor(string) OR .ctor() exist
-            return (T) Activator.CreateInstance(
-                type,
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
-                null,
-                new object[] { nameOrTarget },
-                null
-            );
+            var info = _cache.GetValueOrCache(type, t => new NodeConstructorInfo(t));
+            return (T) info.Invoke(nameOrTarget);
+        }
+
+        struct NodeConstructorInfo {
+            public readonly ConstructorInfo Ctor;
+            public readonly ConstructorInfo CtorString;
+
+            public NodeConstructorInfo(Type type) {
+                CtorString = type.GetConstructor(
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                    null,
+                    new [] { typeof(string) },
+                    null
+                );
+                Ctor = type.GetConstructor(
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                    null,
+                    Type.EmptyTypes,
+                    null
+                );
+            }
+
+            internal object Invoke(string nameOrTarget) {
+                // TODO Improve error handling here - it should be a domain exception if neither
+                // .ctor(string) OR .ctor() exist
+                if (CtorString != null) {
+                    return CtorString.Invoke(new [] { nameOrTarget });
+                }
+
+                return Ctor.Invoke(Array.Empty<object>());
+            }
         }
     }
 }
