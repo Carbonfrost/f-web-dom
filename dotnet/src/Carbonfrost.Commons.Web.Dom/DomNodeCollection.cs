@@ -17,6 +17,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
@@ -43,7 +44,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(items));
             }
 
-            foreach (var element in items) {
+            foreach (var element in items.ToList()) {
                 Insert(index++, element);
             }
         }
@@ -53,7 +54,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(items));
             }
 
-            foreach (var element in items) {
+            foreach (var element in items.ToList()) {
                 Add(element);
             }
         }

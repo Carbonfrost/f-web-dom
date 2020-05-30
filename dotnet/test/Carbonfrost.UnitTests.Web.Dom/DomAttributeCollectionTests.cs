@@ -18,7 +18,7 @@ using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
 namespace Carbonfrost.UnitTests.Web.Dom {
-    
+
     public class DomAttributeCollectionTests {
 
         [Fact]
@@ -81,6 +81,30 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             html.Attributes.RemoveAt(1);
             Assert.Equal("class", html.Attributes[0].Name);
             Assert.Equal("lang", html.Attributes[1].Name);
+        }
+
+        [Fact]
+        public void AddRange_supports_moving_from_other_node() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            html.Attribute("class", "").Attribute("id", "").Attribute("lang", "");
+
+            var element = doc.CreateElement("ok").Attribute("a", "");
+            element.Attributes.AddRange(html.Attributes);
+
+            Assert.Equal("<ok a=\"\" class=\"\" id=\"\" lang=\"\"/>", element.OuterXml);
+        }
+
+        [Fact]
+        public void InsertRange_supports_moving_from_other_node() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            html.Attribute("class", "").Attribute("id", "").Attribute("lang", "");
+
+            var element = doc.CreateElement("ok").Attribute("a", "");
+            element.Attributes.InsertRange(0, html.Attributes);
+
+            Assert.Equal("<ok class=\"\" id=\"\" lang=\"\" a=\"\"/>", element.OuterXml);
         }
     }
 }

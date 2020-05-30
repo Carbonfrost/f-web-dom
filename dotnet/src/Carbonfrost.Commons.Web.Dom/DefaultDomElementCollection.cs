@@ -24,13 +24,16 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     class DefaultDomElementCollection : DomElementCollection {
 
-        private Buffer<DomElement> _cache;
         private readonly DomContainer _owner;
         private readonly Func<DomContainer, IEnumerable<DomElement>> _func;
 
         public override DomElement this[int index] {
             get {
-                return EnsureCache()[index];
+                var result = Find((i, _) => i == index);
+                if (result == null) {
+                    throw Failure.IndexOutOfRange(nameof(index), index);
+                }
+                return result;
             }
         }
 
@@ -39,32 +42,41 @@ namespace Carbonfrost.Commons.Web.Dom {
                 if (string.IsNullOrEmpty(name)) {
                     throw Failure.NullOrEmptyString(nameof(name));
                 }
-
-                return EnsureCache().FirstOrDefault(t => t.Id == name);
+                return Find((_, t) => t.Id == name);
             }
         }
 
         public override int Count {
             get {
-                return EnsureCache().Count;
+                return All.Count;
             }
         }
 
         internal DefaultDomElementCollection(DomContainer owner, Func<DomContainer, IEnumerable<DomElement>> func) {
-            // TODO Actually synchronize on owner
             _owner = owner;
             _func = func;
         }
 
         public override IEnumerator<DomElement> GetEnumerator() {
-            return EnsureCache().GetEnumerator();
+            return All.GetEnumerator();
         }
 
-        private Buffer<DomElement> EnsureCache() {
-            if (_cache == null) {
-                _cache = new Buffer<DomElement>(_func(_owner));
+        private IReadOnlyList<DomElement> All {
+            get {
+                // TODO It would be better to cache this result when we can
+                return _func(_owner).ToArray();
             }
-            return _cache;
+        }
+
+        private DomElement Find(Func<int, DomElement, bool> predicate) {
+            int index = 0;
+            foreach (var f in _func(_owner)) {
+                if (predicate(index, f)) {
+                    return f;
+                }
+                index++;
+            }
+            return null;
         }
 
     }

@@ -248,7 +248,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void DescendentNodes_should_be_breadth_first() {
+        public void DescendantNodes_should_be_breadth_first() {
             DomDocument doc = new DomDocument();
 
             var html = doc.AppendElement("html");
@@ -264,9 +264,21 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void DescendentNodes_should_be_empty_by_default() {
+        public void DescendantNodes_should_be_empty_by_default() {
             DomDocument doc = new DomDocument();
             Assert.Empty(doc.DescendantNodes);
+        }
+
+        [Fact]
+        public void DescendantNodes_should_update_as_document_does() {
+            DomDocument doc = new DomDocument();
+            var desc = doc.DescendantNodes;
+            doc.AppendElement("b").AppendElement("r").AppendElement("ea").AppendElement("d");
+
+            Assert.Equal(
+                "bread",
+                string.Join("", desc.Select(t => t.NodeName))
+            );
         }
 
         [Fact]

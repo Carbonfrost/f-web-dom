@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
@@ -55,6 +56,68 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Equal("html", doc.DocumentElement.NodeName);
             Assert.Equal(xml, doc.OuterXml);
             Assert.True(ele.IsUnlinked);
+        }
+
+        [Fact]
+        public void RemoveChildNodes_should_remove_child_nodes() {
+            var doc = new DomDocument();
+            var ele = doc.AppendElement("w");
+            var x = ele.AppendElement("x");
+            var y = ele.AppendElement("y");
+            var z = ele.AppendElement("z");
+
+            Assert.Same(ele, ele.RemoveChildNodes());
+            Assert.Equal("<w/>", doc.OuterXml);
+            Assert.True(x.IsUnlinked);
+            Assert.True(y.IsUnlinked);
+            Assert.True(z.IsUnlinked);
+        }
+
+        [Fact]
+        public void RemoveChildNodes_should_remove_child_nodes_already_unlinked() {
+            var doc = new DomDocument();
+            var ele = doc.CreateElement("w");
+            var x = ele.AppendElement("x");
+            var y = ele.AppendElement("y");
+            var z = ele.AppendElement("z");
+
+            Assert.Same(ele, ele.RemoveChildNodes());
+            Assert.HasCount(0, ele.ChildNodes);
+            Assert.True(x.IsUnlinked);
+            Assert.True(y.IsUnlinked);
+            Assert.True(z.IsUnlinked);
+        }
+
+        [Fact]
+        public void Descendant_should_obtain_element_by_name() {
+            var doc = new DomDocument();
+            var z = doc.AppendElement("x").AppendElement("y").AppendElement("z");
+
+            Assert.Same(z, doc.Descendant("z"));
+        }
+
+        [Fact]
+        public void Element_should_obtain_element_by_name() {
+            var x = new DomDocument().AppendElement("x");
+            var y = x.AppendElement("y");
+
+            Assert.Same(y, x.Element("y"));
+        }
+
+        [Fact]
+        public void AddRange_appends_elements_by_type() {
+            var root = new DomDocument().AppendElement("root");
+
+            root.AddRange(
+                "text",
+                200,
+                root.OwnerDocument.CreateElement("h"),
+                root.OwnerDocument.CreateAttribute("l", "a"),
+                new [] { "a", "b" , "c"},
+                new List<int> { 200 }
+            );
+
+            Assert.Equal("<root l=\"a\">text200<h/>abc200</root>", root.OuterXml);
         }
     }
 }

@@ -199,5 +199,35 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Null(a.PreviousSibling);
             Assert.Null(a.NextSibling);
         }
+
+        [Fact]
+        public void AddRange_supports_moving_from_other_node() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            html.AppendElement("a");
+            html.AppendElement("b");
+            html.AppendElement("c");
+
+            var element = doc.CreateElement("ok");
+            element.AppendElement("d");
+            element.ChildNodes.AddRange(html.ChildNodes);
+
+            Assert.Equal("<ok><d/><a/><b/><c/></ok>", element.OuterXml);
+        }
+
+        [Fact]
+        public void InsertRange_supports_moving_from_other_node() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            html.AppendElement("a");
+            html.AppendElement("b");
+            html.AppendElement("c");
+
+            var element = doc.CreateElement("ok");
+            element.AppendElement("d");
+            element.ChildNodes.InsertRange(0, html.ChildNodes);
+
+            Assert.Equal("<ok><a/><b/><c/><d/></ok>", element.OuterXml);
+        }
     }
 }
