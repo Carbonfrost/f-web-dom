@@ -209,7 +209,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public virtual string OuterXml {
             get {
-                return new OuterXmlVisitor().ConvertToString(this);
+                return DomWriter.GetOuterString(null, this);
             }
             set {
                 var frag = OwnerDocument.CreateDocumentFragment();

@@ -90,6 +90,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             Dispose(true);
         }
 
+        internal static string GetOuterString(DomWriterSettings settings, DomNode node) {
+            var sw = new StringWriter();
+            var writer = new DefaultDomWriter(sw, settings);
+            writer.Write(node);
+            return sw.ToString();
+        }
+
+        internal static string GetInnerString(DomWriterSettings settings, DomNode node) {
+            var sw = new StringWriter();
+            var writer = new DefaultDomWriter(sw, settings);
+            writer.Write(node.ChildNodes);
+            return sw.ToString();
+        }
+
         public void Write(IEnumerable<DomObject> objs) {
             if (objs == null) {
                 throw new ArgumentNullException(nameof(objs));

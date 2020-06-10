@@ -419,5 +419,42 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             doc.AppendComment("comment");
             Assert.Throws<InvalidOperationException>(() => doc.InnerText = "world");
         }
+
+        [Fact]
+        public void ToDomString_with_pretty_print() {
+            var doc = new DomDocument().LoadXml("<root attribute=\"v\" a=\"b\"><child /><child><grandchild a=\"b\" aaa=\"bbb\"/></child></root>");
+
+            var pretty = new DomWriterSettings {
+                PrettyPrint = true
+            };
+            Assert.Expect(doc.ToDomString(pretty)).ToBe.EqualTo(@"
+<root attribute = ""v""
+              a = ""b"">
+    <child />
+    <child>
+        <grandchild   a = ""b""
+                    aaa = ""bbb"" />
+    </child>
+</root>".TrimStart()
+            );
+        }
+
+        [Fact]
+        public void ToDomString_with_pretty_print_inner_text() {
+            var doc = new DomDocument().LoadXml("<root>before text<child />after text<child><grandchild /></child></root>");
+
+            var pretty = new DomWriterSettings {
+                PrettyPrint = true
+            };
+
+            Assert.Expect(doc.ToDomString(pretty)).ToBe.EqualTo(@"
+<root>before text
+    <child />after text
+    <child>
+        <grandchild />
+    </child>
+</root>".TrimStart()
+            );
+        }
     }
 }

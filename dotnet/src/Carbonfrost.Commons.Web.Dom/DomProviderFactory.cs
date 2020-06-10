@@ -203,7 +203,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected virtual DomWriter CreateDomWriter(TextWriter textWriter, DomWriterSettings settings) {
-            return new XmlDomWriter(XmlWriter.Create(textWriter));
+            return new DefaultDomWriter(textWriter, settings);
         }
 
         public DomNodeWriter CreateWriter(DomNode node, DomNodeWriterSettings settings) {
