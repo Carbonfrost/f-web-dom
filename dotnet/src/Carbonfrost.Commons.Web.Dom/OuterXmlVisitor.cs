@@ -24,9 +24,39 @@ namespace Carbonfrost.Commons.Web.Dom {
     class OuterXmlVisitor : DomNodeVisitor, ITextVisitor {
 
         private StringBuilder _sb;
+        private readonly DomWriterSettings _settings;
+        private readonly Dictionary<int, string> _indentStringCache = new Dictionary<int, string>();
+        private int _depth;
+
+        private readonly string _spaceAfterAttributes = " ";
+        private int _paddingAlignedAttributes;
+        private readonly string _spaceAroundAttributeEqual;
+
+        private string IndentString {
+            get {
+                if (!_settings.Indent) {
+                    return null;
+                }
+                return _indentStringCache.GetValueOrCache(
+                    _depth,
+                    _ => new string(_settings.IndentCharacter.ToChar(), _settings.IndentWidth * _depth)
+                );
+            }
+        }
 
         public void SetBuffer(StringBuilder stringBuilder) {
             _sb = stringBuilder;
+        }
+
+        public OuterXmlVisitor(DomWriterSettings settings) {
+            _settings = settings ?? DomWriterSettings.Empty;
+            _spaceAfterAttributes = " ";
+            // FIXME Should be a different property controlling this variable
+            _spaceAroundAttributeEqual = _settings.Indent ? " " : "";
+            if (_settings.Indent) {
+                // No space after attributes because we break lines
+                _spaceAfterAttributes = "";
+            }
         }
 
         protected override void VisitElement(DomElement element) {
@@ -35,29 +65,49 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
             if (element.ChildNodes.Count == 0) {
                 StartTag(element, true);
+                AfterEndTag();
                 return;
             }
 
             StartTag(element, false);
             VisitAll(element.ChildNodes);
+
+            _depth++;
             EndTag(element);
+            _depth--;
         }
 
         private void EndTag(DomElement element) {
+            _sb.Append(IndentString);
             _sb.Append("</");
             _sb.Append(element.Name);
             _sb.Append(">");
+            AfterEndTag();
+        }
+
+        private void AfterEndTag() {
+            if (_settings.Indent) {
+                _sb.AppendLine();
+            }
         }
 
         private void StartTag(DomElement element, bool close) {
+            _sb.Append(IndentString);
             _sb.Append("<");
             _sb.Append(element.Name);
 
             if (element.Attributes.Any()) {
                 _sb.Append(" ");
+
+                if (_settings.AlignAttributes) {
+                    _paddingAlignedAttributes = element.Attributes.Max(a => a.Name.Length);
+                }
             }
 
-            Visit(element.Attributes, " ");
+            Visit(element.Attributes, _spaceAfterAttributes);
+            if (_settings.AlignAttributes && close) {
+                _sb.Append(" ");
+            }
             _sb.Append(close ? "/>" : ">");
         }
 
@@ -66,11 +116,26 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(attribute));
             }
 
-            _sb.Append(attribute.Name);
+            string name = attribute.Name;
+            if (_settings.AlignAttributes) {
+                name = attribute.Name.PadLeft(_paddingAlignedAttributes);
+            }
+            // FIXME This has to all migrate to a WRiter
+            if (attribute.AttributePosition > 0) {
+                name = IndentString + name.PadLeft(attribute.OwnerElement.Name.Length + 1);
+            }
+
+            _sb.Append(name);
+            _sb.Append(_spaceAroundAttributeEqual);
             _sb.Append("=");
+            _sb.Append(_spaceAroundAttributeEqual);
+
             _sb.Append("\"");
             _sb.Append(EscapeText(attribute.Value));
             _sb.Append("\"");
+            if (_settings.AlignAttributes) {
+                _sb.AppendLine();
+            }
         }
 
         protected override void VisitDocument(DomDocument document) {

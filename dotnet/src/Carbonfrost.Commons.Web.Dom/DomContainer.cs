@@ -77,7 +77,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override string InnerXml {
             get {
-                return new OuterXmlVisitor().ConvertToString(ChildNodes);
+                return new OuterXmlVisitor(null).ConvertToString(ChildNodes);
             }
             set {
                 var frag = OwnerDocument.CreateDocumentFragment();

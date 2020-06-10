@@ -88,6 +88,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             var type = obj.GetType();
 
             while (!CanFastDispatch(type)) {
+                // FIXME Makes more sense to invert this
                 if (DispatchCache.TryGetValue(type, out MethodInfo method)) {
                     method.InvokeWithUnwrap(_visitor, new[] { obj });
                     return;

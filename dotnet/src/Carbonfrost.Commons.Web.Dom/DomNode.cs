@@ -207,9 +207,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        [ExpressionSerializationMode(ExpressionSerializationMode.Hidden)]
         public virtual string OuterXml {
             get {
-                return new OuterXmlVisitor().ConvertToString(this);
+                return new OuterXmlVisitor(null).ConvertToString(this);
             }
             set {
                 var frag = OwnerDocument.CreateDocumentFragment();

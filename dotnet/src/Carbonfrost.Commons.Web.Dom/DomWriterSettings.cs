@@ -19,9 +19,47 @@ using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
+    public enum DomIndentCharacter {
+        Space,
+        Tab,
+    }
+
+    partial class Extensions {
+
+        internal static char ToChar(this DomIndentCharacter c) {
+            return c == DomIndentCharacter.Space ? ' ' : '\t';
+        }
+    }
+
+    public enum DomEndOfLineCharacter {
+        LF,
+        CRLF,
+    }
+
+    public enum DomAlignAttributes {
+        Unaligned,
+        AlignLeft,
+        AlignRight,
+        BreakEach,
+    }
+
+    public enum DomQuoteAttributesCharacter {
+        DoubleQuote,
+        SingleQuote,
+        None,
+    }
+
     public class DomWriterSettings {
+        // FIXME Implies DomXmlWriterSettings, DomXmlWriterSettings.core(DomWriterSettings)
+        // FIXME DomWriterXmlSettings probably delegates to (similar to how reader is planned)
+        // FIXME Probably consolidate OuterXmllWriter
 
         public static readonly DomWriterSettings Empty;
+        private DomEndOfLineCharacter _endOfLineCharacters;
+        private DomIndentCharacter _indentCharacter;
+        private int _indentWidth;
+        private bool _alignAttributes;
+        private DomQuoteAttributesCharacter _attributeCharacter;
 
         static DomWriterSettings() {
             Empty = ReadOnly(new DomWriterSettings());
@@ -32,7 +70,75 @@ namespace Carbonfrost.Commons.Web.Dom {
             private set;
         }
 
-        protected DomWriterSettings() {}
+        public int IndentWidth {
+            get {
+                return _indentWidth;
+            }
+            set {
+                WritePreamble();
+                _indentWidth = value;
+            }
+        }
+
+        public bool Indent {
+            get;
+            set;
+        }
+
+        public bool AlignAttributes { // FIXME AlignAttribute
+            get {
+                return _alignAttributes;
+            }
+            set {
+                WritePreamble();
+                _alignAttributes = value;
+            }
+        }
+
+        public DomQuoteAttributesCharacter AttributeCharacter { // FIXME Name
+            get {
+                return _attributeCharacter;
+            }
+            set {
+                WritePreamble();
+                _attributeCharacter = value;
+            }
+        }
+
+        public virtual bool PrettyPrint {
+            set {
+                WritePreamble();
+
+                IndentCharacter = DomIndentCharacter.Space;
+                IndentWidth = 2;
+                Indent = true;
+                AlignAttributes = true;
+                AttributeCharacter = DomQuoteAttributesCharacter.DoubleQuote;
+            }
+        }
+
+        public DomIndentCharacter IndentCharacter {
+            get {
+                return _indentCharacter;
+            }
+            set {
+                WritePreamble();
+                _indentCharacter = value;
+            }
+        }
+
+        public DomEndOfLineCharacter EndOfLineCharacters {
+            get {
+                return _endOfLineCharacters;
+            }
+            set {
+                WritePreamble();
+                _endOfLineCharacters = value;
+            }
+        }
+
+        public DomWriterSettings() {
+        }
 
         public static DomWriterSettings ReadOnly(DomWriterSettings settings) {
             if (settings == null) {
@@ -65,6 +171,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (IsReadOnly) {
                 throw Failure.Sealed();
             }
+        }
+
+        private void WritePreamble() {
         }
     }
 }

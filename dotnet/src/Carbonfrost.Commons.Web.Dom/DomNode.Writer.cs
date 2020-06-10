@@ -53,11 +53,25 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public string ToXmlString(XmlWriterSettings settings) {
+            // FIXME Actually use
             StringWriter sw = new StringWriter();
             using (XmlWriter xw = XmlWriter.Create(sw, ToXmlStringSettingsCore(settings))) {
                 WriteTo(xw);
             }
             return sw.ToString();
+        }
+
+        public string ToString(IFormatProvider formatProvider, string format) {
+            throw new ArgumentNullException();
+        }
+
+        // FIXME Consider name
+        public string ToMarkupString(DomWriterSettings settings) {
+            return new OuterXmlVisitor(settings).ConvertToString(this);
+        }
+
+        public string ToMarkupString() {
+            return ToMarkupString(null);
         }
 
         public string ToXmlString() {
