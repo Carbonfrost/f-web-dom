@@ -15,15 +15,13 @@
 //
 
 using System;
-using System.Reflection;
-using Carbonfrost.Commons.Core;
 using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
     public partial class DomAttribute : DomObject, IEquatable<DomAttribute> {
 
-        private readonly string _name;
+        private readonly DomName _name;
 
         public int AttributePosition {
             get {
@@ -73,13 +71,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public string Name {
+        public override DomName Name {
             get {
                 return _name;
             }
         }
 
-        public override string NodeName { get { return Name; } }
+        public override string NodeName {
+            get {
+                return LocalName;
+            }
+        }
+
         public override string NodeValue { get { return Value; } }
 
         public override DomNodeType NodeType {
@@ -125,19 +128,21 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected internal DomAttribute() {
-            _name = RequireFactoryGeneratedName(GetType());
+            _name = CheckName(RequireFactoryGeneratedName(
+                GetType(),
+                (e, t) => e.GetAttributeName(t)
+            ));
             this.content = Dom.DomValue.Create();
         }
 
-        protected internal DomAttribute(string name) {
+        protected internal DomAttribute(string name) : this(DomName.Create(name)) {
+        }
+
+        protected internal DomAttribute(DomName name) {
             if (name == null) {
                 throw new ArgumentNullException(nameof(name));
             }
-            if (string.IsNullOrEmpty(name)) {
-                throw Failure.EmptyString(nameof(name));
-            }
-
-            _name = name.Trim();
+            _name = name;
             this.content = Dom.DomValue.Create();
         }
 
@@ -235,7 +240,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string ToString() {
-            return Name;
+            return NodeName;
         }
     }
 }

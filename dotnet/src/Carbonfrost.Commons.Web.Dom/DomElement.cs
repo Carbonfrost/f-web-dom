@@ -21,7 +21,7 @@ namespace Carbonfrost.Commons.Web.Dom {
     public partial class DomElement : DomContainer, IDomContainerManipulationApiConventions<DomElement> {
 
         private readonly DomAttributeCollection _attributes;
-        private readonly string _name;
+        private readonly DomName _name;
 
         public bool HasElements {
             get {
@@ -112,9 +112,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public string Name {
+        public override DomName Name {
             get {
                 return _name;
+            }
+        }
+
+        public override DomNamespace Namespace {
+            get {
+                return _name.Namespace;
             }
         }
 
@@ -148,11 +154,17 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected internal DomElement() {
-            _name = CheckName(RequireFactoryGeneratedName(GetType()));
+            _name = CheckName(RequireFactoryGeneratedName(
+                GetType(),
+                (e, t) => e.GetElementName(t)
+            ));
             _attributes = new DomAttributeCollectionApi(this, new DomAttributeCollectionImpl());
         }
 
-        protected internal DomElement(string name) {
+        protected internal DomElement(string name) : this(DomName.Create(name)) {
+        }
+
+        protected internal DomElement(DomName name) {
             _name = CheckName(name);
             _attributes = new DomAttributeCollectionApi(this, new DomAttributeCollectionImpl());
         }
@@ -168,7 +180,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override string NodeName {
             get {
-                return _name;
+                return _name.LocalName;
             }
         }
 

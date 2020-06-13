@@ -20,12 +20,12 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     [Composable]
     public interface IDomNodeFactory : IDomNodeTypeProvider {
-        DomAttribute CreateAttribute(string name);
+        DomAttribute CreateAttribute(DomName name);
         DomCDataSection CreateCDataSection();
         DomComment CreateComment();
         DomDocumentFragment CreateDocumentFragment();
         DomDocumentType CreateDocumentType(string name);
-        DomElement CreateElement(string name);
+        DomElement CreateElement(DomName name);
         DomEntity CreateEntity(string name);
         DomNotation CreateNotation(string name);
         DomEntityReference CreateEntityReference(string name);
@@ -33,15 +33,19 @@ namespace Carbonfrost.Commons.Web.Dom {
         DomText CreateText();
     }
 
-    interface IDomNodeFactoryApiConventions : IDomNodeFactory {
+    interface IDomNodeFactoryApiConventions : IDomNodeFactory, IDomNodeTypeProviderApiConventions {
         // Provides glue for contentions on the IDomNodeFactory implemented in this
         // assembly
 
+        DomAttribute CreateAttribute(DomName name, IDomValue value);
+        DomAttribute CreateAttribute(DomName name, string value);
         DomAttribute CreateAttribute(string name, IDomValue value);
         DomAttribute CreateAttribute(string name, string value);
+        DomAttribute CreateAttribute(string name);
         DomCDataSection CreateCDataSection(string data);
         DomComment CreateComment(string data);
         DomDocumentType CreateDocumentType(string name, string publicId, string systemId);
+        DomElement CreateElement(string name);
         DomProcessingInstruction CreateProcessingInstruction(string target, string data);
         DomText CreateText(string data);
     }

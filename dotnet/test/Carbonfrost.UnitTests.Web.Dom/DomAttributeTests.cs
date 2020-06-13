@@ -56,7 +56,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             // Excludes attributes
             Assert.Equal("en", attr.Value);
-            Assert.Equal("lang", attr.Name);
+            Assert.Equal("lang", attr.LocalName);
             Assert.False(doc.UnlinkedNodes.Contains(attr));
         }
 
@@ -110,7 +110,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
         [Fact]
         public void Constructor_requires_name_argument() {
-            Assert.Throws<ArgumentNullException>(() => new DomAttribute(null));
+            Assert.Throws<ArgumentNullException>(() => new DomAttribute((DomName) null));
         }
 
         [Fact]
@@ -247,7 +247,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             attr.ReplaceWith(doc.CreateAttribute("lang", "fr"));
 
             Assert.Equal(2, html.Attributes.Count);
-            Assert.Equal("lang", html.Attributes[0].Name);
+            Assert.Equal("lang", html.Attributes[0].LocalName);
             Assert.Equal("fr", html.Attributes[0].Value);
         }
 
@@ -262,7 +262,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             old.ReplaceWith(alt);
 
             Assert.Equal(1, html.Attributes.Count);
-            Assert.Equal("dir", html.Attributes[0].Name);
+            Assert.Equal("dir", html.Attributes[0].LocalName);
             Assert.Equal("rtl", html.Attributes[0].Value);
             Assert.True(old.IsUnlinked);
         }
@@ -313,8 +313,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             DomAttribute attr = html.Attributes[1];
             Assert.Equal(1, attr.AttributePosition);
-            Assert.Equal("data-e", attr.NextAttribute.Name);
-            Assert.Equal("lang", attr.PreviousAttribute.Name);
+            Assert.Equal("data-e", attr.NextAttribute.LocalName);
+            Assert.Equal("lang", attr.PreviousAttribute.LocalName);
             Assert.Null(attr.PreviousSiblingNode); // per spec
             Assert.Null(attr.NextSiblingNode);
         }

@@ -18,12 +18,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Carbonfrost.Commons.Core;
 using Carbonfrost.Commons.Core.Runtime.Expressions;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomObject  {
+    public abstract class DomObject : IDomNameApiConventions {
 
         private AnnotationList _annotations = AnnotationList.Empty;
         private IDomNodeCollection _siblingsContent;
@@ -43,11 +42,26 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public virtual string LocalName {
             get {
-                return NodeName;
+                return Name.LocalName;
             }
         }
 
-        public virtual string NamespaceUri {
+        public virtual DomName Name {
+            get {
+                return DomName.Create(NodeName);
+            }
+        }
+
+        public string NamespaceUri {
+            get {
+                if (Namespace == null) {
+                    return null;
+                }
+                return Namespace.NamespaceUri;
+            }
+        }
+
+        public virtual DomNamespace Namespace {
             get {
                 return null;
             }
@@ -255,25 +269,19 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        internal static string CheckName(string name) {
+        internal static DomName CheckName(DomName name) {
             if (name == null) {
                 throw new ArgumentNullException(nameof(name));
-            }
-            if (name.Length == 0) {
-                throw Failure.EmptyString(nameof(name));
-            }
-            if (name.Any(char.IsWhiteSpace)) {
-                throw DomFailure.CannotContainWhitespace(nameof(name));
             }
             return name;
         }
 
-        internal static string RequireFactoryGeneratedName(Type type) {
+        internal static T RequireFactoryGeneratedName<T>(Type type, Func<IDomNodeTypeProvider, Type, T> generator) {
             Type inputType = type;
             while (type != typeof(object)) {
                 var fac = DomProviderFactory.ForProviderObject(type);
                 if (fac != null) {
-                    string name = fac.GenerateDefaultName(inputType);
+                    var name = generator(fac.NodeTypeProvider, inputType);
                     if (name != null) {
                         return name;
                     }
@@ -281,7 +289,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                         break;
                     }
                 }
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
             }
 
             throw DomFailure.CannotGenerateName(inputType);

@@ -14,27 +14,10 @@
 // limitations under the License.
 //
 
-using System;
-
 namespace Carbonfrost.Commons.Web.Dom {
 
-    internal class ThunkProvider : IDomNodeTypeProvider {
-        private Func<DomNodeType, string, Type> _getter;
-
-        public ThunkProvider(Func<DomNodeType, string, Type> getter) {
-            _getter = getter;
-        }
-
-        public Type GetAttributeNodeType(string name) {
-            return _getter(DomNodeType.Attribute, name);
-        }
-
-        public Type GetElementNodeType(string name) {
-            return _getter(DomNodeType.Element, name);
-        }
-
-        public Type GetProcessingInstructionNodeType(string target) {
-            return _getter(DomNodeType.ProcessingInstruction, target);
-        }
+    public enum DomNamespaceComparison {
+        Default,
+        Ordinal
     }
 }

@@ -33,9 +33,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        protected DomContainerDefinition(string name) : base(name) {
+        protected DomContainerDefinition(DomName name) : base(name) {
             _elementDefinitions = new DomElementDefinitionCollection(this);
             _attributeDefinitions = new DomAttributeDefinitionCollection(this as DomElementDefinition);
+        }
+
+        protected DomContainerDefinition(string name) : this(DomName.Create(name)) {
         }
     }
 }

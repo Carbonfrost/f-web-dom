@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Carbonfrost.Commons.Spec;
@@ -48,7 +49,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [Fact]
         public void CreateAttribute_using_late_bound_instancing() {
             var fac = new DomNodeFactory(
-                DomNodeTypeProvider.Create((nodeType, name) => typeof(PAttribute))
+                new FDomNodeTypeProvider((name) => typeof(PAttribute))
             );
             Assert.IsInstanceOf<PAttribute>(fac.CreateAttribute("myname"));
         }
@@ -56,11 +57,23 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [Fact]
         public void CreateAttribute_using_late_bound_instancing_has_name() {
             var fac = new DomNodeFactory(
-                DomNodeTypeProvider.Create((nodeType, name) => typeof(PAttributeWithName))
+                new FDomNodeTypeProvider((name) => typeof(PAttributeWithName))
             );
             Assert.IsInstanceOf<PAttributeWithName>(fac.CreateAttribute("expected"));
-            Assert.Equal("expected", fac.CreateAttribute("expected").Name);
+            Assert.Equal("expected", fac.CreateAttribute("expected").LocalName);
 
+        }
+
+        private class FDomNodeTypeProvider : DomNodeTypeProvider {
+            private readonly Func<DomName, Type> _thunk;
+
+            public FDomNodeTypeProvider(Func<DomName, Type> p) {
+                _thunk = p;
+            }
+
+            public override Type GetAttributeNodeType(DomName name) {
+                return _thunk(name);
+            }
         }
     }
 }

@@ -18,7 +18,10 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public class DomProcessingInstructionDefinition : DomNodeDefinition {
 
-        protected internal DomProcessingInstructionDefinition(string name) : base(name) {
+        protected internal DomProcessingInstructionDefinition(string name) : base(DomName.Create(name)) {
+        }
+
+        protected internal DomProcessingInstructionDefinition(DomName name) : base(name) {
         }
 
         public new DomProcessingInstructionDefinition Clone() {

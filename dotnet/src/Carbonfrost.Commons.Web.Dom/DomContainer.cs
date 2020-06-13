@@ -91,8 +91,8 @@ namespace Carbonfrost.Commons.Web.Dom {
             return GetElementsByTagName(name).FirstOrDefault();
         }
 
-        public DomElement Descendant(string name, string xmlns) {
-            return GetElementsByTagName(name, xmlns).FirstOrDefault();
+        public DomElement Descendant(DomName name) {
+            return GetElementsByTagName(name).FirstOrDefault();
         }
 
         public DomElementCollection Children {
@@ -115,21 +115,28 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomElement Element(string name) {
+            return Element(DomName.Create(name));
+        }
+
+        public DomElement Element(string name, string namespaceUri) {
+            return Element(DomName.Create(namespaceUri, name));
+        }
+
+        public DomElement Element(DomName name) {
             CheckName(name);
             return Elements.FirstOrDefault(t => t.Name == name);
         }
 
-        public DomElement Element(string name, string xmlns) {
-            CheckName(name);
-            return Elements.FirstOrDefault(t => t.Name == name && t.NamespaceUri == xmlns);
+        public DomElementCollection GetElementsByTagName(string name) {
+            return GetElementsByTagName(DomName.Create(name));
         }
 
-        public virtual DomElementCollection GetElementsByTagName(string name) {
+        public DomElementCollection GetElementsByTagName(string name, string namespaceUri) {
+            return GetElementsByTagName(DomName.Create(namespaceUri, name));
+        }
+
+        public virtual DomElementCollection GetElementsByTagName(DomName name) {
             return new DefaultDomElementCollection(this, n => n.Descendants(name));
-        }
-
-        public virtual DomElementCollection GetElementsByTagName(string name, string namespaceUri) {
-            return new DefaultDomElementCollection(this, n => n.Descendants(name, namespaceUri));
         }
 
         public virtual DomElementCollection GetElementsByClassName(string className) {

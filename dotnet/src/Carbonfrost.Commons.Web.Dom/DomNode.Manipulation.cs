@@ -40,8 +40,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode Attribute(string name, object value) {
-            if (this.Attributes == null)
+            return Attribute(DomName.Create(name), value);
+        }
+
+        public DomNode Attribute(DomName name, object value) {
+            if (Attributes == null) {
                 return this;
+            }
 
             var attr = AttributeByNameOrCreate(name);
             attr.SetValue(value);
@@ -214,10 +219,18 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomAttribute AppendAttribute(string name, object value) {
+            return AppendAttribute(DomName.Create(name), value);
+        }
+
+        public DomAttribute AppendAttribute(DomName name, object value) {
             return AttributeByNameOrCreate(name).AppendValue(value);
         }
 
         public DomAttribute PrependAttribute(string name, object value) {
+            return PrependAttribute(DomName.Create(name), value);
+        }
+
+        public DomAttribute PrependAttribute(DomName name, object value) {
             return AttributeByNameOrCreate(name, true).AppendValue(value);
         }
 
@@ -437,7 +450,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (TNode) ReplaceWith((DomNode) other);
         }
 
-        internal DomAttribute AttributeByNameOrCreate(string name, bool insertFirst = false) {
+        internal DomAttribute AttributeByNameOrCreate(DomName name, bool insertFirst = false) {
             var attr = Attributes[name];
             if (attr == null) {
                 // Owner doc could be null (rare)

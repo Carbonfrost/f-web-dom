@@ -68,6 +68,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             // TODO This is an incomplete list, possible DomNode/DomContainer shouldn't be used since non-leaf types
         };
 
+        public virtual IDomNodeTypeProvider NodeTypeProvider {
+            get {
+                return DomNodeTypeProvider.Default;
+            }
+        }
+
         internal DomObjectQuery EmptyObjectQuery {
             get {
                 if (_objectQueryCache == null) {
@@ -130,10 +136,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
 
             return ConsideredProviderObject(providerObjectType) && providerObjectType.GetTypeInfo().Assembly == GetType().GetTypeInfo().Assembly;
-        }
-
-        public virtual string GenerateDefaultName(Type providerObjectType) {
-            return null;
         }
 
         internal static bool ConsideredProviderObject(Type pot) {

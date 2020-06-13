@@ -29,8 +29,14 @@ namespace Carbonfrost.Commons.Web.Dom {
             set;
         }
 
-        public abstract DomAttribute this[string name] {
+        public abstract DomAttribute this[DomName name] {
             get;
+        }
+
+        public DomAttribute this[string name] {
+            get {
+                return this[DomName.Create(name)];
+            }
         }
 
         public abstract int Count { get; }
@@ -74,7 +80,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         public abstract bool Remove(DomAttribute item);
         public abstract void RemoveAt(int index);
 
-        public virtual int IndexOf(string name) {
+        public int IndexOf(string name) {
+            return IndexOf(DomName.Create(name));
+        }
+
+        public virtual int IndexOf(DomName name) {
             RequireName(name);
 
             for (int i = 0; i < Count; i++) {
@@ -112,14 +122,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
 
-        internal static string RequireName(string name) {
+        internal static DomName RequireName(DomName name) {
             if (name == null) {
                 throw new ArgumentNullException(nameof(name));
             }
-            if (name.Length == 0) {
-                throw Failure.EmptyString(nameof(name));
-            }
-
             return name;
         }
     }

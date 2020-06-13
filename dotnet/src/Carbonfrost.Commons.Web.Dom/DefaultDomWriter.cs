@@ -60,15 +60,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public override void WriteStartElement(string name, string namespaceUri) {
+        public override void WriteStartElement(DomName name) {
             ImpliesElementWithChildNodes();
 
-            var element = new DomElementState(name);
+            var element = new DomElementState(name.LocalName);
             _elements.Push(element);
         }
 
-        public override void WriteStartAttribute(string name, string namespaceUri) {
-            Element.Attributes.Add(new DomAttributeState(name, ""));
+        public override void WriteStartAttribute(DomName name) {
+            Element.Attributes.Add(new DomAttributeState(name.LocalName, ""));
         }
 
         private void ImpliesElementWithChildNodes() {
@@ -327,8 +327,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             public readonly string Name;
             public readonly string Value;
 
-            public DomAttributeState(string name, string value)
-            {
+            public DomAttributeState(string name, string value) {
                 Name = name;
                 Value = value;
             }

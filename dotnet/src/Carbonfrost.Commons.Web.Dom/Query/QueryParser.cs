@@ -1,7 +1,5 @@
 //
-// - QueryParser.cs -
-//
-// Copyright 2012 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2012, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -255,14 +253,15 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
 
         private void ByTag() {
             string tagName = tq.ConsumeElementSelector();
-            if (tagName.Length == 0)
+            if (tagName.Length == 0) {
                 throw Failure.EmptyString("tagName");
+            }
 
             // namespaces: if element name is "abc:def", selector must be "abc|def", so flip:
             if (tagName.Contains("|"))
                 tagName = tagName.Replace("|", ":");
 
-            evals.Add(new Evaluator.Tag(tagName.Trim().ToLower()));
+            evals.Add(new Evaluator.Tag(DomName.Create(tagName.Trim().ToLower())));
         }
 
         private void ByAttribute() {

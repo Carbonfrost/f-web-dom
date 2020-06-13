@@ -14,17 +14,23 @@
 // limitations under the License.
 //
 
-using System;
-
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public interface IDomNodeTypeProvider {
-        Type GetAttributeNodeType(DomName name);
-        Type GetElementNodeType(DomName name);
-        Type GetProcessingInstructionNodeType(string target);
+    interface IDomNameApiConventions {
+        DomName Name {
+            get;
+        }
 
-        DomName GetAttributeName(Type attributeType);
-        DomName GetElementName(Type elementType);
-        string GetProcessingInstructionTarget(Type processingInstructionType);
+        string LocalName {
+            get;
+        }
+
+        DomNamespace Namespace {
+            get;
+        }
+
+        string NamespaceUri {
+            get;
+        }
     }
 }

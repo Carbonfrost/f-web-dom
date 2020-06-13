@@ -59,16 +59,36 @@ namespace Carbonfrost.Commons.Web.Dom {
             NodeTypeProvider = nodeTypeProvider ?? DomNodeTypeProvider.Default;
         }
 
-        public Type GetAttributeNodeType(string name) {
+        public Type GetAttributeNodeType(DomName name) {
             return NodeTypeProvider.GetAttributeNodeType(name);
         }
 
-        public Type GetElementNodeType(string name) {
+        public Type GetAttributeNodeType(string name) {
+            return GetAttributeNodeType(DomName.Create(name));
+        }
+
+        public Type GetElementNodeType(DomName name) {
             return NodeTypeProvider.GetElementNodeType(name);
+        }
+
+        public Type GetElementNodeType(string name) {
+            return GetElementNodeType(DomName.Create(name));
         }
 
         public Type GetProcessingInstructionNodeType(string target) {
             return NodeTypeProvider.GetProcessingInstructionNodeType(target);
+        }
+
+        public DomName GetAttributeName(Type attributeType) {
+            return NodeTypeProvider.GetAttributeName(attributeType);
+        }
+
+        public DomName GetElementName(Type elementType) {
+            return NodeTypeProvider.GetElementName(elementType);
+        }
+
+        public string GetProcessingInstructionTarget(Type processingInstructionType) {
+            return NodeTypeProvider.GetProcessingInstructionTarget(processingInstructionType);
         }
 
         public virtual DomComment CreateComment() {
@@ -95,20 +115,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             );
         }
 
-        public virtual DomAttribute CreateAttribute(string name) {
-            return CreateNode(
-                GetAttributeNodeType(name),
-                name,
-                nameOrTarget => new DomAttribute(nameOrTarget)
-            );
+        public DomAttribute CreateAttribute(string name) {
+            return CreateAttribute(DomName.Create(name));
         }
 
-        public virtual DomElement CreateElement(string name) {
-            return CreateNode(
-                GetElementNodeType(name),
-                name,
-                nameOrTarget => new DomElement(nameOrTarget)
-            );
+        public DomElement CreateElement(string name) {
+            return CreateElement(DomName.Create(name));
         }
 
         public virtual DomEntityReference CreateEntityReference(string name) {
@@ -153,19 +165,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomAttribute CreateAttribute(string name, string value) {
-            var attr = CreateAttribute(name);
-            attr.Value = value;
-            return attr;
+            return SetValue(CreateAttribute(name), value);
         }
 
         public DomAttribute CreateAttribute(string name, IDomValue value) {
-            var result = CreateAttribute(name);
-
-            if (value == null) {
-                throw new ArgumentNullException(nameof(value));
-            }
-            result.DomValue = value;
-            return result;
+            return SetDomValue(CreateAttribute(name), value);
         }
 
         public DomDocumentType CreateDocumentType(string name, string publicId, string systemId) {
@@ -177,23 +181,80 @@ namespace Carbonfrost.Commons.Web.Dom {
             return result;
         }
 
-        private T CreateNode<T>(Type type, string nameOrTarget, Func<string, T> ctor) {
+        private T CreateNode<T>(Type type, DomName name, Func<DomName, T> ctor) {
             if (type == typeof(T) || type == null) {
-                return ctor(nameOrTarget);
+                return ctor(name);
             }
-            var info = _cache.GetValueOrCache(type, t => new NodeConstructorInfo(t));
-            return (T) info.Invoke(nameOrTarget);
+            return (T) CtorInfo(type).Invoke(name);
+        }
+
+        private T CreateNode<T>(Type type, string target, Func<string, T> ctor) {
+            if (type == typeof(T) || type == null) {
+                return ctor(target);
+            }
+            return (T) CtorInfo(type).Invoke(target);
+        }
+
+        public DomAttribute CreateAttribute(DomName name, IDomValue value) {
+            return SetDomValue(CreateAttribute(name), value);
+        }
+
+        public DomAttribute CreateAttribute(DomName name, string value) {
+            return SetValue(CreateAttribute(name), value);
+        }
+
+        public virtual DomAttribute CreateAttribute(DomName name) {
+            return CreateNode(
+                GetAttributeNodeType(name),
+                name,
+                nameOrTarget => new DomAttribute(nameOrTarget)
+            );
+        }
+
+        public virtual DomElement CreateElement(DomName name) {
+            return CreateNode(
+                GetElementNodeType(name),
+                name,
+                nameOrTarget => new DomElement(nameOrTarget)
+            );
+        }
+
+        private DomAttribute SetDomValue(DomAttribute result, IDomValue value) {
+            if (value == null) {
+                throw new ArgumentNullException(nameof(value));
+            }
+            result.DomValue = value;
+            return result;
+        }
+
+        private DomAttribute SetValue(DomAttribute result, string value) {
+            if (value == null) {
+                throw new ArgumentNullException(nameof(value));
+            }
+            result.Value = value;
+            return result;
+        }
+
+        private NodeConstructorInfo CtorInfo(Type type) {
+            return _cache.GetValueOrCache(type, t => new NodeConstructorInfo(t));
         }
 
         struct NodeConstructorInfo {
             public readonly ConstructorInfo Ctor;
             public readonly ConstructorInfo CtorString;
+            public readonly ConstructorInfo CtorDomName;
 
             public NodeConstructorInfo(Type type) {
                 CtorString = type.GetConstructor(
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
                     null,
                     new [] { typeof(string) },
+                    null
+                );
+                CtorDomName = type.GetConstructor(
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                    null,
+                    new [] { typeof(DomName) },
                     null
                 );
                 Ctor = type.GetConstructor(
@@ -209,6 +270,21 @@ namespace Carbonfrost.Commons.Web.Dom {
                 // .ctor(string) OR .ctor() exist
                 if (CtorString != null) {
                     return CtorString.Invoke(new [] { nameOrTarget });
+                }
+
+                return Ctor.Invoke(Array.Empty<object>());
+            }
+
+            internal object Invoke(DomName name) {
+                // TODO Improve error handling here - it should be a domain exception if neither
+                // .ctor(string) OR .ctor() exist
+                if (CtorDomName != null) {
+                    return CtorDomName.Invoke(new [] { name });
+                }
+
+                // Use the name as a string
+                if (CtorString != null) {
+                    return CtorString.Invoke(new [] { name.LocalName });
                 }
 
                 return Ctor.Invoke(Array.Empty<object>());

@@ -22,16 +22,22 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     class DomNodeDefinitionCollection<T> : IDomNodeDefinitionCollection<T> where T : DomNodeDefinition {
 
-        private readonly Dictionary<string, T> _items = new Dictionary<string, T>();
-        private readonly Func<string, T> _ctor;
+        private readonly Dictionary<DomName, T> _items = new Dictionary<DomName, T>();
+        private readonly Func<DomName, T> _ctor;
 
-        public DomNodeDefinitionCollection(Func<string, T> ctor) {
+        public DomNodeDefinitionCollection(Func<DomName, T> ctor) {
             _ctor = ctor;
+        }
+
+        public T this[DomName name] {
+            get {
+                return _items.GetValueOrDefault(name);
+            }
         }
 
         public T this[string name] {
             get {
-                return _items.GetValueOrDefault(name);
+                return this[DomName.Create(name)];
             }
         }
 
@@ -52,6 +58,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public T AddNew(string name) {
+            return AddNew(DomName.Create(name));
+        }
+
+        public T AddNew(DomName name) {
             ThrowIfReadOnly();
             var result = _ctor(name);
             Add(result);
@@ -73,6 +83,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public bool Contains(string name) {
+            return Contains(DomName.Create(name));
+        }
+
+        public bool Contains(DomName name) {
             return _items.ContainsKey(name);
         }
 

@@ -32,6 +32,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             return OwnerDocument.CreateAttribute(name);
         }
 
+        public DomAttribute CreateAttribute(DomName name, IDomValue value) {
+            return OwnerDocument.CreateAttribute(name, value);
+        }
+
+        public DomAttribute CreateAttribute(DomName name, string value) {
+            return OwnerDocument.CreateAttribute(name, value);
+        }
+
+        public DomAttribute CreateAttribute(DomName name) {
+            return OwnerDocument.CreateAttribute(name);
+        }
+
         public DomCDataSection CreateCDataSection(string data) {
             return OwnerDocument.CreateCDataSection(data);
         }
@@ -64,6 +76,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return OwnerDocument.CreateElement(name);
         }
 
+        public DomElement CreateElement(DomName name) {
+            return OwnerDocument.CreateElement(name);
+        }
+
         public DomEntity CreateEntity(string name) {
             return OwnerDocument.CreateEntity(name);
         }
@@ -92,16 +108,37 @@ namespace Carbonfrost.Commons.Web.Dom {
             return OwnerDocument.CreateText();
         }
 
-        public Type GetAttributeNodeType(string name) {
+        public Type GetAttributeNodeType(DomName name) {
             return OwnerDocument.GetAttributeNodeType(name);
         }
 
-        public Type GetElementNodeType(string name) {
+        public Type GetElementNodeType(DomName name) {
             return OwnerDocument.GetElementNodeType(name);
+        }
+
+        public Type GetAttributeNodeType(string name) {
+            return GetAttributeNodeType(DomName.Create(name));
+        }
+
+        public Type GetElementNodeType(string name) {
+            return GetElementNodeType(DomName.Create(name));
         }
 
         public Type GetProcessingInstructionNodeType(string target) {
             return OwnerDocument.GetProcessingInstructionNodeType(target);
         }
+
+        public DomName GetAttributeName(Type attributeType) {
+            return OwnerDocument.GetAttributeName(attributeType);
+        }
+
+        public DomName GetElementName(Type elementType) {
+            return OwnerDocument.GetElementName(elementType);
+        }
+
+        public string GetProcessingInstructionTarget(Type processingInstructionType) {
+            return OwnerDocument.GetProcessingInstructionTarget(processingInstructionType);
+        }
+
     }
 }

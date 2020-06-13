@@ -1,7 +1,5 @@
 //
-// - DomNodeWriter.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,11 +28,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             this.node = node;
         }
 
-        public override void WriteStartElement(string name, string namespaceUri) {
+        public override void WriteStartElement(DomName name) {
             throw new NotImplementedException();
         }
 
-        public override void WriteStartAttribute(string name, string namespaceUri) {
+        public override void WriteStartAttribute(DomName name) {
             throw new NotImplementedException();
         }
 

@@ -285,29 +285,53 @@ namespace Carbonfrost.Commons.Web.Dom {
             return NodeFactory.CreateProcessingInstruction(target);
         }
 
-        public virtual Type GetAttributeNodeType(string name) {
+        public virtual Type GetAttributeNodeType(DomName name) {
             return NodeFactory.GetAttributeNodeType(name);
         }
 
-        public virtual Type GetElementNodeType(string name) {
+        public Type GetAttributeNodeType(string name) {
+            return GetAttributeNodeType(DomName.Create(name));
+        }
+
+        public virtual Type GetElementNodeType(DomName name) {
             return NodeFactory.GetElementNodeType(name);
+        }
+
+        public Type GetElementNodeType(string name) {
+            return GetElementNodeType(DomName.Create(name));
         }
 
         public virtual Type GetProcessingInstructionNodeType(string name) {
             return NodeFactory.GetProcessingInstructionNodeType(name);
         }
 
+        public virtual DomName GetAttributeName(Type attributeType) {
+            return NodeFactory.GetAttributeName(attributeType);
+        }
+
+        public virtual DomName GetElementName(Type elementType) {
+            return NodeFactory.GetElementName(elementType);
+        }
+
+        public virtual string GetProcessingInstructionTarget(Type processingInstructionType) {
+            return NodeFactory.GetProcessingInstructionTarget(processingInstructionType);
+        }
+
         public DomAttribute CreateAttribute(string name) {
+            return CreateAttribute(DomName.Create(name));
+        }
+
+        public DomAttribute CreateAttribute(DomName name) {
             return AddUnlinked(CreateAttributeCore(name));
         }
 
-        public DomAttribute CreateAttribute(string name, string value) {
+        public DomAttribute CreateAttribute(DomName name, string value) {
             var result = CreateAttribute(name);
             result.Value = value;
             return result;
         }
 
-        public DomAttribute CreateAttribute(string name, IDomValue value) {
+        public DomAttribute CreateAttribute(DomName name, IDomValue value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
@@ -317,16 +341,28 @@ namespace Carbonfrost.Commons.Web.Dom {
             return result;
         }
 
-        protected virtual DomAttribute CreateAttributeCore(string name) {
+        public DomAttribute CreateAttribute(string name, IDomValue value) {
+            return CreateAttribute(DomName.Create(name), value);
+        }
+
+        public DomAttribute CreateAttribute(string name, string value) {
+            return CreateAttribute(DomName.Create(name), value);
+        }
+
+        protected virtual DomAttribute CreateAttributeCore(DomName name) {
             return ApplySchema(NodeFactory.CreateAttribute(name) ?? new DomAttribute(name));
         }
 
         public DomElement CreateElement(string name) {
+            return CreateElement(DomName.Create(name));
+        }
+
+        public DomElement CreateElement(DomName name) {
             var e = CreateElementCore(name);
             return AddUnlinked(e);
         }
 
-        protected virtual DomElement CreateElementCore(string name) {
+        protected virtual DomElement CreateElementCore(DomName name) {
             return ApplySchema(NodeFactory.CreateElement(name) ?? new DomElement(name));
         }
 

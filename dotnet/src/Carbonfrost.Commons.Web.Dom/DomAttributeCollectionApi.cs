@@ -56,7 +56,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public override DomAttribute this[string name] {
+        public override DomAttribute this[DomName name] {
             get {
                 return _items[name];
             }
@@ -96,7 +96,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 : -1;
         }
 
-        public override int IndexOf(string name) {
+        public override int IndexOf(DomName name) {
             return _items.IndexOf(name);
         }
 

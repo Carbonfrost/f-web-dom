@@ -33,6 +33,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public DomProcessingInstructionDefinition this[DomName name] {
+            get {
+                return _items[name];
+            }
+        }
+
         public int Count {
             get {
                 return _items.Count;
@@ -54,6 +60,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomProcessingInstructionDefinition AddNew(string name) {
+            return AddNew(DomName.Create(name));
+        }
+
+        public DomProcessingInstructionDefinition AddNew(DomName name) {
             return AddNewItem(name);
         }
 
@@ -66,6 +76,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public bool Contains(string name) {
+            return _items.Contains(name);
+        }
+
+        public bool Contains(DomName name) {
             return _items.Contains(name);
         }
 
@@ -89,7 +103,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             _items.Add(item);
         }
 
-        protected virtual DomProcessingInstructionDefinition AddNewItem(string name) {
+        protected virtual DomProcessingInstructionDefinition AddNewItem(DomName name) {
             return _items.AddNew(name);
         }
 

@@ -68,8 +68,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             html.Attribute("class", "a").Attribute("id", "b").Attribute("lang", "en");
 
             Assert.True(html.Attributes.Remove("class"));
-            Assert.Equal("id", html.Attributes[0].Name);
-            Assert.Equal("lang", html.Attributes[1].Name);
+            Assert.Equal("id", html.Attributes[0].Name.LocalName);
+            Assert.Equal("lang", html.Attributes[1].Name.LocalName);
         }
 
         [Fact]
@@ -79,8 +79,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             html.Attribute("class", "a").Attribute("id", "b").Attribute("lang", "en");
 
             html.Attributes.RemoveAt(1);
-            Assert.Equal("class", html.Attributes[0].Name);
-            Assert.Equal("lang", html.Attributes[1].Name);
+            Assert.Equal("class", html.Attributes[0].Name.LocalName);
+            Assert.Equal("lang", html.Attributes[1].Name.LocalName);
         }
 
         [Fact]

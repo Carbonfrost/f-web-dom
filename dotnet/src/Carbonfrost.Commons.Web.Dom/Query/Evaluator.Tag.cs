@@ -1,7 +1,5 @@
 //
-// - Evaluator.Tag.cs -
-//
-// Copyright 2012 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2012, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,27 +36,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using Carbonfrost.Commons.Web.Dom;
-
 namespace Carbonfrost.Commons.Web.Dom.Query {
 
     partial class Evaluator {
 
         public sealed class Tag : Evaluator {
 
-            private readonly string tagName;
+            private readonly DomName _tagName;
 
-            public Tag(string tagName) {
-                this.tagName = tagName;
+            public Tag(DomName tagName) {
+                _tagName = tagName;
             }
 
             public override bool Matches(DomContainer root, DomElement element) {
-                return (element.Name.Equals(tagName));
+                return element.Name == _tagName;
             }
 
             public override string ToString() {
-                return string.Format("{0}", tagName);
+                return string.Format("{0}", _tagName);
             }
         }
 

@@ -28,7 +28,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             false
         );
 
-        private readonly IDictionary<string, DomAttribute> _map;
+        private readonly IDictionary<DomName, DomAttribute> _map;
         private readonly IList<DomAttribute> _items;
 
         private IList<DomAttribute> Items {
@@ -39,7 +39,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         private DomAttributeCollectionImpl(bool dummy) {
             _items = new ReadOnlyCollection<DomAttribute>(Array.Empty<DomAttribute>());
-            _map = new ReadOnlyDictionary<string, DomAttribute>(new Dictionary<string, DomAttribute>());
+            _map = new ReadOnlyDictionary<DomName, DomAttribute>(new Dictionary<DomName, DomAttribute>());
         }
 
         internal DomAttributeCollectionImpl()
@@ -51,7 +51,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(items));
             }
             _items = items;
-            _map = new Dictionary<string, DomAttribute>();
+            _map = new Dictionary<DomName, DomAttribute>();
         }
 
         public override bool IsReadOnly {
@@ -60,13 +60,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public override DomAttribute this[string name] {
+        public override DomAttribute this[DomName name] {
             get {
                 return GetByName(name);
             }
         }
 
-        private DomAttribute GetByName(string name) {
+        private DomAttribute GetByName(DomName name) {
             DomAttribute result;
             if (TryGetValue(RequireName(name), out result)) {
                 return result;
@@ -75,7 +75,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        private bool TryGetValue(string name, out DomAttribute result) {
+        private bool TryGetValue(DomName name, out DomAttribute result) {
             return _map.TryGetValue(name, out result);
         }
 

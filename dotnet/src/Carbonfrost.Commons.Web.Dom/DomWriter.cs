@@ -120,8 +120,8 @@ namespace Carbonfrost.Commons.Web.Dom {
             DomNodeVisitor.Visit(obj, this);
         }
 
-        public virtual void WriteStartElement(string name, string namespaceUri) {}
-        public virtual void WriteStartAttribute(string name, string namespaceUri) {}
+        public virtual void WriteStartElement(DomName name) {}
+        public virtual void WriteStartAttribute(DomName name) {}
         public virtual void WriteEndAttribute() {}
 
         public virtual void WriteValue(string value) {}
@@ -148,7 +148,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(element));
             }
 
-            WriteStartElement(element.Name, element.NamespaceUri);
+            WriteStartElement(element.Name);
             Visit(element.Attributes);
             Visit(element.ChildNodes);
             WriteEndElement();
@@ -159,7 +159,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(attribute));
             }
 
-            WriteStartAttribute(attribute.Name, attribute.NamespaceUri);
+            WriteStartAttribute(attribute.Name);
             WriteValue(attribute.Value);
             WriteEndAttribute();
         }

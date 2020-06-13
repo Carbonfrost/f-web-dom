@@ -15,36 +15,53 @@
 //
 
 using System;
-using System.Linq;
 using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
     public partial class DomDocumentType : DomNode {
 
+        private readonly string _name;
         // TODO These should be read-only like w3c
 
-        public string PublicId { get; set; }
-        public string SystemId { get; set; }
+        public string PublicId {
+            get;
+            set;
+        }
+
+        public string SystemId {
+            get;
+            set;
+        }
 
         protected internal DomDocumentType(string name) {
-            if (name == null)
-                throw new ArgumentNullException("name");
-            if (string.IsNullOrEmpty(name))
-                throw Failure.EmptyString("name");
+            if (name == null) {
+                throw new ArgumentNullException(nameof(name));
+            }
+            if (string.IsNullOrEmpty(name)) {
+                throw Failure.EmptyString(nameof(name));
+            }
 
-            this.Name = name;
+            _name = name;
         }
 
         public override DomNodeType NodeType {
-            get { return DomNodeType.DocumentType; } }
+            get {
+                return DomNodeType.DocumentType;
+            }
+        }
 
-        public string Name {
-            get; private set;
+        public new string Name {
+            get {
+                return _name;
+            }
         }
 
         public override string NodeName {
-            get { return Name; } }
+            get {
+                return Name;
+            }
+        }
 
         protected override DomAttributeCollection DomAttributes {
             get {

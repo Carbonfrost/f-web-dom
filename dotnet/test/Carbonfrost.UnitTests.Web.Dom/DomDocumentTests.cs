@@ -136,7 +136,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [Fact]
         public void CreateAttribute_requires_name_argument() {
             DomDocument doc = new DomDocument();
-            Assert.Throws<ArgumentNullException>(() => doc.CreateAttribute(null));
+            Assert.Throws<ArgumentNullException>(() => doc.CreateAttribute((DomName) null));
+            Assert.Throws<ArgumentNullException>(() => doc.CreateAttribute((string) null));
         }
 
         [Fact]
@@ -189,8 +190,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var html = doc.AppendElement("html");
             var body = html.AppendElement("body");
             var head = (DomElement) body.ReplaceWith(doc.CreateElement("head"));
-            Assert.Equal("head", ((DomElement) html.ChildNode(0)).Name);
-            Assert.Equal("head", head.Name);
+            Assert.Equal("head", ((DomElement) html.ChildNode(0)).LocalName);
+            Assert.Equal("head", head.LocalName);
         }
 
         [Fact]
