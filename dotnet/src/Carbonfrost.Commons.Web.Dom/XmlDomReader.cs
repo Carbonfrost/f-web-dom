@@ -1,7 +1,5 @@
 //
-// - XmlDomReader.cs -
-//
-// Copyright 2014 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2014, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,8 +31,8 @@ namespace Carbonfrost.Commons.Web.Dom {
             this.xml = xml;
         }
 
-        public override string GetAttribute(string name, string namespaceUri) {
-            return xml.GetAttribute(name, namespaceUri);
+        public override string GetAttribute(DomName name) {
+            return xml.GetAttribute(name.LocalName, name.NamespaceUri);
         }
 
         public override string GetAttribute(string name) {

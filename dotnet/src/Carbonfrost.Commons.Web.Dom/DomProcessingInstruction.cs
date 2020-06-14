@@ -55,7 +55,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected internal DomProcessingInstruction() {
-            _target = RequireFactoryGeneratedName(GetType());
+            _target = RequireFactoryGeneratedName(
+                GetType(),
+                (e, t) => e.GetProcessingInstructionTarget(t)
+            );
         }
 
         protected internal DomProcessingInstruction(string target) {
@@ -102,7 +105,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public override string NamespaceUri {
+        public override DomNamespace Namespace {
             get {
                 return null;
             }

@@ -27,7 +27,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             this.items = items;
         }
 
-        public DomAttribute CreateAttribute(string name) {
+        public DomAttribute CreateAttribute(DomName name) {
             return items.FirstNonNull(t => t.CreateAttribute(name));
         }
 
@@ -43,7 +43,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return items.FirstNonNull(t => t.CreateDocumentType(name));
         }
 
-        public DomElement CreateElement(string name) {
+        public DomElement CreateElement(DomName name) {
             return items.FirstNonNull(t => t.CreateElement(name));
         }
 
@@ -71,16 +71,28 @@ namespace Carbonfrost.Commons.Web.Dom {
             return items.FirstNonNull(t => t.CreateNotation(name));
         }
 
-        public Type GetAttributeNodeType(string name) {
+        public Type GetAttributeNodeType(DomName name) {
             return items.FirstNonNull(t => t.GetAttributeNodeType(name));
         }
 
-        public Type GetElementNodeType(string name) {
+        public Type GetElementNodeType(DomName name) {
             return items.FirstNonNull(t => t.GetElementNodeType(name));
         }
 
         public Type GetProcessingInstructionNodeType(string name) {
             return items.FirstNonNull(t => t.GetProcessingInstructionNodeType(name));
+        }
+
+        public DomName GetAttributeName(Type attributeType) {
+            return items.FirstNonNull(t => t.GetAttributeName(attributeType));
+        }
+
+        public DomName GetElementName(Type elementType) {
+            return items.FirstNonNull(t => t.GetElementName(elementType));
+        }
+
+        public string GetProcessingInstructionTarget(Type processingInstructionType) {
+            return items.FirstNonNull(t => t.GetProcessingInstructionTarget(processingInstructionType));
         }
 
         public IEnumerator<IDomNodeFactory> GetEnumerator() {

@@ -23,6 +23,13 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public static readonly DomWriterSettings Empty;
 
+        private DomEndOfLineCharacter _endOfLineCharacters;
+        private DomIndentCharacter _indentCharacter;
+        private int _indentWidth;
+        private bool _indent;
+        private DomAttributeAlignment _alignAttributes;
+        private DomQuoteAttributesCharacter _quoteAttributesCharacter;
+
         static DomWriterSettings() {
             Empty = ReadOnly(new DomWriterSettings());
         }
@@ -32,7 +39,93 @@ namespace Carbonfrost.Commons.Web.Dom {
             private set;
         }
 
-        protected DomWriterSettings() {}
+        public int IndentWidth {
+            get {
+                return _indentWidth;
+            }
+            set {
+                WritePreamble();
+                _indentWidth = value;
+            }
+        }
+
+        public bool Indent {
+            get {
+                return _indent;
+            }
+            set {
+                WritePreamble();
+                _indent = value;
+            }
+        }
+
+        public DomAttributeAlignment AlignAttributes {
+            get {
+                return _alignAttributes;
+            }
+            set {
+                WritePreamble();
+                _alignAttributes = value;
+            }
+        }
+
+        public DomQuoteAttributesCharacter QuoteAttributesCharacter {
+            get {
+                return _quoteAttributesCharacter;
+            }
+            set {
+                WritePreamble();
+                _quoteAttributesCharacter = value;
+            }
+        }
+
+        public virtual bool PrettyPrint {
+            set {
+                WritePreamble();
+
+                IndentCharacter = DomIndentCharacter.Space;
+                IndentWidth = 4;
+                Indent = true;
+                AlignAttributes = DomAttributeAlignment.Right;
+                QuoteAttributesCharacter = DomQuoteAttributesCharacter.DoubleQuote;
+            }
+        }
+
+        public DomIndentCharacter IndentCharacter {
+            get {
+                return _indentCharacter;
+            }
+            set {
+                WritePreamble();
+                _indentCharacter = value;
+            }
+        }
+
+        public DomEndOfLineCharacter EndOfLineCharacters {
+            get {
+                return _endOfLineCharacters;
+            }
+            set {
+                WritePreamble();
+                _endOfLineCharacters = value;
+            }
+        }
+
+        public DomWriterSettings() {
+        }
+
+        public DomWriterSettings(DomWriterSettings other) {
+            if (other == null) {
+                return;
+            }
+            IsReadOnly = other.IsReadOnly;
+            IndentWidth = other.IndentWidth;
+            Indent = other.Indent;
+            AlignAttributes = other.AlignAttributes;
+            QuoteAttributesCharacter = other.QuoteAttributesCharacter;
+            IndentCharacter = other.IndentCharacter;
+            EndOfLineCharacters = other.EndOfLineCharacters;
+        }
 
         public static DomWriterSettings ReadOnly(DomWriterSettings settings) {
             if (settings == null) {
@@ -65,6 +158,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (IsReadOnly) {
                 throw Failure.Sealed();
             }
+        }
+
+        private void WritePreamble() {
+            ThrowIfReadOnly();
         }
     }
 }

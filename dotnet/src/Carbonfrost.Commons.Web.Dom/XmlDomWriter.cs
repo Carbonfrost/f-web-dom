@@ -1,7 +1,5 @@
 //
-// - XmlDomWriter.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +15,6 @@
 //
 
 using System;
-using System.Linq;
 using System.Xml;
 
 namespace Carbonfrost.Commons.Web.Dom {
@@ -34,16 +31,16 @@ namespace Carbonfrost.Commons.Web.Dom {
             writer.WriteDocType(name, publicId, systemId, null);
         }
 
-        public override void WriteStartAttribute(string name, string namespaceUri) {
-            writer.WriteStartAttribute(name, namespaceUri);
+        public override void WriteStartAttribute(DomName name) {
+            writer.WriteStartAttribute(name.LocalName, name.NamespaceUri);
         }
 
         public override void WriteEndAttribute() {
             writer.WriteEndAttribute();
         }
 
-        public override void WriteStartElement(string name, string namespaceUri) {
-            writer.WriteStartElement(name, namespaceUri);
+        public override void WriteStartElement(DomName name) {
+            writer.WriteStartElement(name.LocalName, name.NamespaceUri);
         }
 
         public override void WriteProcessingInstruction(string target, string data) {

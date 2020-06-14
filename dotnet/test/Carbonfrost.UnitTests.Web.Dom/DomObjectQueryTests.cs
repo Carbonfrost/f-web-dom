@@ -25,6 +25,17 @@ namespace Carbonfrost.UnitTests.Web.Dom {
     public partial class DomObjectQueryTests {
 
         [Fact]
+        public void Add_should_dedupe_existing_nodes() {
+            var doc = new DomDocument();
+            var root = doc.AppendElement("root");
+            var node = root.AppendAttribute("n", 20);
+
+            var q = new DomObjectQuery().Add(node).Add(node);
+            Assert.HasCount(1, q);
+            Assert.Same(node, q[0]);
+        }
+
+        [Fact]
         public void Closest_should_return_closest_element() {
             var doc = new DomDocument();
             var self = doc.AppendElement("a").Attribute("class", "clear").AppendElement("a").AppendElement("span");

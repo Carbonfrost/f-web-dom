@@ -101,5 +101,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             CoreLoadXml(reader);
             return this;
         }
+
+        public DomDocumentFragment WithSchema(DomSchema schema) {
+            var result = OwnerDocument.WithSchema(schema).CreateDocumentFragment();
+            CopyContentsTo(result);
+            return result;
+        }
     }
 }

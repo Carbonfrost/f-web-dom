@@ -103,15 +103,34 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             );
         }
     }
+
     class RNodeTypeProvider : IDomNodeTypeProvider {
+        public DomName GetAttributeName(Type attributeType) {
+            return null;
+        }
+
         public Type GetAttributeNodeType(string name) {
             return typeof(RAttribute);
         }
-        public Type GetElementNodeType(string name) {
+
+        public DomName GetElementName(Type elementType) {
+            return null;
+        }
+
+        public Type GetAttributeNodeType(DomName name) {
+            return typeof(RAttribute);
+        }
+
+        public Type GetElementNodeType(DomName name) {
             return typeof(RElement);
         }
+
         public Type GetProcessingInstructionNodeType(string target) {
             return typeof(RProcessingInstruction);
+        }
+
+        public string GetProcessingInstructionTarget(Type processingInstructionType) {
+            return null;
         }
     }
     class RAttribute : DomAttribute<RAttribute> {
@@ -128,13 +147,24 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             return new RDocument();
         }
 
-        public override string GenerateDefaultName(Type providerObjectType) {
-            return "r:" + providerObjectType.Name;
+        public override IDomNodeTypeProvider NodeTypeProvider {
+            get {
+                return new RDomNodeTypeProvider();
+            }
         }
 
         public override bool IsProviderObject(Type providerObjectType) {
             return providerObjectType.Name[0] == 'R' && providerObjectType.Namespace == "Carbonfrost.UnitTests.Web.Dom";
         }
 
+        private class RDomNodeTypeProvider : DomNodeTypeProvider {
+            public override DomName GetAttributeName(Type attributeType) {
+                return DomName.Create("r:" + attributeType.Name);
+            }
+
+            public override DomName GetElementName(Type elementType) {
+                return DomName.Create("r:" + elementType.Name);
+            }
+        }
     }
 }

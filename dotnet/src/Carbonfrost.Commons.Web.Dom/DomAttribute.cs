@@ -15,15 +15,13 @@
 //
 
 using System;
-using System.Reflection;
-using Carbonfrost.Commons.Core;
 using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
     public partial class DomAttribute : DomObject, IEquatable<DomAttribute> {
 
-        private readonly string _name;
+        private readonly DomName _name;
 
         public int AttributePosition {
             get {
@@ -73,13 +71,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public string Name {
+        public override DomName Name {
             get {
                 return _name;
             }
         }
 
-        public override string NodeName { get { return Name; } }
+        public override string NodeName {
+            get {
+                return LocalName;
+            }
+        }
+
         public override string NodeValue { get { return Value; } }
 
         public override DomNodeType NodeType {
@@ -125,20 +128,22 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected internal DomAttribute() {
-            _name = RequireFactoryGeneratedName(GetType());
-            this.content = new BasicDomValue();
+            _name = CheckName(RequireFactoryGeneratedName(
+                GetType(),
+                (e, t) => e.GetAttributeName(t)
+            ));
+            this.content = Dom.DomValue.Create();
         }
 
-        protected internal DomAttribute(string name) {
+        protected internal DomAttribute(string name) : this(DomName.Create(name)) {
+        }
+
+        protected internal DomAttribute(DomName name) {
             if (name == null) {
                 throw new ArgumentNullException(nameof(name));
             }
-            if (string.IsNullOrEmpty(name)) {
-                throw Failure.EmptyString(nameof(name));
-            }
-
-            _name = name.Trim();
-            this.content = new BasicDomValue();
+            _name = name;
+            this.content = Dom.DomValue.Create();
         }
 
         public DomAttribute Clone() {
@@ -159,15 +164,25 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (other == null) {
                 return RemoveSelf();
             }
-
-            var oldParent = OwnerElement;
-            RemoveSelf();
-            oldParent.Attributes.Add(other);
+            OwnerElement.Attributes[SiblingIndex] = other;
             return other;
         }
 
         public DomAttribute SetValue(object value) {
-            return SetTypedValue(value);
+            if (value is IDomValue dv) {
+                DomValue = dv;
+                return this;
+            }
+            if (value != null && DomValue is DomValue.Automatic) {
+                // This is the first time it is being set, so we use the type of the
+                // value to determine how the DomValue works going forward
+                var tdv = Dom.DomValue.Create(value.GetType());
+                tdv.TypedValue = value;
+                DomValue = tdv;
+                return this;
+            }
+            DomValue.TypedValue = value;
+            return this;
         }
 
         public TValue GetValue<TValue>() {
@@ -181,22 +196,14 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (DomValue is TValue value) {
                 return value;
             }
+            if (DomValue is IDomValue<TValue> dd) {
+                return dd.TypedValue;
+            }
             return Activation.FromText<TValue>(Value);
         }
 
         public DomAttribute AppendValue(object value) {
             DomValue.AppendValue(value);
-            return this;
-        }
-
-        internal DomAttribute SetTypedValue(object value) {
-            IDomValue dv = value as IDomValue;
-            if (dv == null) {
-                DomValue.Value = Utility.ConvertToString(value);
-            } else {
-                DomValue = dv;
-            }
-
             return this;
         }
 
@@ -233,28 +240,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string ToString() {
-            return Name;
-        }
-
-        sealed class BasicDomValue : IDomValue {
-
-            void IDomValue.Initialize(DomAttribute attribute) {}
-
-            public bool IsReadOnly {
-                get {
-                    return false;
-                }
-            }
-
-            public string Value { get; set; }
-
-            public void AppendValue(object value) {
-                Value += value;
-            }
-
-            public IDomValue Clone() {
-                return new BasicDomValue { Value = Value };
-            }
+            return NodeName;
         }
     }
 }

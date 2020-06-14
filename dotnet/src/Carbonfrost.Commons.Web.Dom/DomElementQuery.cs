@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,12 +22,23 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public partial class DomElementQuery : IDomQuery<DomElement, DomElementQuery> {
 
-        internal static readonly DomElementQuery _Empty = new DomElementQuery();
-        private readonly DomElement[] _items = Array.Empty<DomElement>();
+        private readonly QueryValues<DomElement> _items;
+
+        public DomProviderFactory ProviderFactory {
+            get {
+                return DomProviderFactory;
+            }
+        }
+
+        protected virtual DomProviderFactory DomProviderFactory {
+            get {
+                return DomProviderFactory.Default;
+            }
+        }
 
         public int Count {
             get {
-                return _items.Length;
+                return _items.Count;
             }
         }
 
@@ -38,39 +48,47 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public DomElementQuery() {}
-
-        public DomElementQuery(IEnumerable<DomElement> objs) {
-            if (objs != null) {
-                _items = objs.Distinct().ToArray();
+        private DomElementQuery _Empty {
+            get {
+                return ProviderFactory.EmptyElementQuery;
             }
         }
 
+        public DomElementQuery() {
+            _items = QueryValues<DomElement>.Empty;
+        }
+
+        public DomElementQuery(IEnumerable<DomElement> items) {
+            _items = QueryValues.Create(items);
+        }
+
         public DomElementQuery(DomElement item) {
-            if (item != null) {
-                _items = new [] { item };
-            }
+            _items = QueryValues.Create(item);
+        }
+
+        private DomElementQuery CreateNew(IEnumerable<DomElement> items) {
+            return ProviderFactory.CreateElementQuery(items);
         }
 
         public DomElementQuery Add(DomElement item) {
             if (item == null) {
                 return this;
             }
-            return new DomElementQuery(DomObjectQuery.AddNonDuplicate(_items, item));
+            return CreateNew(_items.AddNonDuplicate(item));
         }
 
         public DomElementQuery AddRange(IEnumerable<DomElement> items) {
             if (items == null) {
                 return this;
             }
-            return new DomElementQuery(DomObjectQuery.ConcatItemsDistinct(_items, items));
+            return CreateNew(_items.ConcatItemsDistinct(items));
         }
 
         public DomElementQuery Concat(DomElementQuery other) {
             if (other == null) {
-                throw new ArgumentNullException(nameof(other));
+                return this;
             }
-            return new DomElementQuery(DomObjectQuery.ConcatItemsDistinct(_items, other._items));
+            return CreateNew(_items.ConcatItemsDistinct(other._items));
         }
 
         public string Attribute(string name) {
@@ -110,11 +128,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomElement QuerySelector(string selector) {
-            return _items.FirstNonNull(e => e.QuerySelector(selector));
+            var s = ParseSelector(selector);
+            return _items.FirstNonNull(e => e.QuerySelector(s));
         }
 
         public DomElementQuery QuerySelectorAll(string selector) {
-            return QueryMany(e => e.QuerySelectorAll(selector));
+            var s = ParseSelector(selector);
+            return QueryMany(e => e.QuerySelectorAll(s));
         }
 
         public DomElementQuery RemoveAttribute(string name) {
@@ -127,13 +147,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObjectQuery Select(DomSelector selector) {
-            return new DomObjectQuery(
+            return ProviderFactory.CreateObjectQuery(
                 _items.SelectMany(n => n.Select(selector))
             );
         }
 
         public DomElementQuery QuerySelectorAll(DomSelector selector) {
-            return new DomElementQuery(_items.SelectMany(t => t.QuerySelectorAll(selector)));
+            return CreateNew(_items.SelectMany(t => t.QuerySelectorAll(selector)));
         }
 
         public DomElement QuerySelector(DomSelector selector) {
@@ -145,8 +165,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         private DomSelector ParseSelector(string selector) {
-            // TODO Should be provider-specific
-            return DomSelector.Parse(selector);
+            return ProviderFactory.CreateSelector(selector);
         }
     }
 }

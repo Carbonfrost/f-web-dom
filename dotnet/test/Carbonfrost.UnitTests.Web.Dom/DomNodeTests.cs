@@ -156,8 +156,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             element.Prepend(doc.CreateElement("body"));
             element.Prepend(doc.CreateElement("head"));
-            Assert.Equal("head", doc.DocumentElement.Elements[0].Name);
-            Assert.Equal("body", doc.DocumentElement.Elements[1].Name);
+            Assert.Equal("head", doc.DocumentElement.Elements[0].LocalName);
+            Assert.Equal("body", doc.DocumentElement.Elements[1].LocalName);
         }
 
         [Fact]
@@ -166,8 +166,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var element = doc.AppendElement("html");
             element.Prepend(doc.CreateElement("head"), doc.CreateElement("body"));
 
-            Assert.Equal("head", doc.DocumentElement.Elements[0].Name);
-            Assert.Equal("body", doc.DocumentElement.Elements[1].Name);
+            Assert.Equal("head", doc.DocumentElement.Elements[0].LocalName);
+            Assert.Equal("body", doc.DocumentElement.Elements[1].LocalName);
         }
 
         [Fact]

@@ -32,11 +32,44 @@ namespace Carbonfrost.Commons.Web.Dom {
             return result;
         }
 
-        internal override DomNode GetItemCore(int index) {
+        public override DomNode this[int index] {
+            get {
+                return GetItemCore(index);
+            }
+            set {
+                SetItemCore(index, value);
+            }
+        }
+
+        public override void Add(DomNode item) {
+            InsertCore(Count, item);
+        }
+
+        public override void Clear() {
+            ClearCore();
+        }
+
+        public override bool Contains(DomNode item) {
+            return item.list == this;
+        }
+
+        public override void Insert(int index, DomNode item) {
+            InsertCore(index, item);
+        }
+
+        public override bool Remove(DomNode item) {
+            return RemoveCore(item);
+        }
+
+        public override void RemoveAt(int index) {
+            RemoveAtCore(index);
+        }
+
+        private DomNode GetItemCore(int index) {
             return Find(index);
         }
 
-        internal override void InsertCore(int index, DomNode item) {
+        private void InsertCore(int index, DomNode item) {
             if (index == Count) {
                 AddLast(item);
             } else {
@@ -44,7 +77,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        internal override void ClearCore() {
+        private void ClearCore() {
             DomNode current = _head;
             while (current != null) {
                 DomNode temp = current;
@@ -57,11 +90,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             version++;
         }
 
-        internal override void RemoveAtCore(int index) {
+        private void RemoveAtCore(int index) {
             RemoveCore(Find(index));
         }
 
-        internal override bool RemoveCore(DomNode value) {
+        private bool RemoveCore(DomNode value) {
             DomNode node = value;
             if (node != null) {
                 InternalRemoveNode(node);
@@ -70,7 +103,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return false;
         }
 
-        internal override void SetItemCore(int index, DomNode item) {
+        private void SetItemCore(int index, DomNode item) {
             var current = Find(index);
             AddBefore(current, item);
             RemoveCore(current);
@@ -178,13 +211,13 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         internal void ValidateNewNode(DomNode node) {
             if (node == null) {
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
             }
         }
 
         internal void ValidateNode(DomNode node) {
             if (node == null) {
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
             }
         }
 
@@ -255,9 +288,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         internal DomNode next;
         internal DomNode prev;
 
-        private LinkedDomNodeList list {
+        internal LinkedDomNodeList list {
             get {
-                return (LinkedDomNodeList) _Siblings;
+                return (LinkedDomNodeList) ((DomNodeCollectionApi) _Siblings).UnsafeItems;
             }
         }
 

@@ -58,7 +58,7 @@ namespace Carbonfrost.Commons.Web.Dom.Query {
                 var values = element.Attributes;
 
                 foreach (var attribute in values) {
-                    if (attribute.Name.StartsWith(prefix, StringComparison.Ordinal))
+                    if (attribute.NodeName.StartsWith(prefix, StringComparison.Ordinal))
                         return true;
                 }
 

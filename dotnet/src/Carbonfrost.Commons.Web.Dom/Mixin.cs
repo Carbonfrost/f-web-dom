@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -32,7 +33,8 @@ namespace Carbonfrost.Commons.Web.Dom {
             try {
                 return method.Invoke(instance, args);
             } catch (TargetInvocationException ex) {
-                throw ex.InnerException;
+                ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                throw;
             }
         }
 

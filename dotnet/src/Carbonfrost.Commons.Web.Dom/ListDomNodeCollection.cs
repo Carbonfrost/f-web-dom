@@ -1,11 +1,11 @@
 //
-// Copyright 2016 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,26 +14,44 @@
 // limitations under the License.
 //
 
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    sealed class DomNodeCollectionImpl : DomNodeCollection {
+    sealed class ListDomNodeCollection : DomNodeCollection {
 
-        private readonly List<DomNode> _items;
-
-        public DomNodeCollectionImpl(DomContainer ownerNode) : base(ownerNode) {
-            _items = new List<DomNode>();
-        }
+        private readonly List<DomNode> _items = new List<DomNode>();
 
         public override int Count {
             get {
                 return _items.Count;
             }
+        }
+
+        public override DomNode this[int index] {
+            get {
+                return _items[index];
+            }
+            set {
+                _items[index] = value;
+            }
+        }
+
+        internal override DomNode GetNextSibling(DomNode other) {
+            int index = IndexOf(other);
+            if (index < 0 || index == Count - 1) {
+                return null;
+            }
+            return this[index + 1];
+        }
+
+        internal override DomNode GetPreviousSibling(DomNode other) {
+            int index = IndexOf(other);
+            if (index <= 0) {
+                return null;
+            }
+            return this[index - 1];
         }
 
         public override IEnumerator<DomNode> GetEnumerator() {
@@ -44,33 +62,28 @@ namespace Carbonfrost.Commons.Web.Dom {
             return _items.IndexOf(node);
         }
 
-        internal override DomNode GetItemCore(int index) {
-            return _items[index];
+        public override void Add(DomNode item) {
+            _items.Add(item);
         }
 
-        internal override void InsertCore(int index, DomNode item) {
-            _items.Insert(index, item);
-        }
-
-        internal override void ClearCore() {
+        public override void Clear() {
             _items.Clear();
         }
 
-        internal override void RemoveAtCore(int index) {
-            _items.RemoveAt(index);
+        public override bool Contains(DomNode item) {
+            return _items.Contains(item);
         }
 
-        internal override bool RemoveCore(DomNode node) {
-            int index = _items.IndexOf(node);
-            if (index < 0) {
-                return false;
-            }
-            _items.RemoveAt(index);
-            return true;
+        public override void Insert(int index, DomNode item) {
+            _items.Insert(index, item);
         }
 
-        internal override void SetItemCore(int index, DomNode item) {
-            _items[index] = item;
+        public override bool Remove(DomNode item) {
+            return _items.Remove(item);
+        }
+
+        public override void RemoveAt(int index) {
+            _items.RemoveAt(index);
         }
 
         public struct Enumerator : IEnumerator<DomNode> {
@@ -112,5 +125,4 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
     }
-
 }

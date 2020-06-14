@@ -21,6 +21,18 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public abstract class DomSelector {
 
+        public DomProviderFactory ProviderFactory {
+            get {
+                return DomProviderFactory;
+            }
+        }
+
+        protected virtual DomProviderFactory DomProviderFactory {
+            get {
+                return DomProviderFactory.ForProviderObject(this);
+            }
+        }
+
         public abstract DomObjectQuery Select(DomNode node);
         public abstract bool Matches(DomNode node);
 

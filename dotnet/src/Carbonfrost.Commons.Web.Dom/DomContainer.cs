@@ -20,8 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 
-using Carbonfrost.Commons.Core;
-
 namespace Carbonfrost.Commons.Web.Dom {
 
     // Facilitates treating DomDocument sort of like an element, but
@@ -34,11 +32,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         internal DomContainer(bool useLL) {
-            if (useLL) {
-                content = new LinkedDomNodeList(this);
-            } else {
-                content = new DomNodeCollectionImpl(this);
-            }
+            content = new DomNodeCollectionApi(this, NewNodeStorage(useLL));
         }
 
         protected override DomNodeCollection DomChildNodes {
@@ -83,7 +77,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override string InnerXml {
             get {
-                return new OuterXmlVisitor().ConvertToString(ChildNodes);
+                return DomWriter.GetInnerString(null, this);
             }
             set {
                 var frag = OwnerDocument.CreateDocumentFragment();
@@ -94,11 +88,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomElement Descendant(string name) {
-            return this.GetElementsByTagName(name).FirstOrDefault();
+            return GetElementsByTagName(name).FirstOrDefault();
         }
 
-        public DomElement Descendant(string name, string xmlns) {
-            return this.GetElementsByTagName(name, xmlns).FirstOrDefault();
+        public DomElement Descendant(DomName name) {
+            return GetElementsByTagName(name).FirstOrDefault();
         }
 
         public DomElementCollection Children {
@@ -121,29 +115,28 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomElement Element(string name) {
-            if (name == null)
-                throw new ArgumentNullException("name");
-            if (name.Length == 0)
-                throw Failure.EmptyString("name");
+            return Element(DomName.Create(name));
+        }
 
+        public DomElement Element(string name, string namespaceUri) {
+            return Element(DomName.Create(namespaceUri, name));
+        }
+
+        public DomElement Element(DomName name) {
+            CheckName(name);
             return Elements.FirstOrDefault(t => t.Name == name);
         }
 
-        public DomElement Element(string name, string xmlns) {
-            if (name == null)
-                throw new ArgumentNullException("name");
-            if (name.Length == 0)
-                throw Failure.EmptyString("name");
-
-            return Elements.FirstOrDefault(t => t.Name == name && t.NamespaceUri == xmlns);
+        public DomElementCollection GetElementsByTagName(string name) {
+            return GetElementsByTagName(DomName.Create(name));
         }
 
-        public virtual DomElementCollection GetElementsByTagName(string name) {
+        public DomElementCollection GetElementsByTagName(string name, string namespaceUri) {
+            return GetElementsByTagName(DomName.Create(namespaceUri, name));
+        }
+
+        public virtual DomElementCollection GetElementsByTagName(DomName name) {
             return new DefaultDomElementCollection(this, n => n.Descendants(name));
-        }
-
-        public virtual DomElementCollection GetElementsByTagName(string name, string namespaceUri) {
-            return new DefaultDomElementCollection(this, n => n.Descendants(name, namespaceUri));
         }
 
         public virtual DomElementCollection GetElementsByClassName(string className) {
@@ -414,6 +407,14 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public new DomContainer RemoveSelf() {
             return (DomContainer) base.RemoveSelf();
+        }
+
+        private DomNodeCollection NewNodeStorage(bool useLL) {
+            if (useLL) {
+                return new LinkedDomNodeList();
+            } else {
+                return new ListDomNodeCollection();
+            }
         }
     }
 

@@ -23,11 +23,11 @@ namespace Carbonfrost.Commons.Web.Dom {
     partial class DomElementQuery : IDomNodeManipulation<DomElementQuery> {
 
         private DomObjectQuery Query(Func<DomElement, DomNode> f) {
-            return new DomObjectQuery(_items.Select(f).NonNull());
+            return NewObjectQuery(_items.Select(f).NonNull());
         }
 
         private DomElementQuery Query(Func<DomElement, DomElement> f) {
-            return new DomElementQuery(_items.Select(f).NonNull());
+            return NewElementQuery(_items.Select(f).NonNull());
         }
 
         private TValue QueryFirstOrDefault<TValue>(Func<DomElement, TValue> f) {
@@ -41,19 +41,19 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         private DomElementQuery QueryMany(Func<DomElement, IEnumerable<DomElement>> f) {
-            return new DomElementQuery(_items.SelectMany(f).NonNull());
+            return NewElementQuery(_items.SelectMany(f).NonNull());
         }
 
         private DomObjectQuery QueryMany(Func<DomElement, IEnumerable<DomNode>> f) {
-            return new DomObjectQuery(_items.SelectMany(f).NonNull());
+            return NewObjectQuery(_items.SelectMany(f).NonNull());
         }
 
         private DomObjectQuery QueryMany(Func<DomNode, IEnumerable<DomNode>> first, Func<DomNode, IEnumerable<DomNode>> rest) {
             var firstNode = _items.FirstOrDefault();
             if (firstNode == null) {
-                return new DomObjectQuery(_items);
+                return NewObjectQuery(_items);
             }
-            return new DomObjectQuery(Enumerable.Concat(
+            return NewObjectQuery(Enumerable.Concat(
                 first(firstNode),
                 _items.Skip(1).Cast<DomNode>().SelectMany(n => rest(n))
             ));
@@ -232,7 +232,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         public DomObjectQuery ReplaceWith(DomNode other) {
             if (other == null) {
                 RemoveSelf();
-                return DomObjectQuery._Empty;
+                return ProviderFactory.EmptyObjectQuery;
             }
             return ReplaceWith(new [] { other });
         }
@@ -369,7 +369,15 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObjectQuery Unwrap() {
-            return new DomObjectQuery(_items.SelectMany(i => i.UnwrapCore()));
+            return NewObjectQuery(_items.SelectMany(i => i.UnwrapCore()));
+        }
+
+        private DomObjectQuery NewObjectQuery(IEnumerable<DomObject> items) {
+            return ProviderFactory.CreateObjectQuery(items);
+        }
+
+        private DomElementQuery NewElementQuery(IEnumerable<DomElement> items) {
+            return ProviderFactory.CreateElementQuery(items);
         }
 
         private DomNode[] Parse(string markup) {

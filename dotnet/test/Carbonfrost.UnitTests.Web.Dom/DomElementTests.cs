@@ -184,7 +184,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Equal("world", e.Attribute("hello"));
             e.Attribute("hello", "earth");
 
-            Assert.Equal("hello", e.Attributes[0].Name);
+            Assert.Equal("hello", e.Attributes[0].LocalName);
             Assert.Equal("earth", e.Attributes[0].Value);
         }
 
@@ -423,7 +423,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             var elem = doc.DocumentElement.FirstChild.Wrap("body");
             Assert.Equal("<html> <body><div> <s /> </div></body> </html>", doc.ToXmlString());
-            Assert.Equal("body", elem.Name);
+            Assert.Equal("body", elem.LocalName);
             Assert.Equal(doc.DocumentElement.FirstChild, elem);
         }
 
@@ -444,7 +444,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var title = doc.CreateElement("title");
             var head = title.Wrap("head");
 
-            Assert.Equal("head", head.Name);
+            Assert.Equal("head", head.LocalName);
             Assert.Equal("<head><title /></head>", head.ToXmlString());
         }
 
@@ -454,6 +454,14 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var title = doc.CreateElement("title");
 
             Assert.Equal("title", title.NodeName);
+        }
+
+        [Fact]
+        public void LocalName_is_element_name_unqualif() {
+            DomDocument doc = new DomDocument();
+            var title = doc.CreateElement("title");
+
+            Assert.Equal("title", title.LocalName);
         }
 
         [Fact]

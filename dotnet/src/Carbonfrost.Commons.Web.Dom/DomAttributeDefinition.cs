@@ -43,7 +43,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public DomAttributeDefinition(string name) : base(name) {
+        public DomAttributeDefinition(DomName name) : base(name) {
         }
 
         public new DomAttributeDefinition Clone() {

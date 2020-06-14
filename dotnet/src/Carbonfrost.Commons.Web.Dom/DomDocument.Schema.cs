@@ -35,11 +35,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (Schema == null) {
                 return attr;
             }
-            object domValue = null;
             var def = Schema.AttributeDefinitions[attr.Name];
             if (def != null && def.ValueType != null) {
-                domValue = Activator.CreateInstance(def.ValueType);
-                attr.SetTypedValue(domValue);
+                attr.DomValue = DomValue.Create(def.ValueType);
             }
             return attr;
         }

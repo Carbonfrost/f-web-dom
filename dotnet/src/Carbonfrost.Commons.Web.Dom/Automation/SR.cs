@@ -154,6 +154,13 @@ namespace Carbonfrost.Commons.Web.Dom.Resources {
         return string.Format(Culture, ResourceFinder("NoItemCanContainWhitespace") );
     }
 
+  /// <summary>Not a valid local name</summary>
+    internal static string NotValidLocalName(
+
+    ) {
+        return string.Format(Culture, ResourceFinder("NotValidLocalName") );
+    }
+
   /// <summary>Node must have a parent for this operation.</summary>
     internal static string ParentNodeRequired(
     

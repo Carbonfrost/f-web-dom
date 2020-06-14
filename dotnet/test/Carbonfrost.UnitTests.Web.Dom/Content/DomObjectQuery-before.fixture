@@ -12,8 +12,8 @@ output: >
     <div>
         <a> before </a>
         <!-- comment -->
-        <b c="a" /><target />
+        <b c="a" /> <target />
         <a> before </a>
         <!-- comment -->
-        <b c="a" /><target />
+        <b c="a" /> <target />
     </div>

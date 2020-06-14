@@ -70,7 +70,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        protected internal DomElementDefinition(string name) : base(name) {
+        protected internal DomElementDefinition(DomName name) : base(name) {
         }
 
         public new DomElementDefinition Clone() {

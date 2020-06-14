@@ -17,64 +17,51 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public static class Extensions {
+    public static partial class Extensions {
 
         public static DomElementCollection Descendants(this DomContainer source, string name) {
-            if (source == null)
-                throw new ArgumentNullException("source");
-            if (name == null)
-                throw new ArgumentNullException("name");
-            if (name.Length == 0)
-                throw Failure.EmptyString("name");
+            return source.Descendants(DomName.Create(name));
+        }
+
+        public static DomElementCollection Descendants(this DomContainer source, DomName name) {
+            if (source == null) {
+                throw new ArgumentNullException(nameof(source));
+            }
+            if (name == null) {
+                throw new ArgumentNullException(nameof(name));
+            }
 
             return new DefaultDomElementCollection(source, s => FilterByName(s.Descendants, name));
         }
 
-        public static DomElementCollection Descendants(this DomContainer source, string name, string xmlns) {
-            if (source == null)
-                throw new ArgumentNullException("source");
-            if (name == null)
-                throw new ArgumentNullException("name");
-            if (name.Length == 0)
-                throw Failure.EmptyString("name");
-
-            return new DefaultDomElementCollection(source, s => FilterByName(s.Descendants, name, xmlns));
-        }
-
         public static DomElementCollection Elements(this DomContainer source, string name) {
-            if (source == null)
-                throw new ArgumentNullException("source");
-            return new DefaultDomElementCollection(source, s => FilterByName(s.Elements, name, null));
+            return source.Elements(DomName.Create(name));
         }
 
-        public static DomElementCollection Elements(this DomContainer source, string name, string xmlns) {
-            if (source == null)
-                throw new ArgumentNullException("source");
-            return new DefaultDomElementCollection(source, s => FilterByName(s.Elements, name, xmlns));
+        public static DomElementCollection Elements(this DomContainer source, DomName name) {
+            if (source == null) {
+                throw new ArgumentNullException(nameof(source));
+            }
+            return new DefaultDomElementCollection(source, s => FilterByName(s.Elements, name));
         }
 
         public static DomElementCollection FollowingSiblings(this DomElement source, string name) {
-            if (source == null) {
-                throw new ArgumentNullException("source");
-            }
-            return new DefaultDomElementCollection(source, s => FilterByName(((DomElement) s).FollowingSiblings, name, null));
+            return source.FollowingSiblings(DomName.Create(name));
         }
 
-        public static DomElementCollection FollowingSiblings(this DomElement source, string name, string xmlns) {
+        public static DomElementCollection FollowingSiblings(this DomElement source, DomName name) {
             if (source == null) {
-                throw new ArgumentNullException("source");
+                throw new ArgumentNullException(nameof(source));
             }
-            return new DefaultDomElementCollection(source, s => FilterByName(((DomElement) s).FollowingSiblings, name, xmlns));
+            return new DefaultDomElementCollection(source, s => FilterByName(((DomElement) s).FollowingSiblings, name));
         }
 
         static IEnumerable<DomElement> FilterByName(IEnumerable<DomElement> elements,
-                                                    string name,
-                                                    string xmlns = null) {
-            return elements.Where(t => t.Name == name && t.NamespaceUri == xmlns);
+                                                    DomName name) {
+            return elements.Where(t => t.Name == name);
         }
     }
 }

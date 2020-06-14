@@ -33,6 +33,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public object TypedValue {
+            get {
+                return Value;
+            }
+            set {
+                Value = Convert.ToString(value);
+            }
+        }
+
         public string Value {
             get {
                 return _value;

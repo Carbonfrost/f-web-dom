@@ -18,12 +18,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Carbonfrost.Commons.Core;
 using Carbonfrost.Commons.Core.Runtime.Expressions;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomObject  {
+    public abstract class DomObject : IDomNameApiConventions {
 
         private AnnotationList _annotations = AnnotationList.Empty;
         private IDomNodeCollection _siblingsContent;
@@ -43,11 +42,26 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public virtual string LocalName {
             get {
-                return NodeName;
+                return Name.LocalName;
             }
         }
 
-        public virtual string NamespaceUri {
+        public virtual DomName Name {
+            get {
+                return DomName.Create(NodeName);
+            }
+        }
+
+        public string NamespaceUri {
+            get {
+                if (Namespace == null) {
+                    return null;
+                }
+                return Namespace.NamespaceUri;
+            }
+        }
+
+        public virtual DomNamespace Namespace {
             get {
                 return null;
             }
@@ -139,9 +153,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        internal DomAttributeCollection SiblingAttributes {
+        internal DomAttributeCollectionApi SiblingAttributes {
             get {
-                return _siblingsContent as DomAttributeCollection;
+                return _siblingsContent as DomAttributeCollectionApi;
             }
         }
 
@@ -153,7 +167,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         internal IDomNodeCollection _Siblings {
             get {
-                return _siblingsContent as IDomNodeCollection;
+                return _siblingsContent;
             }
         }
 
@@ -247,10 +261,6 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         private DomNode OwnerNode {
             get {
-                if (SiblingAttributes != null) {
-                    return SiblingAttributes.OwnerElement;
-                }
-
                 if (_Siblings != null) {
                     return _Siblings.OwnerNode;
                 }
@@ -259,25 +269,19 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        internal static string CheckName(string name) {
+        internal static DomName CheckName(DomName name) {
             if (name == null) {
-                throw new ArgumentNullException("name");
-            }
-            if (name.Length == 0) {
-                throw Failure.EmptyString("name");
-            }
-            if (name.Any(char.IsWhiteSpace)) {
-                throw DomFailure.CannotContainWhitespace("name");
+                throw new ArgumentNullException(nameof(name));
             }
             return name;
         }
 
-        internal static string RequireFactoryGeneratedName(Type type) {
+        internal static T RequireFactoryGeneratedName<T>(Type type, Func<IDomNodeTypeProvider, Type, T> generator) {
             Type inputType = type;
             while (type != typeof(object)) {
                 var fac = DomProviderFactory.ForProviderObject(type);
                 if (fac != null) {
-                    string name = fac.GenerateDefaultName(inputType);
+                    var name = generator(fac.NodeTypeProvider, inputType);
                     if (name != null) {
                         return name;
                     }
@@ -285,7 +289,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                         break;
                     }
                 }
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
             }
 
             throw DomFailure.CannotGenerateName(inputType);
@@ -293,7 +297,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomObject AddAnnotation(object annotation) {
             if (annotation == null) {
-                throw new ArgumentNullException("annotation");
+                throw new ArgumentNullException(nameof(annotation));
             }
 
             _annotations = _annotations.Add(annotation);
@@ -314,7 +318,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public object Annotation(Type type) {
             if (type == null) {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             return _annotations.OfType(type).FirstOrDefault();
@@ -348,7 +352,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomObject RemoveAnnotations(Type type) {
             if (type == null) {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             _annotations = _annotations.RemoveOfType(type);
@@ -357,7 +361,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomObject RemoveAnnotation(object value) {
             if (value == null) {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             _annotations = _annotations.Remove(value);
@@ -379,19 +383,23 @@ namespace Carbonfrost.Commons.Web.Dom {
             return OwnerDocument.ProviderFactory;
         }
 
-        internal void SetSiblingNodes(IDomNodeCollection newSiblings) {
-            if (_siblingsContent != null && newSiblings != _siblingsContent) {
-                var sc = _siblingsContent;
-                sc.UnsafeRemove(this);
+        internal void Unlink() {
+            var unlinked = OwnerDocument.UnlinkedNodes;
+            if (_siblingsContent == unlinked) {
+                return;
             }
-
-            _siblingsContent = newSiblings;
-        }
-
-        internal void Unlinked() {
-            IDomNodeCollection unlinked = OwnerDocument.UnlinkedNodes;
             unlinked.UnsafeAdd(this);
             _siblingsContent = unlinked;
+        }
+
+        internal void Link(IDomNodeCollection newSiblings) {
+            if (_siblingsContent == newSiblings) {
+                return;
+            }
+            if (_siblingsContent != null) {
+                _siblingsContent.Remove(this);
+            }
+            _siblingsContent = newSiblings;
         }
 
         public DomObject Remove() {

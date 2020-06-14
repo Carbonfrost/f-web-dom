@@ -19,8 +19,13 @@ namespace Carbonfrost.Commons.Web.Dom {
     public interface IDomValue  {
         bool IsReadOnly { get; }
         string Value { get; set; }
+        object TypedValue { get; set; }
         void Initialize(DomAttribute attribute);
         void AppendValue(object value);
         IDomValue Clone();
+    }
+
+    public interface IDomValue<T> : IDomValue {
+        new T TypedValue { get; set; }
     }
 }

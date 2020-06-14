@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
@@ -63,34 +62,14 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void ReadOnly_is_read_only() {
-            Assert.True(DomAttributeCollection.ReadOnly.IsReadOnly);
-        }
-
-        [Fact]
-        public void ReadOnly_cannot_add_or_clear() {
-            DomDocument doc = new DomDocument();
-            var html = doc.AppendElement("html");
-            var attr = html.AppendAttribute("lang", "en");
-
-            Assert.Throws<NotSupportedException>(() => {
-                DomAttributeCollection.ReadOnly.Add(attr);
-            });
-
-            Assert.Throws<NotSupportedException>(() => {
-                DomAttributeCollection.ReadOnly.Clear();
-            });
-        }
-
-        [Fact]
         public void Remove_supports_removing_by_name() {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html");
             html.Attribute("class", "a").Attribute("id", "b").Attribute("lang", "en");
 
             Assert.True(html.Attributes.Remove("class"));
-            Assert.Equal("id", html.Attributes[0].Name);
-            Assert.Equal("lang", html.Attributes[1].Name);
+            Assert.Equal("id", html.Attributes[0].Name.LocalName);
+            Assert.Equal("lang", html.Attributes[1].Name.LocalName);
         }
 
         [Fact]
@@ -100,8 +79,32 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             html.Attribute("class", "a").Attribute("id", "b").Attribute("lang", "en");
 
             html.Attributes.RemoveAt(1);
-            Assert.Equal("class", html.Attributes[0].Name);
-            Assert.Equal("lang", html.Attributes[1].Name);
+            Assert.Equal("class", html.Attributes[0].Name.LocalName);
+            Assert.Equal("lang", html.Attributes[1].Name.LocalName);
+        }
+
+        [Fact]
+        public void AddRange_supports_moving_from_other_node() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            html.Attribute("class", "").Attribute("id", "").Attribute("lang", "");
+
+            var element = doc.CreateElement("ok").Attribute("a", "");
+            element.Attributes.AddRange(html.Attributes);
+
+            Assert.Equal("<ok a=\"\" class=\"\" id=\"\" lang=\"\"/>", element.OuterXml);
+        }
+
+        [Fact]
+        public void InsertRange_supports_moving_from_other_node() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            html.Attribute("class", "").Attribute("id", "").Attribute("lang", "");
+
+            var element = doc.CreateElement("ok").Attribute("a", "");
+            element.Attributes.InsertRange(0, html.Attributes);
+
+            Assert.Equal("<ok class=\"\" id=\"\" lang=\"\" a=\"\"/>", element.OuterXml);
         }
     }
 }

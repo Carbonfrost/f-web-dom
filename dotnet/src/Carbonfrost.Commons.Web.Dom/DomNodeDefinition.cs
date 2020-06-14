@@ -14,18 +14,34 @@
 // limitations under the License.
 //
 
+using System;
 using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomNodeDefinition {
+    public abstract class DomNodeDefinition : IDomNameApiConventions {
 
-        public string Name {
+        public DomName Name {
             get;
             private set;
         }
 
-        protected DomNodeDefinition(string name) {
+        public string LocalName {
+            get {
+                return Name.LocalName;
+            }
+        }
+
+        public DomNamespace Namespace {
+            get {
+                return Name.Namespace;
+            }
+        }
+
+        protected DomNodeDefinition(DomName name) {
+            if (name == null) {
+                throw new ArgumentNullException(nameof(name));
+            }
             Name = name;
         }
 
@@ -36,12 +52,18 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string ToString() {
-            return Name;
+            return Name.LocalName;
         }
 
         public bool IsReadOnly {
             get;
             private set;
+        }
+
+        public string NamespaceUri {
+            get {
+                return Namespace.NamespaceUri;
+            }
         }
 
         internal virtual void MakeReadOnly() {

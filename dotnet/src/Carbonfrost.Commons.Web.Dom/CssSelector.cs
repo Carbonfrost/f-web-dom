@@ -70,7 +70,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
             var e = node as DomContainer;
             if (e == null) {
-                return DomObjectQuery._Empty;
+                return ProviderFactory.EmptyObjectQuery;
             }
             return Collect(_evaluator, e);
         }
@@ -88,7 +88,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return _evaluator.ToString();
         }
 
-        private static DomObjectQuery Collect(Evaluator eval, DomContainer root) {
+        private DomObjectQuery Collect(Evaluator eval, DomContainer root) {
             var elements = new List<DomNode>();
 
             DomNodeVisitor.Visit(root, node => {
@@ -99,7 +99,11 @@ namespace Carbonfrost.Commons.Web.Dom {
                     }
                 }
             });
-            return new DomObjectQuery(elements);
+            return NewObjectQuery(elements);
+        }
+
+        private DomObjectQuery NewObjectQuery(IEnumerable<DomNode> items) {
+            return ProviderFactory.CreateObjectQuery(items);
         }
     }
 }

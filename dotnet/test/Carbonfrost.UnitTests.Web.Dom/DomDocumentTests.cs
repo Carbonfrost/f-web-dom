@@ -136,7 +136,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [Fact]
         public void CreateAttribute_requires_name_argument() {
             DomDocument doc = new DomDocument();
-            Assert.Throws<ArgumentNullException>(() => doc.CreateAttribute(null));
+            Assert.Throws<ArgumentNullException>(() => doc.CreateAttribute((DomName) null));
+            Assert.Throws<ArgumentNullException>(() => doc.CreateAttribute((string) null));
         }
 
         [Fact]
@@ -154,6 +155,18 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var doc = new DomDocument().WithSchema(schema);
             Assert.IsInstanceOf<PDomValue>(
                 doc.CreateAttribute("class").DomValue
+            );
+        }
+
+        [Fact]
+        public void CreateAttribute_uses_primitive_value_specified_by_schema() {
+            var schema = new DomSchema("custom");
+            var attrDef = schema.AttributeDefinitions.AddNew("lcid");
+            attrDef.ValueType = typeof(int);
+
+            var doc = new DomDocument().WithSchema(schema);
+            Assert.IsInstanceOf<DomValue<int>>(
+                doc.CreateAttribute("lcid").DomValue
             );
         }
 
@@ -177,8 +190,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var html = doc.AppendElement("html");
             var body = html.AppendElement("body");
             var head = (DomElement) body.ReplaceWith(doc.CreateElement("head"));
-            Assert.Equal("head", ((DomElement) html.ChildNode(0)).Name);
-            Assert.Equal("head", head.Name);
+            Assert.Equal("head", ((DomElement) html.ChildNode(0)).LocalName);
+            Assert.Equal("head", head.LocalName);
         }
 
         [Fact]
@@ -236,7 +249,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void DescendentNodes_should_be_breadth_first() {
+        public void DescendantNodes_should_be_breadth_first() {
             DomDocument doc = new DomDocument();
 
             var html = doc.AppendElement("html");
@@ -252,9 +265,21 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void DescendentNodes_should_be_empty_by_default() {
+        public void DescendantNodes_should_be_empty_by_default() {
             DomDocument doc = new DomDocument();
             Assert.Empty(doc.DescendantNodes);
+        }
+
+        [Fact]
+        public void DescendantNodes_should_update_as_document_does() {
+            DomDocument doc = new DomDocument();
+            var desc = doc.DescendantNodes;
+            doc.AppendElement("b").AppendElement("r").AppendElement("ea").AppendElement("d");
+
+            Assert.Equal(
+                "bread",
+                string.Join("", desc.Select(t => t.NodeName))
+            );
         }
 
         [Fact]
@@ -394,6 +419,43 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var doc = new DomDocument();
             doc.AppendComment("comment");
             Assert.Throws<InvalidOperationException>(() => doc.InnerText = "world");
+        }
+
+        [Fact]
+        public void ToDomString_with_pretty_print() {
+            var doc = new DomDocument().LoadXml("<root attribute=\"v\" a=\"b\"><child /><child><grandchild a=\"b\" aaa=\"bbb\"/></child></root>");
+
+            var pretty = new DomWriterSettings {
+                PrettyPrint = true
+            };
+            Assert.Expect(doc.ToDomString(pretty)).ToBe.EqualTo(@"
+<root attribute = ""v""
+              a = ""b"">
+    <child />
+    <child>
+        <grandchild   a = ""b""
+                    aaa = ""bbb"" />
+    </child>
+</root>".TrimStart()
+            );
+        }
+
+        [Fact]
+        public void ToDomString_with_pretty_print_inner_text() {
+            var doc = new DomDocument().LoadXml("<root>before text<child />after text<child><grandchild /></child></root>");
+
+            var pretty = new DomWriterSettings {
+                PrettyPrint = true
+            };
+
+            Assert.Expect(doc.ToDomString(pretty)).ToBe.EqualTo(@"
+<root>before text
+    <child />after text
+    <child>
+        <grandchild />
+    </child>
+</root>".TrimStart()
+            );
         }
     }
 }

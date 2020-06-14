@@ -60,6 +60,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             return sw.ToString();
         }
 
+        public string ToString(IFormatProvider formatProvider, string format) {
+            throw new ArgumentNullException();
+        }
+
+        public string ToDomString(DomWriterSettings settings) {
+            return DomWriter.GetOuterString(settings, this);
+        }
+
+        public string ToDomString() {
+            return ToDomString(null);
+        }
+
         public string ToXmlString() {
             return ToXmlString(ToXmlStringSettingsCore(null));
         }

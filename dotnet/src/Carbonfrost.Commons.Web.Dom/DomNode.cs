@@ -209,7 +209,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public virtual string OuterXml {
             get {
-                return new OuterXmlVisitor().ConvertToString(this);
+                return DomWriter.GetOuterString(null, this);
             }
             set {
                 var frag = OwnerDocument.CreateDocumentFragment();
@@ -302,7 +302,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected virtual DomNode CloneCore() {
             var clone = (DomNode) MemberwiseClone();
-            OwnerDocument.UnlinkedNodes.Add((DomNode) clone);
+            OwnerDocument.Track(clone);
             return clone;
         }
 

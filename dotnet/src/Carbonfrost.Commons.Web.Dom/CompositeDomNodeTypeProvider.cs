@@ -28,11 +28,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             _items = items;
         }
 
-        public Type GetAttributeNodeType(string name) {
+        public Type GetAttributeNodeType(DomName name) {
             return _items.FirstNonNull(t => t.GetAttributeNodeType(name));
         }
 
-        public Type GetElementNodeType(string name) {
+        public Type GetElementNodeType(DomName name) {
             return _items.FirstNonNull(t => t.GetElementNodeType(name));
         }
 
@@ -46,6 +46,18 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         IEnumerator IEnumerable.GetEnumerator() {
             return GetEnumerator();
+        }
+
+        public DomName GetAttributeName(Type attributeType) {
+            return _items.FirstNonNull(t => t.GetAttributeName(attributeType));
+        }
+
+        public DomName GetElementName(Type elementType) {
+            return _items.FirstNonNull(t => t.GetElementName(elementType));
+        }
+
+        public string GetProcessingInstructionTarget(Type processingInstructionType) {
+            return _items.FirstNonNull(t => t.GetProcessingInstructionTarget(processingInstructionType));
         }
     }
 }

@@ -326,6 +326,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return result;
         }
 
+        object IDomValue.TypedValue {
+            get {
+                return this;
+            }
+            set {
+                if (value is DomStringTokenList dsl) {
+                    Clear();
+                    AddRange(dsl);
+                } else {
+                    Value = Convert.ToString(value);
+                }
+            }
+        }
+
         void IDomValue.Initialize(DomAttribute attribute) {}
 
         public void UnionWith(IEnumerable<string> other) {

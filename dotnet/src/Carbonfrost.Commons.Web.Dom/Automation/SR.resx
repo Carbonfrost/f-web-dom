@@ -97,6 +97,9 @@
   <data name="NoItemCanContainWhitespace" xml:space="preserve">
     <value>No item in the collection can contain whitespace</value>
   </data>
+  <data name="NotValidLocalName" xml:space="preserve">
+    <value>Not a valid local name</value>
+  </data>
   <data name="ParentNodeRequired" xml:space="preserve">
     <value>Node must have a parent for this operation.</value>
   </data>

@@ -19,8 +19,12 @@ using System;
 namespace Carbonfrost.Commons.Web.Dom {
 
     public interface IDomNodeTypeProvider {
-        Type GetAttributeNodeType(string name);
-        Type GetElementNodeType(string name);
+        Type GetAttributeNodeType(DomName name);
+        Type GetElementNodeType(DomName name);
         Type GetProcessingInstructionNodeType(string target);
+
+        DomName GetAttributeName(Type attributeType);
+        DomName GetElementName(Type elementType);
+        string GetProcessingInstructionTarget(Type processingInstructionType);
     }
 }

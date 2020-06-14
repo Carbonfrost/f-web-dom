@@ -21,8 +21,6 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     sealed class EmptyDomNodeCollectionImpl : DomNodeCollection {
 
-        internal EmptyDomNodeCollectionImpl() : base(null) {}
-
         public override int Count {
             get {
                 return 0;
@@ -35,6 +33,47 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public override DomNode this[int index] {
+            get {
+                return GetItemCore(index);
+            }
+            set {
+                SetItemCore(index, value);
+            }
+        }
+
+        public override void Add(DomNode item) {
+            InsertCore(Count, item);
+        }
+
+        public override void Clear() {
+            ClearCore();
+        }
+
+        public override bool Contains(DomNode item) {
+            return false;
+        }
+
+        public override void Insert(int index, DomNode item) {
+            InsertCore(index, item);
+        }
+
+        public override bool Remove(DomNode item) {
+            return RemoveCore(item);
+        }
+
+        public override void RemoveAt(int index) {
+            RemoveAtCore(index);
+        }
+
+        internal override DomNode GetNextSibling(DomNode other) {
+            return null;
+        }
+
+        internal override DomNode GetPreviousSibling(DomNode other) {
+            return null;
+        }
+
         public override IEnumerator<DomNode> GetEnumerator() {
             yield break;
         }
@@ -43,27 +82,28 @@ namespace Carbonfrost.Commons.Web.Dom {
             return -1;
         }
 
-        internal override DomNode GetItemCore(int index) {
-            throw Failure.IndexOutOfRange("index", index);
+        private DomNode GetItemCore(int index) {
+            CheckIndex(index);
+            return null;
         }
 
-        internal override void InsertCore(int index, DomNode item) {
+        private void InsertCore(int index, DomNode item) {
             throw Failure.ReadOnlyCollection();
         }
 
-        internal override void ClearCore() {
+        private void ClearCore() {
             throw Failure.ReadOnlyCollection();
         }
 
-        internal override void RemoveAtCore(int index) {
+        private void RemoveAtCore(int index) {
             throw Failure.ReadOnlyCollection();
         }
 
-        internal override bool RemoveCore(DomNode node) {
+        private bool RemoveCore(DomNode node) {
             throw Failure.ReadOnlyCollection();
         }
 
-        internal override void SetItemCore(int index, DomNode item) {
+        private void SetItemCore(int index, DomNode item) {
             throw Failure.ReadOnlyCollection();
         }
     }

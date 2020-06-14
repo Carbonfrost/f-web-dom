@@ -90,6 +90,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             Dispose(true);
         }
 
+        internal static string GetOuterString(DomWriterSettings settings, DomNode node) {
+            var sw = new StringWriter();
+            var writer = new DefaultDomWriter(sw, settings);
+            writer.Write(node);
+            return sw.ToString();
+        }
+
+        internal static string GetInnerString(DomWriterSettings settings, DomNode node) {
+            var sw = new StringWriter();
+            var writer = new DefaultDomWriter(sw, settings);
+            writer.Write(node.ChildNodes);
+            return sw.ToString();
+        }
+
         public void Write(IEnumerable<DomObject> objs) {
             if (objs == null) {
                 throw new ArgumentNullException(nameof(objs));
@@ -106,8 +120,8 @@ namespace Carbonfrost.Commons.Web.Dom {
             DomNodeVisitor.Visit(obj, this);
         }
 
-        public virtual void WriteStartElement(string name, string namespaceUri) {}
-        public virtual void WriteStartAttribute(string name, string namespaceUri) {}
+        public virtual void WriteStartElement(DomName name) {}
+        public virtual void WriteStartAttribute(DomName name) {}
         public virtual void WriteEndAttribute() {}
 
         public virtual void WriteValue(string value) {}
@@ -134,7 +148,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(element));
             }
 
-            WriteStartElement(element.Name, element.NamespaceUri);
+            WriteStartElement(element.Name);
             Visit(element.Attributes);
             Visit(element.ChildNodes);
             WriteEndElement();
@@ -145,7 +159,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(attribute));
             }
 
-            WriteStartAttribute(attribute.Name, attribute.NamespaceUri);
+            WriteStartAttribute(attribute.Name);
             WriteValue(attribute.Value);
             WriteEndAttribute();
         }

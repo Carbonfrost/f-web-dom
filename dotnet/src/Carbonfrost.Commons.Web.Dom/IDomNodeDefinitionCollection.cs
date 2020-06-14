@@ -20,7 +20,10 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     interface IDomNodeDefinitionCollection<T> : ICollection<T> where T : DomNodeDefinition {
         T this[string name] { get; }
+        T this[DomName name] { get; }
         T AddNew(string name);
+        T AddNew(DomName name);
         bool Contains(string name);
+        bool Contains(DomName name);
     }
 }

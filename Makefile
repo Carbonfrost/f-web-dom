@@ -1,25 +1,25 @@
 .PHONY: dotnet/test dotnet/generate
 
-CONFIGURATION ?= Release
+-include eng/.mk/*.mk
 
 ## Generate generated code
 dotnet/generate:
-	srgen -c Carbonfrost.Commons.Web.Dom.Resources.SR \
+	$(Q) srgen -c Carbonfrost.Commons.Web.Dom.Resources.SR \
 		-r Carbonfrost.Commons.Web.Dom.Automation.SR \
 		--resx \
 		dotnet/src/Carbonfrost.Commons.Web.Dom/Automation/SR.properties
-	/bin/sh -c "t4 dotnet/src/Carbonfrost.Commons.Web.Dom/Automation/TextTemplates/Fluent.tt -o dotnet/src/Carbonfrost.Commons.Web.Dom/Automation/TextTemplates/Fluent.g.cs"
+	$(Q) dotnet t4 dotnet/src/Carbonfrost.Commons.Web.Dom/Automation/TextTemplates/Fluent.tt -o dotnet/src/Carbonfrost.Commons.Web.Dom/Automation/TextTemplates/Fluent.g.cs
 
 ## Execute dotnet unit tests
 dotnet/test: dotnet/publish -dotnet/test
 
 -dotnet/test:
-	fspec -i dotnet/test/Carbonfrost.UnitTests.Web.Dom/Content \
+	$(Q) fspec -i dotnet/test/Carbonfrost.UnitTests.Web.Dom/Content \
 		dotnet/test/Carbonfrost.UnitTests.Web.Dom/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.UnitTests.Web.Dom.dll
 
 ## Run unit tests with code coverage
 dotnet/cover: dotnet/publish -check-command-coverlet
-	coverlet \
+	$(Q) coverlet \
 		--target "make" \
 		--targetargs "-- -dotnet/test" \
 		--format lcov \
@@ -29,4 +29,3 @@ dotnet/cover: dotnet/publish -check-command-coverlet
 		--exclude-by-attribute 'CompilerGenerated' \
 		dotnet/test/Carbonfrost.UnitTests.Web.Dom/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.UnitTests.Web.Dom.dll
 
--include eng/.mk/*.mk

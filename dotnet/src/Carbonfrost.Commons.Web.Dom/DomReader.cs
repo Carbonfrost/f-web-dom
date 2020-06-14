@@ -85,9 +85,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         public abstract bool HasValue { get; }
         public abstract bool IsEmptyElement { get; }
 
-        public virtual string this[string name, string namespaceUri] {
+        public virtual string this[DomName name] {
             get {
-                return GetAttribute(name, namespaceUri);
+                return GetAttribute(name);
             }
         }
 
@@ -115,7 +115,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public abstract DomReadState ReadState { get; }
 
-        public abstract string GetAttribute(string name, string namespaceUri);
+        public abstract string GetAttribute(DomName name);
         public abstract string GetAttribute(string name);
         public abstract string GetAttribute(int index);
 

@@ -37,8 +37,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             );
 
             // Compress whitespace to simplify comparison
-            input.CompressWhitespace();
-            expectedOutput.CompressWhitespace();
+            input.CollapseWS();
+            expectedOutput.CollapseWS();
 
             Assert.Equal(expectedOutput.InnerXml.Trim(), input.InnerXml.Trim());
         }

@@ -29,7 +29,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
         [Fact]
         public void Create_should_create_writer_for_default_settings_type() {
-            Assert.IsInstanceOf<XmlDomWriter>(DomWriter.Create(TextWriter.Null, DomWriterSettings.Empty));
+            Assert.IsInstanceOf<DefaultDomWriter>(DomWriter.Create(TextWriter.Null, DomWriterSettings.Empty));
         }
     }
 }

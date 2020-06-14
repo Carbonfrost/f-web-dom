@@ -26,8 +26,20 @@ namespace Carbonfrost.UnitTests.Web.Dom {
     [DomProviderFactoryUsage(Extensions = ".custom")]
     public class CustomDomProviderFactory : DomProviderFactory {
 
-        public override string GenerateDefaultName(Type providerObjectType) {
-            return "hey:" + providerObjectType.Name;
+        public override IDomNodeTypeProvider NodeTypeProvider {
+            get {
+                return new RDomNodeTypeProvider();
+            }
+        }
+
+        class RDomNodeTypeProvider : DomNodeTypeProvider {
+            public override DomName GetAttributeName(Type attributeType) {
+                return DomName.Create("hey:" + attributeType.Name);
+            }
+
+            public override DomName GetElementName(Type elementType) {
+                return DomName.Create("hey:" + elementType.Name);
+            }
         }
 
         protected override DomWriter CreateDomWriter(TextWriter textWriter, DomWriterSettings settings) {
@@ -62,7 +74,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         public override string Prefix { get; }
         public override DomReadState ReadState { get; }
 
-        public override string GetAttribute(string name, string namespaceUri) {
+        public override string GetAttribute(DomName name) {
             throw new NotImplementedException();
         }
 
@@ -89,13 +101,13 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [Fact]
         public void Constructor_for_default_attribute_should_invoke_provider() {
             var attr = new CustomAttribute();
-            Assert.Equal("hey:CustomAttribute", attr.Name);
+            Assert.Equal("hey:CustomAttribute", attr.Name.LocalName);
         }
 
         [Fact]
         public void Constructor_for_derived_default_attribute_should_invoke_provider() {
             var attr = new DerivedCustomAttribute();
-            Assert.Equal("hey:DerivedCustomAttribute", attr.Name);
+            Assert.Equal("hey:DerivedCustomAttribute", attr.Name.LocalName);
         }
 
         [Fact]

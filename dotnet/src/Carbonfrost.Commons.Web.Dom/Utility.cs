@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
+using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -71,6 +72,22 @@ namespace Carbonfrost.Commons.Web.Dom {
                     throw DomFailure.CannotUseAddWithDomObjects("value");
                 default:
                     return Convert.ToString(value);
+            }
+        }
+
+        internal static void CopyToArray<T>(IReadOnlyCollection<T> items, T[] array, int arrayIndex) {
+            if (array == null) {
+                throw new ArgumentNullException(nameof(array));
+            }
+            if (arrayIndex < 0 || arrayIndex >= array.Length) {
+                throw Failure.IndexOutOfRange(nameof(arrayIndex), arrayIndex);
+            }
+            if (arrayIndex + items.Count > array.Length) {
+                throw Failure.NotEnoughSpaceInArray(nameof(array), array);
+            }
+            foreach (var e in items) {
+                array[arrayIndex] = e;
+                arrayIndex++;
             }
         }
 

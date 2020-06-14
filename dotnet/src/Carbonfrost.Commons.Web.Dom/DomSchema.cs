@@ -31,6 +31,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         public DomSchema(string name) : base(name) {
         }
 
+        public DomSchema(DomName name) : base(name) {
+        }
+
         public IDomNodeTypeProvider NodeTypeProvider {
             get {
                 return _nodeTypeProvider ?? DomNodeTypeProvider.Default;
@@ -70,7 +73,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return schema;
         }
 
-        public Type GetAttributeNodeType(string name) {
+        public Type GetAttributeNodeType(DomName name) {
             var attr = AttributeDefinitions[name];
             Type result = null;
             if (attr != null) {
@@ -79,7 +82,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return result ?? NodeTypeProvider.GetAttributeNodeType(name);
         }
 
-        public Type GetElementNodeType(string name) {
+        public Type GetAttributeNodeType(string name) {
+            return GetAttributeNodeType(DomName.Create(name));
+        }
+
+        public Type GetElementNodeType(DomName name) {
             var element = ElementDefinitions[name];
             Type result = null;
             if (element != null) {
@@ -88,8 +95,24 @@ namespace Carbonfrost.Commons.Web.Dom {
             return result ?? NodeTypeProvider.GetElementNodeType(name);
         }
 
+        public Type GetElementNodeType(string name) {
+            return GetElementNodeType(DomName.Create(name));
+        }
+
         public Type GetProcessingInstructionNodeType(string target) {
             return NodeTypeProvider.GetProcessingInstructionNodeType(target);
+        }
+
+        public DomName GetAttributeName(Type attributeType) {
+            return NodeTypeProvider.GetAttributeName(attributeType);
+        }
+
+        public DomName GetElementName(Type elementType) {
+            return NodeTypeProvider.GetElementName(elementType);
+        }
+
+        public string GetProcessingInstructionTarget(Type processingInstructionType) {
+            return NodeTypeProvider.GetProcessingInstructionTarget(processingInstructionType);
         }
 
         internal override void MakeReadOnly() {
@@ -107,19 +130,27 @@ namespace Carbonfrost.Commons.Web.Dom {
             return ProcessingInstructionDefinitions[target];
         }
 
-        public DomAttributeDefinition GetAttributeDefinition(string name) {
+        public DomAttributeDefinition GetAttributeDefinition(DomName name) {
             return GetDomAttributeDefinition(name);
         }
 
-        protected virtual DomAttributeDefinition GetDomAttributeDefinition(string name) {
+        public DomAttributeDefinition GetAttributeDefinition(string name) {
+            return GetAttributeDefinition(DomName.Create(name));
+        }
+
+        protected virtual DomAttributeDefinition GetDomAttributeDefinition(DomName name) {
             return AttributeDefinitions[name];
         }
 
-        public DomElementDefinition GetElementDefinition(string name) {
+        public DomElementDefinition GetElementDefinition(DomName name) {
             return GetDomElementDefinition(name);
         }
 
-        protected virtual DomElementDefinition GetDomElementDefinition(string name) {
+        public DomElementDefinition GetElementDefinition(string name) {
+            return GetElementDefinition(DomName.Create(name));
+        }
+
+        protected virtual DomElementDefinition GetDomElementDefinition(DomName name) {
             return ElementDefinitions[name];
         }
     }

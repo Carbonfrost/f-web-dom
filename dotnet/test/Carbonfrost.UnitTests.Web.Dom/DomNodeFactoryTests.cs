@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Carbonfrost.Commons.Spec;
@@ -35,6 +36,44 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [PropertyData(nameof(ApiConventionMethods))]
         public void ApiConventions_are_nonvirtual(MethodInfo convention) {
             Assert.True(convention.IsFinal);
+        }
+
+        class PAttribute : DomAttribute {
+            public PAttribute() : base("myname") {}
+        }
+
+        class PAttributeWithName : DomAttribute {
+            public PAttributeWithName(string name) : base(name) {}
+        }
+
+        [Fact]
+        public void CreateAttribute_using_late_bound_instancing() {
+            var fac = new DomNodeFactory(
+                new FDomNodeTypeProvider((name) => typeof(PAttribute))
+            );
+            Assert.IsInstanceOf<PAttribute>(fac.CreateAttribute("myname"));
+        }
+
+        [Fact]
+        public void CreateAttribute_using_late_bound_instancing_has_name() {
+            var fac = new DomNodeFactory(
+                new FDomNodeTypeProvider((name) => typeof(PAttributeWithName))
+            );
+            Assert.IsInstanceOf<PAttributeWithName>(fac.CreateAttribute("expected"));
+            Assert.Equal("expected", fac.CreateAttribute("expected").LocalName);
+
+        }
+
+        private class FDomNodeTypeProvider : DomNodeTypeProvider {
+            private readonly Func<DomName, Type> _thunk;
+
+            public FDomNodeTypeProvider(Func<DomName, Type> p) {
+                _thunk = p;
+            }
+
+            public override Type GetAttributeNodeType(DomName name) {
+                return _thunk(name);
+            }
         }
     }
 }

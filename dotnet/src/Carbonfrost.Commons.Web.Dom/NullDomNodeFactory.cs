@@ -28,7 +28,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return null;
         }
 
-        DomAttribute IDomNodeFactory.CreateAttribute(string name) {
+        DomAttribute IDomNodeFactory.CreateAttribute(DomName name) {
             return null;
         }
 
@@ -40,7 +40,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return null;
         }
 
-        DomElement IDomNodeFactory.CreateElement(string name) {
+        DomElement IDomNodeFactory.CreateElement(DomName name) {
             return null;
         }
 
@@ -64,15 +64,27 @@ namespace Carbonfrost.Commons.Web.Dom {
             return null;
         }
 
-        Type IDomNodeTypeProvider.GetAttributeNodeType(string name) {
+        Type IDomNodeTypeProvider.GetAttributeNodeType(DomName name) {
             return null;
         }
 
-        Type IDomNodeTypeProvider.GetElementNodeType(string name) {
+        Type IDomNodeTypeProvider.GetElementNodeType(DomName name) {
             return null;
         }
 
         Type IDomNodeTypeProvider.GetProcessingInstructionNodeType(string name) {
+            return null;
+        }
+
+        DomName IDomNodeTypeProvider.GetAttributeName(Type attributeType) {
+            return null;
+        }
+
+        DomName IDomNodeTypeProvider.GetElementName(Type elementType) {
+            return null;
+        }
+
+        string IDomNodeTypeProvider.GetProcessingInstructionTarget(Type processingInstructionType) {
             return null;
         }
     }

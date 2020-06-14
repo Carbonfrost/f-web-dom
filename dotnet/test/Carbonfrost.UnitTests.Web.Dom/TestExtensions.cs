@@ -16,6 +16,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Carbonfrost.Commons.Web.Dom;
 
 namespace Carbonfrost.UnitTests.Web.Dom {
@@ -28,6 +29,23 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
         public static IEnumerable<string> NodeNames(this DomElementCollection source) {
             return source.Select(n => n.NodeName);
+        }
+
+        internal static void CollapseWS(this DomNode node) {
+            DomNodeVisitor.Visit(
+                node,
+                n1 => {
+                    n1.CompressWhitespace();
+                    DomCharacterData n = n1 as DomCharacterData;
+                    if (n == null) {
+                        return;
+                    }
+                    if (n.Data == null) {
+                        return;
+                    }
+                    n.Data = Regex.Replace(n.Data, @"\s+", " ");
+                }
+            );
         }
     }
 }

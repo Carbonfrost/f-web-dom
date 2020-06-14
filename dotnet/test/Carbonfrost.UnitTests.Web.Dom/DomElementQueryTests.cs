@@ -22,6 +22,17 @@ namespace Carbonfrost.UnitTests.Web.Dom {
     public partial class DomElementQueryTests {
 
         [Fact]
+        public void Add_should_dedupe_existing_nodes() {
+            var doc = new DomDocument();
+            var root = doc.AppendElement("root");
+            var node = root.AppendElement("n");
+
+            var q = new DomObjectQuery().Add(node).Add(node);
+            Assert.HasCount(1, q);
+            Assert.Same(node, q[0]);
+        }
+
+        [Fact]
         public void Unwrap_returns_combined_list_of_child_nodes() {
             var doc = new DomDocument();
             doc.OuterXml = @"<root>

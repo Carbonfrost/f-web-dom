@@ -21,7 +21,7 @@ using Carbonfrost.Commons.Core.Runtime;
 namespace Carbonfrost.Commons.Web.Dom {
 
     [Providers, Composable]
-    public class DomNodeTypeProvider : IDomNodeTypeProvider {
+    public class DomNodeTypeProvider : IDomNodeTypeProvider, IDomNodeTypeProviderApiConventions {
 
         public static readonly IDomNodeTypeProvider Default = new DomNodeTypeProvider();
         public static readonly IDomNodeTypeProvider Null = new NullImpl();
@@ -37,11 +37,27 @@ namespace Carbonfrost.Commons.Web.Dom {
             );
         }
 
-        public virtual Type GetAttributeNodeType(string name) {
+        public virtual DomName GetAttributeName(Type attributeType) {
+            return null;
+        }
+
+        public Type GetAttributeNodeType(string name) {
+            return GetAttributeNodeType(DomName.Create(name));
+        }
+
+        public virtual Type GetAttributeNodeType(DomName name) {
             return typeof(DomAttribute);
         }
 
-        public virtual Type GetElementNodeType(string name) {
+        public virtual DomName GetElementName(Type elementType) {
+            return null;
+        }
+
+        public Type GetElementNodeType(string name) {
+            return GetElementNodeType(DomName.Create(name));
+        }
+
+        public virtual Type GetElementNodeType(DomName name) {
             return typeof(DomElement);
         }
 
@@ -49,16 +65,32 @@ namespace Carbonfrost.Commons.Web.Dom {
             return typeof(DomProcessingInstruction);
         }
 
+        public virtual string GetProcessingInstructionTarget(Type processingInstructionType) {
+            return null;
+        }
+
         public class NullImpl : IDomNodeTypeProvider {
-            Type IDomNodeTypeProvider.GetAttributeNodeType(string name) {
+            DomName IDomNodeTypeProvider.GetAttributeName(Type attributeType) {
                 return null;
             }
 
-            Type IDomNodeTypeProvider.GetElementNodeType(string name) {
+            DomName IDomNodeTypeProvider.GetElementName(Type elementType) {
+                return null;
+            }
+
+            Type IDomNodeTypeProvider.GetAttributeNodeType(DomName name) {
+                return null;
+            }
+
+            Type IDomNodeTypeProvider.GetElementNodeType(DomName name) {
                 return null;
             }
 
             Type IDomNodeTypeProvider.GetProcessingInstructionNodeType(string target) {
+                return null;
+            }
+
+            string IDomNodeTypeProvider.GetProcessingInstructionTarget(Type processingInstructionType) {
                 return null;
             }
         }
