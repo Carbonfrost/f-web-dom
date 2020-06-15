@@ -40,6 +40,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public bool IsWhitespace {
+            get {
+                return Utility.IsAllWhitespace(Data);
+            }
+        }
+
         protected internal DomCharacterData() {}
 
         public override string NodeValue {
@@ -69,7 +75,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomCharacterData SplitText(Regex pattern) {
             if (pattern == null) {
-              throw new ArgumentNullException("pattern");
+                throw new ArgumentNullException(nameof(pattern));
             }
             return SplitTextCore(pattern.Split(Data));
         }
