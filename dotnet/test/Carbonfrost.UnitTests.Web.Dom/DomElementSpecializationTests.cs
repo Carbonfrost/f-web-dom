@@ -14,28 +14,26 @@
 // limitations under the License.
 //
 
-namespace Carbonfrost.Commons.Web.Dom {
+using Carbonfrost.Commons.Web.Dom;
+using Carbonfrost.Commons.Spec;
 
-    interface IDomNameApiConventions {
+namespace Carbonfrost.UnitTests.Web.Dom {
 
-        string Prefix {
-            get;
+    public class DomElementSpecializationTests {
+
+        [Fact]
+        public void Constructor_can_add_Attributes() {
+            var el = new RElement();
+            Assert.HasCount(2, el.Attributes);
         }
 
-        DomName Name {
-            get;
+        class RElement : DomElement {
+
+            public RElement() : base("r") {
+                Attribute("name1", "value");
+                Attribute("name2", "value");
+            }
         }
 
-        string LocalName {
-            get;
-        }
-
-        DomNamespace Namespace {
-            get;
-        }
-
-        string NamespaceUri {
-            get;
-        }
     }
 }

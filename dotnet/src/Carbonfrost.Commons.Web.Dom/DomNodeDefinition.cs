@@ -26,6 +26,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             private set;
         }
 
+        public string Prefix {
+            get {
+                return Name.Prefix;
+            }
+        }
+
         public string LocalName {
             get {
                 return Name.LocalName;

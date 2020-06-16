@@ -110,9 +110,12 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         internal void CopyAnnotationsFrom(FrugalList<object> other) {
             _annotations = other.Clone();
+            foreach (var anno in _annotations.OfType<IDomObjectReferenceLifecycle>()) {
+                anno.Attaching(this);
+            }
         }
 
-        private T AnnotationRecursive<T>(T defaultValue) where T: class {
+        internal T AnnotationRecursive<T>(T defaultValue) where T: class {
             var uc = Annotation<T>();
             if (uc == null) {
                 return OwnerNode == null

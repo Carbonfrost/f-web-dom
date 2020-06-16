@@ -40,6 +40,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public override DomNameContext NameContext {
+            get {
+                return ParentElement.NameContext;
+            }
+            set {
+                throw new NotSupportedException();
+            }
+        }
+
         public bool IsWhitespace {
             get {
                 return Utility.IsAllWhitespace(Data);

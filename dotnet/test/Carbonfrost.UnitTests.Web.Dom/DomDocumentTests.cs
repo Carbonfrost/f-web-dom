@@ -65,8 +65,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             DomDocument doc = new DomDocument();
 
             Assert.Null(doc.Attributes);
-
-            // TODO Review this behavior: should it be an error?
             Assert.Same(doc, doc.Attribute("s", "s"));
             Assert.Null(doc.Attribute("s"));
         }
@@ -143,7 +141,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         public void CreateAttribute_requires_name_argument() {
             DomDocument doc = new DomDocument();
             Assert.Throws<ArgumentNullException>(() => doc.CreateAttribute((DomName) null));
-            Assert.Throws<ArgumentNullException>(() => doc.CreateAttribute((string) null));
+            Assert.Throws<ArgumentException>(() => doc.CreateAttribute((string) null));
         }
 
         [Fact]

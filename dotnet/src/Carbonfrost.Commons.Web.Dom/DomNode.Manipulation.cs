@@ -40,7 +40,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode Attribute(string name, object value) {
-            return Attribute(DomName.Create(name), value);
+            return Attribute(CreateDomName(name), value);
         }
 
         public DomNode Attribute(DomName name, object value) {
@@ -79,6 +79,10 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomNode RemoveClass(string classNames) {
             return ApplyClass(l => l.RemoveRange(DomStringTokenList.Parse(classNames)));
+        }
+
+        public DomNode RemoveClass(params string[] classNames) {
+            return ApplyClass(l => l.RemoveRange(classNames));
         }
 
         private DomNode ApplyClass(Action<DomStringTokenList> action) {
@@ -241,7 +245,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomAttribute AppendAttribute(string name, object value) {
-            return AppendAttribute(DomName.Create(name), value);
+            return AppendAttribute(CreateDomName(name), value);
         }
 
         public DomAttribute AppendAttribute(DomName name, object value) {
@@ -257,7 +261,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomAttribute PrependAttribute(string name, object value) {
-            return PrependAttribute(DomName.Create(name), value);
+            return PrependAttribute(CreateDomName(name), value);
         }
 
         public DomAttribute PrependAttribute(DomName name, object value) {
@@ -456,7 +460,15 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode Wrap(DomName element) {
-            return Wrap(OwnerDocument.CreateElement(element));
+            var result = Wrap(OwnerDocument.CreateElement(element));
+
+            // HACK Copy XMLNS attribute (this should be possible via the name context)
+            foreach (var attr in Attributes) {
+                if (attr.Prefix == "xmlns" || attr.LocalName.StartsWith("xmlns:")) {
+                    result.Attribute(attr.Name, attr.Value);
+                }
+            }
+            return result;
         }
 
         public DomNode Wrap(DomNode newParent) {

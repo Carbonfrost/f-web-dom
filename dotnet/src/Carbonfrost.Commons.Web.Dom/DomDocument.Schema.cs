@@ -42,8 +42,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             return attr;
         }
 
-        private DomElement ApplySchema(DomElement attr) {
-            return attr;
+        private DomElement ApplySchema(DomElement element) {
+            return element;
+        }
+
+        private T ApplyNameContext<T>(DomContainer parent, T name) where T : IDomNameApiConventions {
+            parent.NameContext.DemandValidName(nameof(name), name);
+            return name;
         }
     }
 

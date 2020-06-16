@@ -144,6 +144,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             } else {
                 Entering(item, null);
                 _items.Insert(index, item);
+                item.NotifyParentChanged();
                 _owner.ChildNodeChanged(DomMutation.Add, item, GetPreviousSibling(item), GetNextSibling(item));
             }
         }

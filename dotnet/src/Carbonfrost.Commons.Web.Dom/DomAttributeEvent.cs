@@ -63,6 +63,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public string Prefix {
+            get {
+                return _attribute.Prefix;
+            }
+        }
+
         internal DomAttributeEvent(DomNode target, DomName attribute, string oldValue) : base(target) {
             _attribute = attribute;
             _oldValue = oldValue;

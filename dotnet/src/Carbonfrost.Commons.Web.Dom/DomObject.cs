@@ -43,6 +43,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public virtual string Prefix {
+            get {
+                return Name.Prefix;
+            }
+        }
+
         public string NamespaceUri {
             get {
                 if (Namespace == null) {
@@ -52,9 +58,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public virtual DomNamespace Namespace {
+        public DomNamespace Namespace {
             get {
-                return null;
+                if (Name == null) {
+                    return null;
+                }
+                return Name.Namespace;
             }
         }
 
@@ -205,11 +214,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public Uri BaseUri {
             get {
-                var uc = Annotation<BaseUriAnnotation>();
-                if (uc == null) {
-                    return ParentNode == null ? null: ParentNode.BaseUri;
-                }
-                return uc.uri;
+                return AnnotationRecursive(BaseUriAnnotation.Empty).uri;
             }
             set {
                 RemoveAnnotations<BaseUriAnnotation>();
@@ -217,6 +222,11 @@ namespace Carbonfrost.Commons.Web.Dom {
                     AddAnnotation(new BaseUriAnnotation(value));
                 }
             }
+        }
+
+        public abstract DomNameContext NameContext {
+            get;
+            set;
         }
 
         public DomDocument OwnerDocument {
@@ -346,10 +356,12 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         internal DomName CreateDomName(string name) {
-            return DomName.Create(name);
+            return NameContext.GetName(name);
         }
 
         private sealed class BaseUriAnnotation {
+
+            internal static readonly BaseUriAnnotation Empty = new BaseUriAnnotation(null);
 
             public readonly Uri uri;
 

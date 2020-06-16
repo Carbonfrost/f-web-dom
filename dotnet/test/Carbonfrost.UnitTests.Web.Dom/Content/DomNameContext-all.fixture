@@ -1,0 +1,27 @@
+# Note that the element name mem_hello is used so that these
+# easily parse with the XML parser.  They get replaced in the feature setup
+# with mem:hello which is considered valid.
+#
+markup: >
+  <root>
+    <mem_hello />
+  </root>
+localName: mem:hello
+# prefix: ~
+namespace:
+---
+markup: >
+  <root context="xml">
+    <mem_hello />
+  </root>
+localName: hello
+prefix: mem
+namespace: urn:unbound-xmlns:mem
+---
+markup: >
+  <root xmlns:mem="https://mem.example.com" context="xml">
+    <mem_hello />
+  </root>
+localName: hello
+prefix: mem
+namespace: https://mem.example.com

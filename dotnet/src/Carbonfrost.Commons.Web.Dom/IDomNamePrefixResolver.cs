@@ -1,5 +1,5 @@
 //
-// Copyright 2013, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
 // limitations under the License.
 //
 
-using System;
+using System.Collections.Generic;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomAttribute<TAttribute> : DomAttribute
-        where TAttribute : DomAttribute<TAttribute>
-    {
-
-        protected DomAttribute() : base() {}
-        protected DomAttribute(string name) : base(name) {}
-        protected DomAttribute(DomName name) : base(name) {}
+    public interface IDomNamePrefixResolver {
+        IReadOnlyDictionary<string, DomNamespace> GetPrefixBindings(DomScope scope);
+        DomNamespace GetNamespace(string prefix, DomScope scope);
+        IEnumerable<string> GetPrefixes(DomNamespace ns, DomScope scope);
+        string GetPrefix(DomNamespace ns, DomScope scope);
+        string RegisterPrefix(DomNamespace ns, string preferredPrefix);
     }
 }

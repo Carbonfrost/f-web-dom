@@ -21,27 +21,28 @@ using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public class DomName : IEquatable<DomName>, IComparable<DomName>, IFormattable, IDomNameApiConventions {
+    public abstract partial class DomName : IEquatable<DomName>, IComparable<DomName>, IFormattable, IDomNameApiConventions {
 
-        static readonly Regex VALID_NAME = new Regex(@"\A[A-Za-z0-9._:-]+\Z");
-        private readonly string _localName;
-        private readonly DomNamespace _ns;
-
-        public string LocalName {
+        public virtual string Prefix {
             get {
-                return _localName;
+                return null;
             }
         }
 
-        public DomNamespace Namespace {
-            get {
-                return _ns;
-            }
+        public abstract string LocalName {
+            get;
+        }
+
+        public abstract DomNamespace Namespace {
+            get;
         }
 
         public string NamespaceUri {
             get {
-                return _ns.NamespaceUri;
+                if (Namespace == null) {
+                    return null;
+                }
+                return Namespace.NamespaceUri;
             }
         }
 
@@ -51,17 +52,32 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        internal DomName(DomNamespace ns, string localName) {
-            _ns = ns;
-            _localName = localName;
+        internal virtual XmlNameSemantics? TryXmlSemantics() {
+            return null;
         }
 
-        public DomName ChangeLocalName(string value) {
-            VerifyLocalName(nameof(value), value);
+        internal DomName Resolve(DomNameContext nameContext) {
+            if (nameContext == null) {
+                return this;
+            }
+            return nameContext.GetName(this);
+        }
+
+        public virtual DomName WithLocalName(string value) {
+            if (value == null) {
+                throw new ArgumentNullException(nameof(value));
+            }
+            if (value.Length == 0) {
+                throw Failure.EmptyString(nameof(value));
+            }
             return Namespace + value;
         }
 
-        public DomName ChangeNamespace(DomNamespace value) {
+        public virtual DomName WithPrefix(string prefix) {
+            return new QName(prefix, this);
+        }
+
+        public DomName WithNamespace(DomNamespace value) {
             if (value == null) {
                 throw new ArgumentNullException(nameof(value));
             }
@@ -73,46 +89,43 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public static DomName Create(string name) {
-            return Create(DomNamespace.Default, name);
+            if (string.IsNullOrEmpty(name)) {
+                throw Failure.NullOrEmptyString(nameof(name));
+            }
+
+            return new SimpleName(name);
         }
 
-        public static DomName Create(Uri namespaceUri, string name) {
+        public static DomName Create(Uri namespaceUri, string localName) {
             DomNamespace nu = DomNamespace.Default;
             if (namespaceUri != null) {
                 nu = DomNamespace.Create(namespaceUri);
             }
-
-            return nu + name;
+            return nu + localName;
         }
 
-        public static bool TryParse(string text, IServiceProvider serviceProvider, out DomName result) {
-            return _TryParse(text, serviceProvider, out result) == null;
+        public static DomName Create(string namespaceUri, string localName) {
+            DomNamespace nu = DomNamespace.Default;
+            if (namespaceUri != null) {
+                nu = DomNamespace.Create(namespaceUri);
+            }
+            return nu + localName;
         }
 
         public static bool TryParse(string text, out DomName result) {
-            return _TryParse(text, null, out result) == null;
+            return _TryParse(text, out result) == null;
         }
 
         public static DomName Parse(string text) {
             DomName result;
-            var ex = _TryParse(text, ServiceProvider.Null, out result);
+            var ex = _TryParse(text, out result);
             if (ex != null) {
                 throw ex;
             }
             return result;
         }
 
-        public static DomName Parse(string text, IServiceProvider serviceProvider) {
-            DomName result;
-            var ex = _TryParse(text, serviceProvider, out result);
-            if (ex != null) {
-                throw ex;
-            }
-            return result;
-        }
-
-        static Exception _TryParse(string text, IServiceProvider serviceProvider, out DomName result) {
-            serviceProvider = serviceProvider ?? ServiceProvider.Null;
+        static Exception _TryParse(string text, out DomName result) {
             result = null;
 
             if (string.IsNullOrEmpty(text)) {
@@ -154,10 +167,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Failure.NotParsable(nameof(text), typeof(DomName));
         }
 
-        public static DomName Create(string namespaceUri, string localName) {
-            return DomNamespace.Parse(namespaceUri).GetName(localName);
-        }
-
         public static bool operator ==(DomName left, DomName right) {
             return StaticEquals(left, right);
         }
@@ -166,14 +175,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             return !StaticEquals(left, right);
         }
 
+        public static implicit operator DomName(string name) {
+            return Parse(name);
+        }
+
         public override bool Equals(object obj) {
             return Equals(obj as DomName);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var result = 1000000009 * _localName.GetHashCode();
-                result += 1000000021 * _ns.GetHashCode();
+                var result = 1000000009 * LocalName.GetHashCode();
+                result += 1000000021 * Namespace.GetHashCode();
                 return result;
             }
         }
@@ -182,11 +195,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             return FullName();
         }
 
+        internal virtual string PrefixFormat() {
+            return LocalName;
+        }
+
         string FullName() {
-            if (_ns.IsDefault) {
-                return _localName;
+            if (Namespace.IsDefault) {
+                return LocalName;
             }
-            return string.Concat("{", _ns.NamespaceUri, "} ", _localName);
+            return string.Concat("{", Namespace.NamespaceUri, "} ",LocalName);
         }
 
         public string ToString(string format) {
@@ -207,11 +224,13 @@ namespace Carbonfrost.Commons.Web.Dom {
                 case 'F':
                     return FullName();
                 case 'S':
-                    return _localName;
+                    return LocalName;
+                case 'P':
+                    return PrefixFormat();
                 case 'N':
-                    return _ns.NamespaceUri;
+                    return Namespace.NamespaceUri;
                 case 'M':
-                    return string.Concat("{", _ns.NamespaceUri, "}");
+                    return string.Concat("{", Namespace.NamespaceUri, "}");
                 default:
                     throw new FormatException();
             }
@@ -225,8 +244,8 @@ namespace Carbonfrost.Commons.Web.Dom {
                 || object.ReferenceEquals(b, null)) {
                 return false;
             }
-            return a._localName == b._localName
-                && object.Equals(a._ns, b._ns);
+            return a.LocalName == b.LocalName
+                && object.Equals(a.Namespace, b.Namespace);
         }
 
         public bool Equals(DomName other) {
@@ -240,7 +259,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (value.Length == 0) {
                 throw Failure.EmptyString(argName);
             }
-            if (!VALID_NAME.IsMatch(value)) {
+            if (!Regex.IsMatch(value, @"\A#?[a-z]\S*\Z", RegexOptions.IgnoreCase)) {
                 throw DomFailure.NotValidLocalName(argName);
             }
         }

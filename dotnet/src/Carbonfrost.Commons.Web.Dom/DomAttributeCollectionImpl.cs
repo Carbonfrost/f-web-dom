@@ -17,7 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-
+using System.Linq;
 using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
@@ -30,6 +30,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         private readonly IDictionary<DomName, DomAttribute> _map;
         private readonly IList<DomAttribute> _items;
+        private readonly IEqualityComparer<DomName> _comparer;
 
         private IList<DomAttribute> Items {
             get {
@@ -42,16 +43,22 @@ namespace Carbonfrost.Commons.Web.Dom {
             _map = new ReadOnlyDictionary<DomName, DomAttribute>(new Dictionary<DomName, DomAttribute>());
         }
 
-        internal DomAttributeCollectionImpl()
-            : this(new List<DomAttribute>()) {
-        }
-
-        private DomAttributeCollectionImpl(IList<DomAttribute> items) {
+        internal DomAttributeCollectionImpl(IList<DomAttribute> items, IEqualityComparer<DomName> comparer) {
             if (items == null) {
                 throw new ArgumentNullException(nameof(items));
             }
             _items = items;
-            _map = new Dictionary<DomName, DomAttribute>();
+            _map = new Dictionary<DomName, DomAttribute>(comparer);
+            foreach (var a in items) {
+                _map.Add(a.Name, a);
+            }
+            _comparer = comparer;
+        }
+
+        internal override IEqualityComparer<DomName> _Comparer {
+            get {
+                return _comparer;
+            }
         }
 
         public override bool IsReadOnly {
@@ -83,6 +90,16 @@ namespace Carbonfrost.Commons.Web.Dom {
             return IndexOf(name) >= 0;
         }
 
+        public override int IndexOf(DomName name) {
+            RequireName(name);
+            for (int i = 0; i < Count; i++) {
+                if (_comparer.Equals(this[i].Name, name)) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         // TODO Comparer should be by name
 
         private void InsertItem(int index, DomAttribute item) {
@@ -90,10 +107,12 @@ namespace Carbonfrost.Commons.Web.Dom {
 
             if (existing < 0) {
 
-            } else if (this.Items[existing] == item)
+            }
+            else if (Items[existing] == item) {
                 return;
+            }
             else {
-                throw DomFailure.AttributeWithGivenNameExists(item.Name, "item");
+                throw DomFailure.AttributeWithGivenNameExists(item.Name, nameof(item));
             }
 
             _map.Add(item.Name, item);
@@ -135,7 +154,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override void RemoveAt(int index) {
             if (index < 0 || index >= Count) {
-                throw Failure.IndexOutOfRange("index", index, 0, Count - 1);
+                throw Failure.IndexOutOfRange(nameof(index), index, 0, Count - 1);
             }
 
             RemoveItem(index);
@@ -192,6 +211,17 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override IEnumerator<DomAttribute> GetEnumerator() {
             return _items.GetEnumerator();
+        }
+
+        internal DomAttributeCollectionImpl SetComparer(DomNameComparer comparer, Action<DomAttribute> onRejected) {
+            if (_comparer == comparer) {
+                return this;
+            }
+
+            var newItems = _items.DistinctWithEvents(
+                DomNameComparer.AttributeAdapter(comparer), onRejected
+            );
+            return new DomAttributeCollectionImpl(newItems, comparer);
         }
     }
 

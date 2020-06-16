@@ -63,6 +63,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (<#= type #>) base.SetName(name);
         }
 
+        public new <#= type #> SetName(DomName name) {
+            return (<#= type #>) base.SetName(name);
+        }
+
     <# if (notAttribute) { #>
 
         public new <#= type #> CompressWhitespace() {
@@ -70,6 +74,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public new <#= type #> Wrap(string element) {
+            return (<#= type #>) base.Wrap(element);
+        }
+
+        public new <#= type #> Wrap(DomName element) {
             return (<#= type #>) base.Wrap(element);
         }
 

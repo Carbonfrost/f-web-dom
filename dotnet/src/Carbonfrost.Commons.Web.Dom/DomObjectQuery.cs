@@ -113,6 +113,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             return QueryFirstOrDefault(n => n.Attribute(name));
         }
 
+        public string Attribute(DomName name) {
+            if (name == null) {
+                throw new ArgumentNullException(nameof(name));
+            }
+            return QueryFirstOrDefault(n => n.Attribute(name));
+        }
+
         public DomObjectQuery Attribute(string name, object value) {
             if (name == null) {
                 throw new ArgumentNullException(nameof(name));
@@ -123,7 +130,16 @@ namespace Carbonfrost.Commons.Web.Dom {
             foreach (var m in Nodes()) {
                 m.Attribute(name, value);
             }
+            return this;
+        }
 
+        public DomObjectQuery Attribute(DomName name, object value) {
+            if (name == null) {
+                throw new ArgumentNullException(nameof(name));
+            }
+            foreach (var m in Nodes()) {
+                m.Attribute(name, value);
+            }
             return this;
         }
 
@@ -140,6 +156,17 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return default(TValue);
             }
 
+            return node.Attribute<TValue>(name);
+        }
+
+        public TValue Attribute<TValue>(DomName name) {
+            if (name == null) {
+                throw new ArgumentNullException(nameof(name));
+            }
+            var node = Nodes().FirstOrDefault();
+            if (node == null) {
+                return default(TValue);
+            }
             return node.Attribute<TValue>(name);
         }
 
@@ -182,6 +209,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public bool HasAttribute(string name) {
+            return QueryFirstOrDefault(n => n.HasAttribute(name));
+        }
+
+        public bool HasAttribute(DomName name) {
             return QueryFirstOrDefault(n => n.HasAttribute(name));
         }
 

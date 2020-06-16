@@ -16,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -103,7 +102,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomName GetName(string localName) {
-            DomName.VerifyLocalName("localName", localName);
+            DomName.VerifyLocalName(nameof(localName), localName);
 
             DomName result = null;
 
@@ -111,7 +110,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return result;
             }
 
-            result = new DomName(this, localName);;
+            result = new DomName.DefaultImpl(this, localName);
             _names.Add(localName, result);
             return result;
         }
@@ -151,26 +150,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public static bool Equals(DomNamespace x, DomNamespace y, DomNamespaceComparison comparison) {
-            if (object.ReferenceEquals(x, y)) {
-                return true;
-            }
-
-            if (comparison == DomNamespaceComparison.Default) {
-                return string.Compare(
-                    NormalizeUri(x._namespaceUri), NormalizeUri(y._namespaceUri), StringComparison.OrdinalIgnoreCase
-                ) == 0;
-            }
-            return string.Compare(x._namespaceUri, y._namespaceUri, StringComparison.Ordinal) == 0;
-        }
-
-        private static string NormalizeUri(string s) {
-            s = Regex.Replace(s, "^(http://)", @"https://");
-            s = Regex.Replace(s, "/$", "");
-
-            if (!s.StartsWith("https://")) {
-                return "https://" + s;
-            }
-            return s;
+            return DomNamespaceComparer.Create(comparison).Equals(x, y);
         }
 
         public override string ToString() {

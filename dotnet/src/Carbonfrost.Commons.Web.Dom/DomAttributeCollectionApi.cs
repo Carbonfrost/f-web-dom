@@ -21,7 +21,7 @@ using System.Linq;
 namespace Carbonfrost.Commons.Web.Dom {
 
     class DomAttributeCollectionApi : DomAttributeCollection, IDomNodeCollection {
-        private readonly DomAttributeCollection _items;
+        private DomAttributeCollectionImpl _items;
         private readonly DomElement _owner;
 
         internal DomElement OwnerElement {
@@ -30,9 +30,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public DomAttributeCollectionApi(DomElement owner, DomAttributeCollection items) {
+        public DomAttributeCollectionApi(DomElement owner) {
             _owner = owner;
-            _items = items;
+            _items = new DomAttributeCollectionImpl(new List<DomAttribute>(), owner.NameContext.Comparer);
         }
 
         public override DomAttribute this[int index] {
@@ -67,6 +67,12 @@ namespace Carbonfrost.Commons.Web.Dom {
         public override DomAttribute this[DomName name] {
             get {
                 return _items[name];
+            }
+        }
+
+        internal override IEqualityComparer<DomName> _Comparer {
+            get {
+                return _items._Comparer;
             }
         }
 
@@ -167,6 +173,14 @@ namespace Carbonfrost.Commons.Web.Dom {
             return true;
         }
 
+        internal void SetComparer(DomNameComparer comparer) {
+            _items = _items.SetComparer(
+                comparer, attr => {
+                    attr.Unlink();
+                    NotifyAttributeChanged(attr, attr.Value);
+                }
+            );
+        }
     }
 }
 

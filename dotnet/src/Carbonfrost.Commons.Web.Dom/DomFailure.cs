@@ -123,5 +123,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         public static ArgumentException NotValidLocalName(string argName) {
             return Failure.Prepare(new ArgumentException(SR.NotValidLocalName(), argName));
         }
+
+        public static ArgumentException NotValidNameForThisContext(string argName, IDomNameApiConventions name) {
+            return Failure.Prepare(new ArgumentException(SR.NotValidNameForThisContext(name.Name), argName));
+        }
     }
 }

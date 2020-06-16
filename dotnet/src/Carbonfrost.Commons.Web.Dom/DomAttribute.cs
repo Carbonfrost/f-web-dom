@@ -15,6 +15,7 @@
 //
 
 using System;
+using System.Linq;
 using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
@@ -83,7 +84,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override DomName Name {
             get {
-                return _name;
+                return _name.Resolve(NameContext);
             }
         }
 
@@ -149,6 +150,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public override DomNameContext NameContext {
+            get {
+                if (OwnerElement == null) {
+                    return DomNameContext.Default;
+                }
+                return OwnerElement.NameContext;
+            }
+            set {
+                throw new NotSupportedException();
+            }
+        }
+
         protected internal DomAttribute() {
             _name = CheckName(RequireFactoryGeneratedName(
                 GetType(),
@@ -173,8 +186,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected virtual DomAttribute CloneCore() {
-            var result = this.OwnerDocument.CreateAttribute(Name, Value);
+            var result = OwnerDocument.CreateAttribute(Name, Value);
             result.DomValue = DomValue.Clone();
+            result.CopyAnnotationsFrom(AnnotationList);
             return result;
         }
 
@@ -246,6 +260,13 @@ namespace Carbonfrost.Commons.Web.Dom {
                 hashCode += 37 * Name.GetHashCode();
             }
             return hashCode;
+        }
+
+        protected override DomObject SetNameCore(DomName name) {
+            var newAttr = OwnerDocument.CreateAttribute(name);
+            newAttr.DomValue = DomValue.Clone();
+            newAttr.CopyAnnotationsFrom(AnnotationList);
+            return ReplaceWith(newAttr);
         }
 
         private static bool StaticEquals(DomAttribute lhs, DomAttribute rhs) {

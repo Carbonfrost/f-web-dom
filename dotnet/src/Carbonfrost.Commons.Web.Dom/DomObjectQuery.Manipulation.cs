@@ -105,19 +105,39 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Query(m => m.RemoveAttribute(name));
         }
 
+        public DomObjectQuery RemoveAttribute(DomName name) {
+            return Query(m => m.RemoveAttribute(name));
+        }
+
         public DomObjectQuery AddClass(string className) {
             return Query(m => m.AddClass(className));
+        }
+
+        public DomObjectQuery AddClass(params string[] classNames) {
+            return Query(m => m.AddClass(classNames));
         }
 
         public DomObjectQuery RemoveClass(string className) {
             return Query(m => m.RemoveClass(className));
         }
 
+        public DomObjectQuery RemoveClass(params string[] classNames) {
+            return Query(m => m.RemoveClass(classNames));
+        }
+
         public DomObjectQuery SetName(string name) {
             return new DomObjectQuery(SetNameInternal(name));
         }
 
+        public DomObjectQuery SetName(DomName name) {
+            return new DomObjectQuery(SetNameInternal(name));
+        }
+
         public DomObjectQuery Wrap(string element) {
+            return Each(m => m.Wrap(element));
+        }
+
+        public DomObjectQuery Wrap(DomName element) {
             return Each(m => m.Wrap(element));
         }
 
@@ -256,6 +276,16 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        private IEnumerable<DomNode> SetNameInternal(DomName name) {
+            foreach (var m in Nodes()) {
+                if (m.IsAttribute || m.IsElement) {
+                    yield return m.SetName(name);
+                } else {
+                    yield return m;
+                }
+            }
+        }
+
         public DomObjectQuery AncestorNodes() {
             return QueryMany(n => n.AncestorNodes);
         }
@@ -314,7 +344,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Each(s => s.AppendElement(name));
         }
 
+        public DomObjectQuery AppendElement(DomName name) {
+            return Each(s => s.AppendElement(name));
+        }
+
         public DomObjectQuery AppendAttribute(string name, object value) {
+            return Each(s => s.AppendAttribute(name, value));
+        }
+
+        public DomObjectQuery AppendAttribute(DomName name, object value) {
             return Each(s => s.AppendAttribute(name, value));
         }
 
@@ -342,7 +380,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Each(s => s.PrependElement(name));
         }
 
+        public DomObjectQuery PrependElement(DomName name) {
+            return Each(s => s.PrependElement(name));
+        }
+
         public DomObjectQuery PrependAttribute(string name, object value) {
+            return Each(s => s.PrependAttribute(name, value));
+        }
+
+        public DomObjectQuery PrependAttribute(DomName name, object value) {
             return Each(s => s.PrependAttribute(name, value));
         }
 

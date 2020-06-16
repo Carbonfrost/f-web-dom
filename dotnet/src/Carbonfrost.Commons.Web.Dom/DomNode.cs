@@ -99,7 +99,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             return HasAttributes && Attributes.Contains(name);
         }
 
+        public bool HasAttribute(DomName name) {
+            return HasAttributes && Attributes.Contains(name);
+        }
+
         public DomNode RemoveAttribute(string name) {
+            if (HasAttributes) {
+                Attributes.Remove(name);
+            }
+            return this;
+        }
+
+        public DomNode RemoveAttribute(DomName name) {
             if (HasAttributes) {
                 Attributes.Remove(name);
             }
@@ -204,12 +215,6 @@ namespace Carbonfrost.Commons.Web.Dom {
         public bool IsFirstChildNode {
             get {
                 return PreviousSiblingNode == null;
-            }
-        }
-
-        public virtual string Prefix {
-            get {
-                return null;
             }
         }
 
@@ -377,6 +382,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             DomNodeVisitor.Visit(this, t => t.MergeAdjacentText());
             DomNodeVisitor.Visit(this, t => t.TryCompressWS());
             return this;
+        }
+
+        internal virtual void NotifyParentChanged() {
         }
 
         private void MergeAdjacentText() {

@@ -61,13 +61,19 @@ namespace Carbonfrost.Commons.Web.Dom {
         TNode RemoveAttributes();
 
         TNode SetName(string name);
+        TNode SetName(DomName name);
 
         TNode Attribute(string name, object value);
+        TNode Attribute(DomName name, object value);
         TNode RemoveAttribute(string name);
+        TNode RemoveAttribute(DomName name);
         TNode AddClass(string name);
+        TNode AddClass(params string[] name);
         TNode RemoveClass(string name);
+        TNode RemoveClass(params string[] names);
 
         TNode Wrap(string element);
+        TNode Wrap(DomName element);
         TNode Wrap(DomNode newParent);
     }
 }

@@ -105,9 +105,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public override DomNamespace Namespace {
+        public override DomName Name {
             get {
                 return null;
+            }
+        }
+
+        public override DomNameContext NameContext {
+            get {
+                return ParentElement.NameContext;
+            }
+            set {
+                throw new NotSupportedException();
             }
         }
 

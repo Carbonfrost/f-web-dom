@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright 2014, 2019-2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,7 +47,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void AddAnnotation_will_clone_annotations_copied_to_new_node() {
+        public void DomObject_Clone_will_clone_annotations_copied_to_new_node() {
             var doc = new DomDocument();
             var anno = new FLifecycleAnnotation();
 
@@ -56,6 +56,20 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             Assert.NotNull(clone.Annotation<FLifecycleAnnotation>());
             Assert.NotSame(anno, clone.Annotation<FLifecycleAnnotation>());
+        }
+
+        [Fact]
+        public void CopyAnnotationsFrom_will_process_lifecycle_events_on_clones() {
+            var doc = new DomDocument();
+            var anno = new FLifecycleAnnotation();
+
+            var element = doc.CreateElement("a").AddAnnotation(anno);
+            var clone = element.Clone();
+
+            var clonedAnnotation = clone.Annotation<FLifecycleAnnotation>();
+            Assume.NotNull(clonedAnnotation);
+            Assert.Equal(1, clonedAnnotation.AttachingCallCount);
+            Assert.Same(clone, clonedAnnotation.LastAttachingArguments);
         }
 
         [Fact]

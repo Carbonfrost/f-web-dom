@@ -308,6 +308,44 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void NameContext_set_should_use_Value() {
+            var doc = new DomDocument();
+            var e = doc.AppendElement("e");
+            e.NameContext = DomNameContext.Html;
+            Assert.Same(DomNameContext.Html, e.NameContext);
+        }
+
+        [Fact]
+        public void NameContext_inherits_from_owner_node() {
+            var doc = new DomDocument();
+            var e = doc.AppendElement("e");
+            e.NameContext = DomNameContext.Html;
+
+            var f = e.AppendElement("ff");
+            Assert.Same(DomNameContext.Html, f.NameContext);
+        }
+
+        [Fact]
+        public void NameContext_inherits_from_owner_document() {
+            var doc = new DomDocument();
+            doc.NameContext = DomNameContext.Html;
+
+            var e = doc.AppendElement("e");
+            var f = e.AppendElement("ff");
+            Assert.Same(DomNameContext.Html, f.NameContext);
+        }
+
+        [Fact]
+        public void NameContext_should_copy_on_clone() {
+            var doc = new DomDocument();
+            var e = doc.AppendElement("e");
+            e.NameContext = DomNameContext.Html;
+
+            Assert.Same(DomNameContext.Html, e.SetName("xx").NameContext);
+            Assert.Same(DomNameContext.Html, e.Clone().NameContext);
+        }
+
+        [Fact]
         public void NodeDepth_should_be_zero_outside_document() {
             DomDocument doc = new DomDocument();
             var e = doc.CreateElement("e");

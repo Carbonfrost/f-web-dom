@@ -75,6 +75,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public override DomNameContext NameContext {
+            get {
+                return ParentElement.NameContext;
+            }
+            set {
+                throw new NotSupportedException();
+            }
+        }
+
         protected override DomNode CloneCore() {
             var result = OwnerDocument.CreateDocumentType(NodeName);
             result.CopyAnnotationsFrom(AnnotationList);

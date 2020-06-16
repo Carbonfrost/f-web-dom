@@ -184,6 +184,14 @@ namespace Carbonfrost.Commons.Web.Dom {
             ).Concat(All);
         }
 
+        public DomNameContext CreateNameContext(DomObject owner) {
+            return CreateDomNameContext(owner);
+        }
+
+        protected virtual DomNameContext CreateDomNameContext(DomObject owner) {
+            return DomNameContext.Xml;
+        }
+
         public IDomNodeFactory CreateNodeFactory(IDomNodeTypeProvider nodeTypeProvider) {
             return CreateDomNodeFactory(nodeTypeProvider);
         }

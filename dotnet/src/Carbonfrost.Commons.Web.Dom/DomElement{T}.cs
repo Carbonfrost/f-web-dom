@@ -25,6 +25,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected DomElement() : base() {}
         protected DomElement(string name) : base(name) {}
+        protected DomElement(DomName name) : base(name) {}
 
         public new TElement Add(object content) {
             return (TElement) base.Add(content);

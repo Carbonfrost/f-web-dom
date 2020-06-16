@@ -43,6 +43,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Null(pi.Prefix);
             Assert.Null(pi.LocalName);
             Assert.Null(pi.NamespaceUri);
+            Assert.Null(pi.Name);
             Assert.Equal("hello", pi.NodeName);
             Assert.Equal(0, pi.ChildNodes.Count);
             Assert.Equal((DomNodeType) 7, pi.NodeType);

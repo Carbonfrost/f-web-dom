@@ -112,9 +112,30 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void BaseUri_should_inherit() {
+            var html = new DomDocument().AppendElement("html");
+            var example = new Uri("https://example.com");
+            html.BaseUri = example;
+            html.Attribute("hello", "world");
+
+            var attr = html.Attributes[0];
+            Assert.Equal(example, attr.BaseUri);
+        }
+
+        [Fact]
         public void Constructor_requires_name_argument_nonempty() {
             DomDocument doc = new DomDocument();
             Assert.Throws<ArgumentException>(() => new DomAttribute(""));
+        }
+
+        [Fact]
+        public void NameContext_should_inherit_from_element() {
+            var html = new DomDocument().AppendElement("html");
+            html.NameContext = DomNameContext.Html;
+            html.Attribute("s", "t");
+
+            var attr = html.Attributes[0];
+            Assert.Equal(DomNameContext.Html, attr.NameContext);
         }
 
         [Fact]
@@ -281,6 +302,31 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             e.Attributes["other1"].ReplaceWith(attr);
             Assert.HasCount(1, e.Attributes);
             Assert.Equal("expected value", e.Attributes[0].Value);
+        }
+
+        [Fact]
+        public void SetName_updates_the_name_of_Attribute() {
+            DomDocument doc = new DomDocument();
+            var time = doc.AppendElement("time");
+            var annos = new [] { "annotation" };
+            var attr = time.AppendAttribute("stamp", "PT3.3S");
+            attr.AddAnnotations(annos);
+
+            var replacement = attr.SetName("value");
+            Assert.Equal("PT3.3S", replacement.Value);
+            Assert.Equal(annos, replacement.Annotations());
+        }
+
+        [Fact]
+        public void Clone_will_have_same_annotations() {
+            DomDocument doc = new DomDocument();
+            var time = doc.AppendElement("time");
+            var annos = new [] { "annotation" };
+            var attr = time.AppendAttribute("stamp", "PT3.3S");
+            attr.AddAnnotations(annos);
+
+            var replacement = attr.Clone();
+            Assert.Equal(annos, replacement.Annotations());
         }
 
         [Fact]

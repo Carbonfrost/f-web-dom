@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-// File generated at 06/11/2020 23:32:41
+// File generated at 06/15/2020 14:05:34
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -35,6 +35,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public new DomAttribute SetName(string name) {
+            return (DomAttribute) base.SetName(name);
+        }
+
+        public new DomAttribute SetName(DomName name) {
             return (DomAttribute) base.SetName(name);
         }
 
@@ -73,12 +77,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomCDataSection) base.SetName(name);
         }
 
+        public new DomCDataSection SetName(DomName name) {
+            return (DomCDataSection) base.SetName(name);
+        }
+
     
         public new DomCDataSection CompressWhitespace() {
             return (DomCDataSection) base.CompressWhitespace();
         }
 
         public new DomCDataSection Wrap(string element) {
+            return (DomCDataSection) base.Wrap(element);
+        }
+
+        public new DomCDataSection Wrap(DomName element) {
             return (DomCDataSection) base.Wrap(element);
         }
 
@@ -121,12 +133,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomComment) base.SetName(name);
         }
 
+        public new DomComment SetName(DomName name) {
+            return (DomComment) base.SetName(name);
+        }
+
     
         public new DomComment CompressWhitespace() {
             return (DomComment) base.CompressWhitespace();
         }
 
         public new DomComment Wrap(string element) {
+            return (DomComment) base.Wrap(element);
+        }
+
+        public new DomComment Wrap(DomName element) {
             return (DomComment) base.Wrap(element);
         }
 
@@ -169,12 +189,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomContainer) base.SetName(name);
         }
 
+        public new DomContainer SetName(DomName name) {
+            return (DomContainer) base.SetName(name);
+        }
+
     
         public new DomContainer CompressWhitespace() {
             return (DomContainer) base.CompressWhitespace();
         }
 
         public new DomContainer Wrap(string element) {
+            return (DomContainer) base.Wrap(element);
+        }
+
+        public new DomContainer Wrap(DomName element) {
             return (DomContainer) base.Wrap(element);
         }
 
@@ -217,12 +245,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomDocument) base.SetName(name);
         }
 
+        public new DomDocument SetName(DomName name) {
+            return (DomDocument) base.SetName(name);
+        }
+
     
         public new DomDocument CompressWhitespace() {
             return (DomDocument) base.CompressWhitespace();
         }
 
         public new DomDocument Wrap(string element) {
+            return (DomDocument) base.Wrap(element);
+        }
+
+        public new DomDocument Wrap(DomName element) {
             return (DomDocument) base.Wrap(element);
         }
 
@@ -265,12 +301,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomDocumentFragment) base.SetName(name);
         }
 
+        public new DomDocumentFragment SetName(DomName name) {
+            return (DomDocumentFragment) base.SetName(name);
+        }
+
     
         public new DomDocumentFragment CompressWhitespace() {
             return (DomDocumentFragment) base.CompressWhitespace();
         }
 
         public new DomDocumentFragment Wrap(string element) {
+            return (DomDocumentFragment) base.Wrap(element);
+        }
+
+        public new DomDocumentFragment Wrap(DomName element) {
             return (DomDocumentFragment) base.Wrap(element);
         }
 
@@ -313,12 +357,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomDocumentType) base.SetName(name);
         }
 
+        public new DomDocumentType SetName(DomName name) {
+            return (DomDocumentType) base.SetName(name);
+        }
+
     
         public new DomDocumentType CompressWhitespace() {
             return (DomDocumentType) base.CompressWhitespace();
         }
 
         public new DomDocumentType Wrap(string element) {
+            return (DomDocumentType) base.Wrap(element);
+        }
+
+        public new DomDocumentType Wrap(DomName element) {
             return (DomDocumentType) base.Wrap(element);
         }
 
@@ -361,12 +413,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomElement) base.SetName(name);
         }
 
+        public new DomElement SetName(DomName name) {
+            return (DomElement) base.SetName(name);
+        }
+
     
         public new DomElement CompressWhitespace() {
             return (DomElement) base.CompressWhitespace();
         }
 
         public new DomElement Wrap(string element) {
+            return (DomElement) base.Wrap(element);
+        }
+
+        public new DomElement Wrap(DomName element) {
             return (DomElement) base.Wrap(element);
         }
 
@@ -409,12 +469,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomEntity) base.SetName(name);
         }
 
+        public new DomEntity SetName(DomName name) {
+            return (DomEntity) base.SetName(name);
+        }
+
     
         public new DomEntity CompressWhitespace() {
             return (DomEntity) base.CompressWhitespace();
         }
 
         public new DomEntity Wrap(string element) {
+            return (DomEntity) base.Wrap(element);
+        }
+
+        public new DomEntity Wrap(DomName element) {
             return (DomEntity) base.Wrap(element);
         }
 
@@ -457,12 +525,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomEntityReference) base.SetName(name);
         }
 
+        public new DomEntityReference SetName(DomName name) {
+            return (DomEntityReference) base.SetName(name);
+        }
+
     
         public new DomEntityReference CompressWhitespace() {
             return (DomEntityReference) base.CompressWhitespace();
         }
 
         public new DomEntityReference Wrap(string element) {
+            return (DomEntityReference) base.Wrap(element);
+        }
+
+        public new DomEntityReference Wrap(DomName element) {
             return (DomEntityReference) base.Wrap(element);
         }
 
@@ -505,12 +581,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomNotation) base.SetName(name);
         }
 
+        public new DomNotation SetName(DomName name) {
+            return (DomNotation) base.SetName(name);
+        }
+
     
         public new DomNotation CompressWhitespace() {
             return (DomNotation) base.CompressWhitespace();
         }
 
         public new DomNotation Wrap(string element) {
+            return (DomNotation) base.Wrap(element);
+        }
+
+        public new DomNotation Wrap(DomName element) {
             return (DomNotation) base.Wrap(element);
         }
 
@@ -553,12 +637,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomProcessingInstruction) base.SetName(name);
         }
 
+        public new DomProcessingInstruction SetName(DomName name) {
+            return (DomProcessingInstruction) base.SetName(name);
+        }
+
     
         public new DomProcessingInstruction CompressWhitespace() {
             return (DomProcessingInstruction) base.CompressWhitespace();
         }
 
         public new DomProcessingInstruction Wrap(string element) {
+            return (DomProcessingInstruction) base.Wrap(element);
+        }
+
+        public new DomProcessingInstruction Wrap(DomName element) {
             return (DomProcessingInstruction) base.Wrap(element);
         }
 
@@ -601,12 +693,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomText) base.SetName(name);
         }
 
+        public new DomText SetName(DomName name) {
+            return (DomText) base.SetName(name);
+        }
+
     
         public new DomText CompressWhitespace() {
             return (DomText) base.CompressWhitespace();
         }
 
         public new DomText Wrap(string element) {
+            return (DomText) base.Wrap(element);
+        }
+
+        public new DomText Wrap(DomName element) {
             return (DomText) base.Wrap(element);
         }
 

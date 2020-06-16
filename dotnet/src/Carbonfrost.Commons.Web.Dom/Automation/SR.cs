@@ -161,6 +161,13 @@ namespace Carbonfrost.Commons.Web.Dom.Resources {
         return string.Format(Culture, ResourceFinder("NotValidLocalName") );
     }
 
+  /// <summary>Name `${what}' cannot be used in this context</summary>
+    internal static string NotValidNameForThisContext(
+    object @what
+    ) {
+        return string.Format(Culture, ResourceFinder("NotValidNameForThisContext") , @what);
+    }
+
   /// <summary>Node must have a parent for this operation.</summary>
     internal static string ParentNodeRequired(
     

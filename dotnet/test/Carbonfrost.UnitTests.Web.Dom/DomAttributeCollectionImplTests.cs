@@ -15,12 +15,23 @@
 //
 
 using System;
+using System.Collections.Generic;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
 
 namespace Carbonfrost.UnitTests.Web.Dom {
-    
+
     public class DomAttributeCollectionImplTests {
+
+        [Fact]
+        public void Add_will_detect_duplicates_on_map_key_equality() {
+            var list = new List<DomAttribute>();
+            var subject = new DomAttributeCollectionImpl(list, DomNameComparer.IgnoreCase);
+            subject.Add(new DomAttribute(DomName.Create("a")));
+
+            var ex = Record.Exception(() => subject.Add(new DomAttribute(DomName.Create("A"))));
+            Assert.Contains("already exists", ex.Message);
+        }
 
         [Fact]
         public void ReadOnly_is_read_only() {

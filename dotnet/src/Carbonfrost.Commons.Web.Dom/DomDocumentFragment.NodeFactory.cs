@@ -117,11 +117,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public Type GetAttributeNodeType(string name) {
-            return GetAttributeNodeType(DomName.Create(name));
+            return GetAttributeNodeType(CreateDomName(name));
         }
 
         public Type GetElementNodeType(string name) {
-            return GetElementNodeType(DomName.Create(name));
+            return GetElementNodeType(CreateDomName(name));
         }
 
         public Type GetProcessingInstructionNodeType(string target) {

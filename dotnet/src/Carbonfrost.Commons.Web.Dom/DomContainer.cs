@@ -90,6 +90,29 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        internal DomNameContext ActualNameContext {
+            get {
+                var uc = Annotation<NameContextAnnotation>();
+                if (uc == null) {
+                    return null;
+                }
+                return uc.value;
+            }
+        }
+
+        public override DomNameContext NameContext {
+            get {
+                return AnnotationRecursive(NameContextAnnotation.Empty).value;
+            }
+            set {
+                RemoveAnnotations<NameContextAnnotation>();
+                if (value != null) {
+                    AddAnnotation(new NameContextAnnotation(value));
+                }
+                NotifyNameContextChanged();
+            }
+        }
+
         public DomElement Descendant(string name) {
             return GetElementsByTagName(name).FirstOrDefault();
         }
@@ -118,7 +141,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomElement Element(string name) {
-            return Element(DomName.Create(name));
+            return Element(CreateDomName(name));
         }
 
         public DomElement Element(string name, string namespaceUri) {
@@ -127,7 +150,8 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomElement Element(DomName name) {
             CheckName(name);
-            return Elements.FirstOrDefault(t => t.Name == name);
+            IEqualityComparer<DomName> comparer = NameContext;
+            return Elements.FirstOrDefault(t => comparer.Equals(t.Name, name));
         }
 
         public DomElementCollection GetElementsByTagName(string name) {
@@ -273,6 +297,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         internal virtual void AssertCanAppend(DomNode node, DomNode willReplace) {
+            if (node.IsElement || node.IsAttribute) {
+                NameContext.DemandValidName(nameof(node), node);
+            }
         }
 
         internal void CoreLoadXml(XmlReader reader) {
@@ -383,6 +410,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomContainer) base.AddClass(className);
         }
 
+        public new DomContainer AddClass(params string[] classNames) {
+            return (DomContainer) base.AddClass(classNames);
+        }
+
         public new DomContainer Append(DomNode child) {
             return (DomContainer) base.Append(child);
         }
@@ -411,6 +442,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomContainer) base.RemoveAttribute(name);
         }
 
+        public new DomContainer RemoveAttribute(DomName name) {
+            return (DomContainer) base.RemoveAttribute(name);
+        }
+
         public new DomContainer RemoveAttributes() {
             return (DomContainer) base.RemoveAttributes();
         }
@@ -419,8 +454,26 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomContainer) base.RemoveClass(className);
         }
 
+        public new DomContainer RemoveClass(params string[] classNames) {
+            return (DomContainer) base.RemoveClass(classNames);
+        }
+
         public new DomContainer RemoveSelf() {
             return (DomContainer) base.RemoveSelf();
+        }
+
+        internal override void NotifyParentChanged() {
+            NotifyNameContextChanged();
+        }
+
+        internal virtual void NotifyNameContextChanged() {
+            NotifyChildren(c => c.NotifyNameContextChanged());
+        }
+
+        internal void NotifyChildren(Action<DomElement> action) {
+            foreach (var c in Children) {
+                action(c);
+            }
         }
 
         private DomNodeCollection NewNodeStorage(bool useLL) {
@@ -433,6 +486,43 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         internal void ChildNodeChanged(DomMutation mut, DomNode node, DomNode prev, DomNode next) {
             _batch.Add(mut, node, prev, next);
+        }
+
+        private sealed class NameContextAnnotation : IDomObjectReferenceLifecycle {
+
+            internal static readonly NameContextAnnotation Empty = new NameContextAnnotation(
+                DomNameContext.Default
+            );
+
+            public readonly DomNameContext value;
+
+            private IDomObjectReferenceLifecycle Lifecycle {
+                get {
+                    return value as IDomObjectReferenceLifecycle
+                        ?? DomObjectReferenceLifecycle.Null;
+                }
+            }
+
+            public NameContextAnnotation(DomNameContext value) {
+                this.value = value;
+            }
+
+            public void Attaching(DomObject instance) {
+                Lifecycle.Attaching(instance);
+            }
+
+            public void Detaching() {
+                Lifecycle.Detaching();
+            }
+
+            public object Clone() {
+                if (value is IDomObjectReferenceLifecycle life) {
+                    return new NameContextAnnotation((DomNameContext) life.Clone());
+                }
+
+                return new NameContextAnnotation(value);
+            }
+
         }
     }
 

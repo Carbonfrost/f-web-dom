@@ -108,15 +108,31 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Query(m => m.AddClass(className));
         }
 
+        public DomElementQuery AddClass(params string[] classNames) {
+            return Query(m => m.AddClass(classNames));
+        }
+
         public DomElementQuery RemoveClass(string className) {
             return Query(m => m.RemoveClass(className));
+        }
+
+        public DomElementQuery RemoveClass(params string[] classNames) {
+            return Query(m => m.RemoveClass(classNames));
         }
 
         public DomElementQuery SetName(string name) {
             return Query(m => m.SetName(name));
         }
 
+        public DomElementQuery SetName(DomName name) {
+            return Query(m => m.SetName(name));
+        }
+
         public DomElementQuery Wrap(string element) {
+            return Query(m => m.Wrap(element));
+        }
+
+        public DomElementQuery Wrap(DomName element) {
             return Query(m => m.Wrap(element));
         }
 
