@@ -117,7 +117,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         public IEnumerable<PropertyInfo> DomNodeProperties {
             get {
                 return typeof(DomNode).GetProperties()
-                    .Where(p => p.PropertyType == typeof(DomNode) || p.PropertyType == typeof(IEnumerable<DomNode>));
+                    .Where(p => p.PropertyType == typeof(IEnumerable<DomNode>));
             }
         }
 
@@ -135,7 +135,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var actual = typeof(DomObjectQuery).GetMethod(
                 property.Name
             );
-            Assert.NotNull(actual);
+            Assert.NotNull(actual, $"Required property {property.Name}");
             Assert.Equal(typeof(DomObjectQuery), actual.ReturnType);
         }
 

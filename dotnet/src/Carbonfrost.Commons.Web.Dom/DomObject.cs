@@ -259,6 +259,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public virtual DomNode RootNode {
+            get {
+                if (ParentNode == null) {
+                    return (DomNode) this;
+                }
+                return ParentNode.RootNode;
+            }
+        }
+
         private DomNode OwnerNode {
             get {
                 if (_Siblings != null) {
@@ -412,6 +421,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
 
             return this;
+        }
+
+        internal DomName CreateDomName(string name) {
+            return DomName.Create(name);
         }
 
         private sealed class BaseUriAnnotation {

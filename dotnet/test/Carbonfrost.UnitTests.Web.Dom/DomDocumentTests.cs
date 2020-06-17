@@ -102,6 +102,12 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void RootNode_is_same_as_self() {
+            var d = new DomDocument();
+            Assert.Same(d, d.RootNode);
+        }
+
+        [Fact]
         public void ToXml_converts_to_correct_output() {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html");

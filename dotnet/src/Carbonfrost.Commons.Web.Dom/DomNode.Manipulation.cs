@@ -218,12 +218,28 @@ namespace Carbonfrost.Commons.Web.Dom {
             return this;
         }
 
+        public DomAttribute AppendAttribute(string name) {
+            return AttributeByNameOrCreate(CreateDomName(name));
+        }
+
+        public DomAttribute AppendAttribute(DomName name) {
+            return AttributeByNameOrCreate(name);
+        }
+
         public DomAttribute AppendAttribute(string name, object value) {
             return AppendAttribute(DomName.Create(name), value);
         }
 
         public DomAttribute AppendAttribute(DomName name, object value) {
-            return AttributeByNameOrCreate(name).AppendValue(value);
+            return AppendAttribute(name).AppendValue(value);
+        }
+
+        public DomAttribute PrependAttribute(string name) {
+            return PrependAttribute(CreateDomName(name));
+        }
+
+        public DomAttribute PrependAttribute(DomName name) {
+            return AttributeByNameOrCreate(name, true);
         }
 
         public DomAttribute PrependAttribute(string name, object value) {
@@ -231,7 +247,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomAttribute PrependAttribute(DomName name, object value) {
-            return AttributeByNameOrCreate(name, true).AppendValue(value);
+            return PrependAttribute(name).AppendValue(value);
         }
 
         public DomElement AppendElement(string name) {

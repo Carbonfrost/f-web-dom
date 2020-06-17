@@ -69,7 +69,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             DomAttribute attr = html.Attributes[0];
             Assert.Same(doc, attr.OwnerDocument);
             Assert.Same(html, attr.OwnerElement);
-            Assert.Null(attr.ParentNode); // per spec
             Assert.False(doc.UnlinkedNodes.Contains(attr));
         }
 
@@ -81,7 +80,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             Assert.Same(doc, attr.OwnerDocument);
             Assert.Same(html, attr.OwnerElement);
-            Assert.Null(attr.ParentNode); // per spec
         }
 
         [Fact]
@@ -410,6 +408,31 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             attr.TextContent = "text";
 
             Assert.Equal("text", attr.TextContent);
+        }
+
+        [Fact]
+        public void OwnerElement_is_the_containing_element() {
+            DomDocument doc = new DomDocument();
+            var attr = doc.AppendElement("root").AppendAttribute("s");
+
+            Assert.Same(doc.DocumentElement, attr.OwnerElement);
+        }
+
+        [Fact]
+        public void ParentNode_and_ParentElement_is_null() {
+            DomDocument doc = new DomDocument();
+            var attr = doc.AppendElement("root").AppendAttribute("s");
+
+            Assert.Null(attr.ParentNode);
+            Assert.Null(attr.ParentElement);
+        }
+
+        [Fact]
+        public void RootNode_is_null() {
+            DomDocument doc = new DomDocument();
+            var attr = doc.AppendElement("root").AppendAttribute("s");
+
+            Assert.Null(attr.RootNode);
         }
 
     }

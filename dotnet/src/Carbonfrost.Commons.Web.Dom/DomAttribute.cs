@@ -35,6 +35,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public override DomNode RootNode {
+            get {
+                return null; // per spec
+            }
+        }
+
         public DomElement OwnerElement {
             get {
                 return (SiblingAttributes == null)
