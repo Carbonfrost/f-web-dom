@@ -305,6 +305,45 @@ namespace Carbonfrost.Commons.Web.Dom {
             throw DomFailure.CannotGenerateName(inputType);
         }
 
+        public DomPath GetDomPath(DomPathGenerator generator) {
+            if (!(NodeType == DomNodeType.Element || NodeType == DomNodeType.Attribute)) {
+                throw new NotSupportedException();
+            }
+
+            generator = generator ?? DomPathGenerator.Default;
+            IEnumerable<DomElement> ancestors;
+
+            if (this is DomElement node) {
+                ancestors = node.AncestorsAndSelf;
+            } else {
+                ancestors = ((DomElement) OwnerNode).AncestorsAndSelf;
+            }
+
+            var path = DomPath.Root;
+            foreach (var e in ancestors.Reverse()) {
+                if (!string.IsNullOrEmpty(e.Id) && generator.KeepElementId(e)) {
+                    path = DomPath.Root.Id(e.Id);
+                    continue;
+                }
+
+                int index = generator.KeepElementIndex(e) ? e.ElementPosition : -1;
+                path = path.Element(e.Name, index);
+            }
+
+            if (NodeType == DomNodeType.Attribute) {
+                path = path.Attribute(Name);
+            }
+            return path;
+        }
+
+        public DomPath GetDomPath() {
+            return GetDomPath(null);
+        }
+
+        public DomObjectQuery AsObjectQuery() {
+            return new DomObjectQuery(this);
+        }
+
         public DomObject SetName(string name) {
             return SetNameCore(DomName.Create(name));
         }

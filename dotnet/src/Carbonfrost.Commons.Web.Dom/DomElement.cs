@@ -207,6 +207,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return result;
         }
 
+        public DomElementQuery AsQuery() {
+            return new DomElementQuery(this);
+        }
+
         public new DomElement Clone() {
             return (DomElement) base.Clone();
         }

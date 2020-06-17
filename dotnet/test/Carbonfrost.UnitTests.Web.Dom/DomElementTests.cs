@@ -487,6 +487,24 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var dd = doc.CreateElement("html");
             Assert.Null(dd.NodeValue);
         }
-    }
 
+        [Fact]
+        public void ElementPosition_of_unlinked_node_is_negative_1() {
+            DomDocument doc = new DomDocument();
+            var dd = doc.CreateElement("html");
+            Assert.Equal(-1, dd.ElementPosition);
+        }
+
+        [Fact]
+        public void ElementPosition_depends_on_index_of_element() {
+            var dd = new DomDocument().AppendElement("a");
+            var a0 = dd.AppendElement("b");
+            var a1 = dd.AppendElement("b");
+            var a2 = dd.AppendElement("b");
+
+            Assert.Equal(0, a0.ElementPosition);
+            Assert.Equal(1, a1.ElementPosition);
+            Assert.Equal(2, a2.ElementPosition);
+        }
+    }
 }
