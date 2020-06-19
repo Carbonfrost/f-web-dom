@@ -139,15 +139,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public DomElementCollection Siblings {
-            get {
-                if (Parent == null) {
-                    return DomElementCollection.Empty;
-                }
-                return Parent.Elements;
-            }
-        }
-
         protected internal DomElement() {
             _name = CheckName(RequireFactoryGeneratedName(
                 GetType(),

@@ -37,7 +37,12 @@ namespace Carbonfrost.Commons.Web.Dom {
         class MinimalImpl : DomPathGenerator {
 
             public override bool KeepElementIndex(DomElement element) {
-                if (element.Siblings.Count == 1 || element.Siblings.Where(e => e.Name == element.Name).Count() == 1) {
+                if (element.Parent == null) {
+                    return false;
+                }
+
+                var sibs = element.Parent.Children;
+                if (sibs.Count == 1 || sibs.Where(e => e.Name == element.Name).Count() == 1) {
                     return false;
                 }
 

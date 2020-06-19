@@ -244,16 +244,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public IReadOnlyList<DomNode> SiblingNodes {
-            get {
-                if (ParentNode == null) {
-                    return Array.Empty<DomNode>();
-                }
-
-                return (IReadOnlyList<DomNode>) _Siblings;
-            }
-        }
-
         public IEnumerable<DomNode> FollowingNodes {
             get {
                 var result = FollowingSiblingNodes.SelectMany(t => t.DescendantNodesAndSelf);
