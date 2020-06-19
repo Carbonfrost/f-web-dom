@@ -23,7 +23,11 @@ using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomWriter : DisposableObject, IDomNodeVisitor {
+    public abstract partial class DomWriter : DisposableObject, IDomNodeVisitor {
+ 
+        public abstract DomWriteState WriteState {
+            get;
+        }
 
         public DomWriterSettings WriterSettings {
             get {
@@ -86,6 +90,16 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Create(StreamContext.FromFile(fileName), settings);
         }
 
+        public static DomWriter Compose(params DomWriter[] items) {
+            return Compose((IEnumerable<DomWriter>) items);
+        }
+
+        public static DomWriter Compose(IEnumerable<DomWriter> items) {
+            return Utility.OptimalComposite(
+                items, m => new CompositeDomWriter(m), Null
+            );
+        }
+
         public void Close() {
             Dispose(true);
         }
@@ -120,28 +134,44 @@ namespace Carbonfrost.Commons.Web.Dom {
             DomNodeVisitor.Visit(obj, this);
         }
 
-        public virtual void WriteStartElement(DomName name) {}
-        public virtual void WriteStartAttribute(DomName name) {}
-        public virtual void WriteEndAttribute() {}
+        public void WriteStartElement(string name) {
+            WriteStartElement(CreateDomName(name));
+        }
 
-        public virtual void WriteValue(string value) {}
+        public void WriteStartAttribute(string name) {
+            WriteStartAttribute(CreateDomName(name));
+        }
 
-        public virtual void WriteEndDocument() {}
+        public void WriteStartElement(string name, string namespaceUri) {
+            WriteStartElement(DomName.Create(name, namespaceUri));
+        }
 
-        public virtual void WriteDocumentType(string name, string publicId, string systemId) {}
+        public void WriteStartAttribute(string name, string namespaceUri) {
+            WriteStartAttribute(DomName.Create(name, namespaceUri));
+        }
 
-        public virtual void WriteEntityReference(string name) {}
-        public virtual void WriteProcessingInstruction(string target, string data) {}
+        public abstract void WriteStartElement(DomName name);
+        public abstract void WriteStartAttribute(DomName name);
+        public abstract void WriteEndAttribute();
 
-        public virtual void WriteNotation() {}
+        public abstract void WriteValue(string value);
 
-        public virtual void WriteComment(string data) {}
-        public virtual void WriteCDataSection(string data) {}
-        public virtual void WriteText(string data) {}
+        public abstract void WriteEndDocument();
 
-        public virtual void WriteStartDocument() {}
+        public abstract void WriteDocumentType(string name, string publicId, string systemId);
 
-        public virtual void WriteEndElement() {}
+        public abstract void WriteEntityReference(string name);
+        public abstract void WriteProcessingInstruction(string target, string data);
+
+        public abstract void WriteNotation();
+
+        public abstract void WriteComment(string data);
+        public abstract void WriteCDataSection(string data);
+        public abstract void WriteText(string data);
+
+        public abstract void WriteStartDocument();
+
+        public abstract void WriteEndElement();
 
         protected virtual void WriteElement(DomElement element) {
             if (element == null) {
@@ -301,6 +331,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         private void Visit(IEnumerable<DomObject> nodes) {
             DomNodeVisitor.VisitAll(nodes, this);
         }
-    }
 
+        private DomName CreateDomName(string name) {
+            return DomName.Create(name);
+        }
+    }
 }

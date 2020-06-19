@@ -192,7 +192,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomWriter Append() {
-            throw new NotImplementedException();
+            return DomWriter.Compose(this.Select(s => s.Append()));
         }
 
         public DomElementQuery Append(DomNode child) {

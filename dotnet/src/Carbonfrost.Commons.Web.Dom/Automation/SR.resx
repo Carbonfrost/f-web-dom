@@ -94,6 +94,9 @@
   <data name="CanReplaceOnlyWithAttribute" xml:space="preserve">
     <value>Attributes can only be replaced with other attributes.</value>
   </data>
+  <data name="InvalidWriteState" xml:space="preserve">
+    <value>Operation is valid due to the current state of the writer, `{0}`</value>
+  </data>
   <data name="NoItemCanContainWhitespace" xml:space="preserve">
     <value>No item in the collection can contain whitespace</value>
   </data>

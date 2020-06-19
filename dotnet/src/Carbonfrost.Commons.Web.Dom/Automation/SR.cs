@@ -147,6 +147,13 @@ namespace Carbonfrost.Commons.Web.Dom.Resources {
         return string.Format(Culture, ResourceFinder("CanReplaceOnlyWithAttribute") );
     }
 
+  /// <summary>Operation is valid due to the current state of the writer, `${state}`</summary>
+    internal static string InvalidWriteState(
+    object @state
+    ) {
+        return string.Format(Culture, ResourceFinder("InvalidWriteState") , @state);
+    }
+
   /// <summary>No item in the collection can contain whitespace</summary>
     internal static string NoItemCanContainWhitespace(
     

@@ -88,6 +88,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Failure.Prepare(new FormatException());
         }
 
+        public static Exception InvalidWriteState(DomWriteState s) {
+            return Failure.Prepare(new InvalidOperationException(SR.InvalidWriteState(s)));
+        }
+
         public static FormatException UnknownCombinator(char combinator) {
             return Failure.Prepare(new FormatException());
         }

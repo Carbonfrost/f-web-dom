@@ -16,79 +16,85 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    class OuterTextWriter : DomWriter {
+    class CompositeDomWriter : DomWriter {
 
-        private readonly StringBuilder _buffer;
+        private readonly DomWriter[] _writers;
+
+        public CompositeDomWriter(IEnumerable<DomWriter> writers) {
+            _writers = writers.ToArray();
+        }
 
         public override DomWriteState WriteState {
             get {
-                throw new NotSupportedException();
+                return _writers[0].WriteState;
             }
         }
 
-        public OuterTextWriter(StringBuilder buffer) {
-            _buffer = buffer;
-        }
-
-        public static string ConvertToString(IEnumerable<DomObject> objs) {
-            var builder = new StringBuilder();
-            DomNodeVisitor.VisitAll(objs, new OuterTextWriter(builder));
-            return builder.ToString();
-        }
-
-        public static string ConvertToString(DomObject obj) {
-            var builder = new StringBuilder();
-            DomNodeVisitor.Visit(obj, new OuterTextWriter(builder));
-            return builder.ToString();
-        }
-
-        public override void WriteCDataSection(string data) {
-            _buffer.Append(data);
-        }
-
-        public override void WriteEntityReference(string name) {
-            // TODO Requires DomEscaper to support named conversions; introduction of DomEntitySet
-        }
-
-        public override void WriteText(string data) {
-            _buffer.Append(data);
+        private void Each(Action<DomWriter> action) {
+            foreach (var w in _writers) {
+                action(w);
+            }
         }
 
         public override void WriteStartElement(DomName name) {
+            Each(w => w.WriteStartElement(name));
         }
 
         public override void WriteStartAttribute(DomName name) {
+            Each(w => w.WriteStartAttribute(name));
         }
 
         public override void WriteEndAttribute() {
+            Each(w => w.WriteEndAttribute());
         }
 
         public override void WriteValue(string value) {
+            Each(w => w.WriteValue(value));
         }
 
         public override void WriteEndDocument() {
+            Each(w => w.WriteEndDocument());
         }
 
         public override void WriteDocumentType(string name, string publicId, string systemId) {
+            Each(w => w.WriteDocumentType(name, publicId, systemId));
+        }
+
+        public override void WriteEntityReference(string name) {
+            Each(w => w.WriteEntityReference(name));
         }
 
         public override void WriteProcessingInstruction(string target, string data) {
+            Each(w => w.WriteProcessingInstruction(target, data));
         }
 
         public override void WriteNotation() {
+            Each(w => w.WriteNotation());
         }
 
         public override void WriteComment(string data) {
+            Each(w => w.WriteComment(data));
+        }
+
+        public override void WriteCDataSection(string data) {
+            Each(w => w.WriteCDataSection(data));
+        }
+
+        public override void WriteText(string data) {
+            Each(w => w.WriteText(data));
         }
 
         public override void WriteStartDocument() {
+            Each(w => w.WriteStartDocument());
         }
 
         public override void WriteEndElement() {
+            Each(w => w.WriteEndElement());
         }
     }
+
 }

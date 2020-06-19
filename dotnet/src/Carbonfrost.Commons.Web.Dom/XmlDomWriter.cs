@@ -1,11 +1,11 @@
 //
-// Copyright 2013, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,50 +21,56 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     class XmlDomWriter : DomWriter {
 
-        readonly XmlWriter writer;
+        private readonly XmlWriter _writer;
 
         public XmlDomWriter(XmlWriter writer) {
-            this.writer = writer;
+            _writer = writer;
+        }
+
+        public override DomWriteState WriteState {
+            get {
+                return (DomWriteState) _writer.WriteState;
+            }
         }
 
         public override void WriteDocumentType(string name, string publicId, string systemId) {
-            writer.WriteDocType(name, publicId, systemId, null);
+            _writer.WriteDocType(name, publicId, systemId, null);
         }
 
         public override void WriteStartAttribute(DomName name) {
-            writer.WriteStartAttribute(name.LocalName, name.NamespaceUri);
+            _writer.WriteStartAttribute(name.LocalName, name.NamespaceUri);
         }
 
         public override void WriteEndAttribute() {
-            writer.WriteEndAttribute();
+            _writer.WriteEndAttribute();
         }
 
         public override void WriteStartElement(DomName name) {
-            writer.WriteStartElement(name.LocalName, name.NamespaceUri);
+            _writer.WriteStartElement(name.LocalName, name.NamespaceUri);
         }
 
         public override void WriteProcessingInstruction(string target, string data) {
-            writer.WriteProcessingInstruction(target, data);
+            _writer.WriteProcessingInstruction(target, data);
         }
 
         public override void WriteValue(string value) {
-            writer.WriteValue(value);
+            _writer.WriteValue(value);
         }
 
         public override void WriteEndDocument() {
-            writer.WriteEndDocument();
+            _writer.WriteEndDocument();
         }
 
         public override void WriteStartDocument() {
-            writer.WriteStartDocument();
+            _writer.WriteStartDocument();
         }
 
         public override void WriteEntityReference(string name) {
-            writer.WriteEntityRef(name);
+            _writer.WriteEntityRef(name);
         }
 
         public override void WriteEndElement() {
-            writer.WriteEndElement();
+            _writer.WriteEndElement();
         }
 
         public override void WriteNotation() {
@@ -72,18 +78,18 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override void WriteCDataSection(string data) {
-            writer.WriteCData(data);
+            _writer.WriteCData(data);
         }
 
         public override void WriteComment(string data) {
-            writer.WriteComment(data);
+            _writer.WriteComment(data);
         }
 
         public override void WriteText(string data) {
             if (string.IsNullOrWhiteSpace(data)) {
-                writer.WriteWhitespace(data);
+                _writer.WriteWhitespace(data);
             } else {
-                writer.WriteValue(data);
+                _writer.WriteValue(data);
             }
         }
     }
