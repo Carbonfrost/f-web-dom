@@ -359,6 +359,25 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Equal(3, e.NodeDepth);
         }
 
+        [Fact]
+        public void AncestorNodesAndSelf_should_provide_expected_access() {
+            DomDocument doc = new DomDocument();
+            var e = doc.AppendElement("a").AppendElement("b").AppendElement("c").AppendElement("d");
+            Assert.HasCount(5, e.AncestorNodesAndSelf);
+            Assert.Equal("d", e.AncestorNodesAndSelf[0].LocalName);
+            Assert.Equal("a", e.AncestorNodesAndSelf[3].LocalName);
+            Assert.Equal("#document", e.AncestorNodesAndSelf.Last().LocalName);
+        }
+
+        [Fact]
+        public void AncestorNodes_should_provide_expected_access() {
+            DomDocument doc = new DomDocument();
+            var e = doc.AppendElement("a").AppendElement("b").AppendElement("c").AppendElement("d");
+            Assert.HasCount(4, e.AncestorNodes);
+            Assert.Equal("c", e.AncestorNodes[0].LocalName);
+            Assert.Equal("a", e.AncestorNodes[2].LocalName);
+            Assert.Equal("#document", e.AncestorNodes.Last().LocalName);
+        }
     }
 }
 

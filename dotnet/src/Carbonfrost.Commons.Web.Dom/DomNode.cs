@@ -137,13 +137,19 @@ namespace Carbonfrost.Commons.Web.Dom {
             get;
         }
 
-        public IEnumerable<DomNode> AncestorNodes {
+        public DomNodeCollection AncestorNodes {
             get {
-                return AncestorNodesAndSelf.Skip(1);
+                return new DefaultDomNodeCollection(this, e => e._AncestorNodesAndSelf.Skip(1));
             }
         }
 
-        public IEnumerable<DomNode> AncestorNodesAndSelf {
+        public DomNodeCollection AncestorNodesAndSelf {
+            get {
+                return new DefaultDomNodeCollection(this, e => e._AncestorNodesAndSelf);
+            }
+        }
+
+        private IEnumerable<DomNode> _AncestorNodesAndSelf {
             get {
                 var item = this;
 
@@ -154,15 +160,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public IEnumerable<DomNode> DescendantNodes {
+        public DomNodeCollection DescendantNodes {
             get {
-                return GetDescendantsNodesCore().Skip(1);
+                return new DefaultDomNodeCollection(this, e => e.GetDescendantsNodesCore().Skip(1));
             }
         }
 
-        public IEnumerable<DomNode> DescendantNodesAndSelf {
+        public DomNodeCollection DescendantNodesAndSelf {
             get {
-                return GetDescendantsNodesCore();
+                return new DefaultDomNodeCollection(this, e => e.GetDescendantsNodesCore());
             }
         }
 
@@ -254,7 +260,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public IEnumerable<DomNode> FollowingSiblingNodes {
+        public DomNodeCollection FollowingSiblingNodes {
+            get {
+                return new DefaultDomNodeCollection(this, e => e._FollowingSiblingNodes);
+            }
+        }
+
+        private IEnumerable<DomNode> _FollowingSiblingNodes {
             get {
                 for (var sibling = NextSiblingNode; sibling != null; sibling = sibling.NextSiblingNode) {
                     yield return sibling;
@@ -262,7 +274,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public IEnumerable<DomNode> PrecedingSiblingNodes {
+        public DomNodeCollection PrecedingSiblingNodes {
+            get {
+                return new DefaultDomNodeCollection(this, e => e._PrecedingSiblingNodes);
+            }
+        }
+
+        private IEnumerable<DomNode> _PrecedingSiblingNodes {
             get {
                 if (ParentNode == null) {
                     yield break;
