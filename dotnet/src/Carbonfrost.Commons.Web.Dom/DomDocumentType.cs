@@ -74,5 +74,11 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return DomNodeCollection.Empty;
             }
         }
+
+        protected override DomNode CloneCore() {
+            var result = OwnerDocument.CreateDocumentType(NodeName);
+            result.CopyAnnotationsFrom(AnnotationList);
+            return result;
+        }
     }
 }

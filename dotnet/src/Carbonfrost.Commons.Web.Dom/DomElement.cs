@@ -200,13 +200,14 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected override DomNode CloneCore() {
-            DomElement result = OwnerDocument.CreateElement(this.Name);
+            DomElement result = OwnerDocument.CreateElement(Name);
             foreach (var m in this.Attributes)
                 result.Attributes.Add(m.Clone());
 
             foreach (var m in ChildNodes) {
                 result.Append(m.Clone());
             }
+            result.CopyAnnotationsFrom(AnnotationList);
 
             return result;
         }

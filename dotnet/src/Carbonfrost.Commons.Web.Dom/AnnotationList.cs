@@ -1,5 +1,5 @@
 //
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -28,8 +27,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         public abstract IEnumerable<T> OfType<T>() where T : class;
         public abstract IEnumerable<object> OfType(Type type);
         public abstract AnnotationList Remove(object annotation);
-        public abstract AnnotationList RemoveOfType(Type type);
+        public abstract AnnotationList RemoveOfType(Type type, Action<object> onRemoved);
         public abstract bool Contains(object annotation);
+        public abstract AnnotationList Clone();
     }
 
 }

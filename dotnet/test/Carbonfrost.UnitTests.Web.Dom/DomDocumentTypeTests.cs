@@ -22,6 +22,16 @@ namespace Carbonfrost.UnitTests.Web.Dom {
     public class DomDocumentTypeTests {
 
         [Fact]
+        public void Clone_will_clone_annotations_copied_to_new_node() {
+            var doc = new DomDocument();
+
+            var node = doc.CreateDocumentType("html").AddAnnotation(new object());
+            var clone = node.Clone();
+
+            Assert.HasCount(1, clone.AnnotationList.OfType<object>());
+        }
+
+        [Fact]
         public void NodeName_is_same_as_name() {
             DomDocument doc = new DomDocument();
             var dd = doc.CreateDocumentType("html");

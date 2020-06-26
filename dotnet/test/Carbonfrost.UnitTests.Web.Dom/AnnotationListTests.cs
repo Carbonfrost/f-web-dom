@@ -1,5 +1,5 @@
 //
-// Copyright 2014, 2019 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2014, 2019-2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,6 +57,78 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             }
 
             Assert.IsInstanceOf(expected, d.AnnotationList);
+        }
+
+        [Fact]
+        public void AddAnnotation_will_clone_annotations_copied_to_new_node() {
+            var doc = new DomDocument();
+            var anno = new FLifecycleAnnotation();
+
+            var element = doc.CreateElement("a").AddAnnotation(anno);
+            var clone = element.Clone();
+
+            Assert.NotNull(clone.Annotation<FLifecycleAnnotation>());
+            Assert.NotSame(anno, clone.Annotation<FLifecycleAnnotation>());
+        }
+
+        [Fact]
+        public void AddAnnotation_will_attach_node() {
+            var doc = new DomDocument();
+            var anno = new FLifecycleAnnotation();
+
+            var element = doc.CreateElement("a").AddAnnotation(anno);
+            Assert.Same(element, anno.LastAttachingArguments);
+            Assert.Equal(1, anno.AttachingCallCount);
+        }
+
+        [Fact]
+        public void RemoveAnnotation_will_detach_node() {
+            var doc = new DomDocument();
+            var anno = new FLifecycleAnnotation();
+            doc.CreateElement("a").RemoveAnnotation(anno);
+
+            Assert.Equal(1, anno.DetachingCallCount);
+        }
+
+        [Fact]
+        public void RemoveAnnotationsOfT_will_detach_node() {
+            var doc = new DomDocument();
+            var anno = new FLifecycleAnnotation();
+            doc.CreateElement("a")
+                .AddAnnotation(anno)
+                .RemoveAnnotations<FLifecycleAnnotation>();
+
+            Assert.Equal(1, anno.DetachingCallCount);
+        }
+
+        class FLifecycleAnnotation : IDomObjectReferenceLifecycle {
+            public int AttachingCallCount {
+                get;
+                private set;
+            }
+
+            public int DetachingCallCount {
+                get;
+                private set;
+            }
+
+            public DomObject LastAttachingArguments {
+                get;
+                private set;
+            }
+
+            public void Attaching(DomObject instance) {
+                LastAttachingArguments = instance;
+                AttachingCallCount ++;
+            }
+
+            public object Clone() {
+                return new FLifecycleAnnotation();
+            }
+
+            public void Detaching() {
+                DetachingCallCount ++;
+            }
         }
     }
 }

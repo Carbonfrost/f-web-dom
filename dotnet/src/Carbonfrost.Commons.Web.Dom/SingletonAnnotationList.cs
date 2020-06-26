@@ -22,14 +22,14 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     sealed class SingletonAnnotationList : AnnotationList {
 
-        private readonly object value;
+        private readonly object _value;
 
         public SingletonAnnotationList(object value) {
-            this.value = value;
+            _value = value;
         }
 
         public override IEnumerable<T> OfType<T>() {
-            var t = value as T;
+            var t = _value as T;
 
             if (t == null) {
                 return Array.Empty<T>();
@@ -39,43 +39,54 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override bool Contains(object annotation) {
-            return object.Equals(this.value, annotation);
+            return object.Equals(_value, annotation);
+        }
+
+        public override AnnotationList Clone() {
+            if (_value is IDomObjectReferenceLifecycle cl) {
+                return new SingletonAnnotationList(cl.Clone());
+            }
+            return this;
         }
 
         public override AnnotationList Add(object annotation) {
-            if (annotation == null)
-                throw new ArgumentNullException("annotation");
-            if (value == annotation) {
+            if (annotation == null) {
+                throw new ArgumentNullException(nameof(annotation));
+            }
+            if (_value == annotation) {
                 return this;
             }
-            return new DefaultAnnotationList(value, annotation);
+            return new DefaultAnnotationList(_value, annotation);
         }
 
-        public override AnnotationList RemoveOfType(Type type) {
-            if (type == null)
-                throw new ArgumentNullException("type");
+        public override AnnotationList RemoveOfType(Type type, Action<object> onRemoved) {
+            if (type == null) {
+                throw new ArgumentNullException(nameof(type));
+            }
 
-            if (type.GetTypeInfo().IsInstanceOfType(value))
+            if (type.GetTypeInfo().IsInstanceOfType(_value)) {
+                onRemoved(_value);
                 return Empty;
-            else
-                return this;
+            }
+            return this;
         }
 
         public override AnnotationList Remove(object annotation) {
-            if (annotation == null)
-                throw new ArgumentNullException("annotation");
-            if (value == annotation) {
+            if (annotation == null) {
+                throw new ArgumentNullException(nameof(annotation));
+            }
+            if (_value == annotation) {
                 return Empty;
             }
             return this;
         }
 
         public override IEnumerable<object> OfType(Type type) {
-            if (type == null)
-                throw new ArgumentNullException("type");
-
-            if (type.GetTypeInfo().IsInstanceOfType(this.value)) {
-                return new object[] { this.value };
+            if (type == null) {
+                throw new ArgumentNullException(nameof(type));
+            }
+            if (type.GetTypeInfo().IsInstanceOfType(_value)) {
+                return new object[] { _value };
             }
             return Array.Empty<object>();
 

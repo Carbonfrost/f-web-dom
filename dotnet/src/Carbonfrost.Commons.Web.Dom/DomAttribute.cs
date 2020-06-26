@@ -107,9 +107,9 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return (IDomValue) this.content;
             }
             set {
-                ((IDomValue) this.content).Initialize(null);
+                ((IDomValue) this.content).Detaching();
                 this.content = value;
-                value.Initialize(this);
+                value.Attaching(this);
             }
         }
 

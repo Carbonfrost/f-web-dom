@@ -1,5 +1,5 @@
 //
-// Copyright 2013, 2019 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2019-2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Array.Empty<T>();
         }
 
-        public override AnnotationList RemoveOfType(Type type) {
+        public override AnnotationList RemoveOfType(Type type, Action<object> onRemoved) {
             if (type == null) {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             return this;
@@ -43,7 +43,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override AnnotationList Remove(object annotation) {
             if (annotation == null) {
-                throw new ArgumentNullException("annotation");
+                throw new ArgumentNullException(nameof(annotation));
             }
 
             return this;
@@ -51,10 +51,14 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override IEnumerable<object> OfType(Type type) {
             if (type == null) {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             return Array.Empty<object>();
+        }
+
+        public override AnnotationList Clone() {
+            return this;
         }
     }
 }

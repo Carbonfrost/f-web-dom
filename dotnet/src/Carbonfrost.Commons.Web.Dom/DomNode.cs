@@ -300,14 +300,14 @@ namespace Carbonfrost.Commons.Web.Dom {
             return CloneCore();
         }
 
-        protected virtual DomNode CloneCore() {
-            var clone = (DomNode) MemberwiseClone();
-            OwnerDocument.Track(clone);
-            return clone;
-        }
+        protected abstract DomNode CloneCore();
 
         internal static DomNode[] CloneAll(DomNode[] items) {
             return Array.ConvertAll(items, i => i.Clone());
+        }
+
+        internal static IEnumerable<DomNode> CloneAll(IEnumerable<DomNode> items) {
+            return items.Select(i => i.Clone());
         }
 
         // One day C# would support covariance here...

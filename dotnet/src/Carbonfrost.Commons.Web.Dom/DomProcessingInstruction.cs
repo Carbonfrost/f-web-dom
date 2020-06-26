@@ -136,6 +136,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Target;
         }
 
+        protected override DomNode CloneCore() {
+            var result = OwnerDocument.CreateProcessingInstruction(Target, Data);
+            result.CopyAnnotationsFrom(AnnotationList);
+            return result;
+        }
+
         public DomProcessingInstruction AppendData(string data) {
             Data += data;
             return this;

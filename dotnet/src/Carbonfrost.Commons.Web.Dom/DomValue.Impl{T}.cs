@@ -73,7 +73,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return (Impl<T>) MemberwiseClone();
             }
 
-            public virtual void Initialize(DomAttribute attribute) {
+            public virtual void SetAttribute(DomAttribute attribute) {
             }
         }
 
@@ -109,7 +109,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 }
             }
 
-            public override void Initialize(DomAttribute attribute) {
+            public override void SetAttribute(DomAttribute attribute) {
                 _attribute = attribute;
             }
         }

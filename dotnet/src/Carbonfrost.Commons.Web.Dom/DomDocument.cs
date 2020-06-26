@@ -415,7 +415,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return NodeFactory.CreateNotation(name);
         }
 
-        internal void UpdateElementIndex(string id, DomElement element) {
+        protected override DomNode CloneCore() {
+            var result = ProviderFactory.CreateDocument();
+            result.CopyAnnotationsFrom(AnnotationList);
+            Append(CloneAll(ChildNodes));
+            return result;
         }
 
         private T AddUnlinked<T>(T item) where T : DomObject {

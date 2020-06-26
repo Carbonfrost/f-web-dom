@@ -340,7 +340,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        void IDomValue.Initialize(DomAttribute attribute) {}
+        void IDomObjectReferenceLifecycle.Attaching(DomObject instance) {}
+        void IDomObjectReferenceLifecycle.Detaching() {}
+
+        object IDomObjectReferenceLifecycle.Clone() {
+            return Clone();
+        }
 
         public void UnionWith(IEnumerable<string> other) {
             if (other == null) {

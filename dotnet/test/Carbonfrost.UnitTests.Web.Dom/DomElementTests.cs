@@ -368,6 +368,16 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void Clone_will_clone_annotations_copied_to_new_node() {
+            var doc = new DomDocument();
+
+            var element = doc.CreateElement("a").AddAnnotation(new object());
+            var clone = element.Clone();
+
+            Assert.HasCount(1, clone.AnnotationList.OfType<object>());
+        }
+
+        [Fact]
         public void Unwrap_nominal() {
             DomDocument doc = new DomDocument();
             var e = doc.AppendElement("m").AppendElement("t");

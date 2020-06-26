@@ -17,14 +17,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Carbonfrost.Commons.Core.Runtime.Expressions;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomObject : IDomNameApiConventions {
+    public abstract partial class DomObject : IDomNameApiConventions {
 
-        private AnnotationList _annotations = AnnotationList.Empty;
         private IDomNodeCollection _siblingsContent;
 
         // Purely for the sake of reducing memory required by DomNode
@@ -32,13 +30,6 @@ namespace Carbonfrost.Commons.Web.Dom {
         //   DomCharacterData => string
         //   DomContainer = > DomNodeCollection corresponding to children
         internal object content;
-
-        // Only for tests
-        internal AnnotationList AnnotationList {
-            get {
-                return _annotations;
-            }
-        }
 
         public virtual string LocalName {
             get {
@@ -302,79 +293,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
 
             throw DomFailure.CannotGenerateName(inputType);
-        }
-
-        public DomObject AddAnnotation(object annotation) {
-            if (annotation == null) {
-                throw new ArgumentNullException(nameof(annotation));
-            }
-
-            _annotations = _annotations.Add(annotation);
-            return this;
-        }
-
-        public bool HasAnnotation<T>() where T : class {
-            return _annotations.OfType<T>().Any();
-        }
-
-        public bool HasAnnotation(object instance) {
-            return _annotations.Contains(instance);
-        }
-
-        public T Annotation<T>() where T : class {
-            return _annotations.OfType<T>().FirstOrDefault();
-        }
-
-        public object Annotation(Type type) {
-            if (type == null) {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            return _annotations.OfType(type).FirstOrDefault();
-        }
-
-        public DomObject AddAnnotations(IEnumerable<object> annotations) {
-            if (annotations != null) {
-                foreach (var anno in annotations) {
-                    AddAnnotation(anno);
-                }
-            }
-            return this;
-        }
-
-        public IEnumerable<object> Annotations() {
-            return Annotations<object>();
-        }
-
-        public IEnumerable<T> Annotations<T>() where T : class {
-            return _annotations.OfType<T>();
-        }
-
-        public IEnumerable<object> Annotations(Type type) {
-            return _annotations.OfType(type);
-        }
-
-        public DomObject RemoveAnnotations<T>() where T : class {
-            _annotations = _annotations.RemoveOfType(typeof(T));
-            return this;
-        }
-
-        public DomObject RemoveAnnotations(Type type) {
-            if (type == null) {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            _annotations = _annotations.RemoveOfType(type);
-            return this;
-        }
-
-        public DomObject RemoveAnnotation(object value) {
-            if (value == null) {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            _annotations = _annotations.Remove(value);
-            return this;
         }
 
         public DomObject SetName(string name) {
