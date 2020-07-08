@@ -74,6 +74,6 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         TNode Wrap(string element);
         TNode Wrap(DomName element);
-        TNode Wrap(DomNode newParent);
+        TNode Wrap(DomContainer newParent);
     }
 }

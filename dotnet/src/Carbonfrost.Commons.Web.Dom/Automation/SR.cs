@@ -147,6 +147,13 @@ namespace Carbonfrost.Commons.Web.Dom.Resources {
         return string.Format(Culture, ResourceFinder("CanReplaceOnlyWithAttribute") );
     }
 
+  /// <summary>Operation requires the node to be linked in the document</summary>
+    internal static string ExpectedToBeLinked(
+
+    ) {
+        return string.Format(Culture, ResourceFinder("ExpectedToBeLinked") );
+    }
+
   /// <summary>Operation is valid due to the current state of the writer, `${state}`</summary>
     internal static string InvalidWriteState(
     object @state

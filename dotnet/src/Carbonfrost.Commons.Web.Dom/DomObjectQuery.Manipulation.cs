@@ -141,7 +141,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Each(m => m.Wrap(element));
         }
 
-        public DomObjectQuery Wrap(DomNode newParent) {
+        public DomObjectQuery Wrap(DomContainer newParent) {
             if (newParent == null) {
                 throw new ArgumentNullException(nameof(newParent));
             }

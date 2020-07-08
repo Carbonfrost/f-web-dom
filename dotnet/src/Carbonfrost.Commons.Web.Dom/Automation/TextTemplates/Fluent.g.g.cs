@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-// File generated at 06/15/2020 14:05:34
+// File generated at 07/07/2020 23:30:04
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -94,7 +94,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomCDataSection) base.Wrap(element);
         }
 
-        public new DomCDataSection Wrap(DomNode newParent) {
+        public new DomCDataSection Wrap(DomContainer newParent) {
             return (DomCDataSection) base.Wrap(newParent);
         }
 
@@ -150,7 +150,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomComment) base.Wrap(element);
         }
 
-        public new DomComment Wrap(DomNode newParent) {
+        public new DomComment Wrap(DomContainer newParent) {
             return (DomComment) base.Wrap(newParent);
         }
 
@@ -206,7 +206,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomContainer) base.Wrap(element);
         }
 
-        public new DomContainer Wrap(DomNode newParent) {
+        public new DomContainer Wrap(DomContainer newParent) {
             return (DomContainer) base.Wrap(newParent);
         }
 
@@ -262,7 +262,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomDocument) base.Wrap(element);
         }
 
-        public new DomDocument Wrap(DomNode newParent) {
+        public new DomDocument Wrap(DomContainer newParent) {
             return (DomDocument) base.Wrap(newParent);
         }
 
@@ -318,7 +318,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomDocumentFragment) base.Wrap(element);
         }
 
-        public new DomDocumentFragment Wrap(DomNode newParent) {
+        public new DomDocumentFragment Wrap(DomContainer newParent) {
             return (DomDocumentFragment) base.Wrap(newParent);
         }
 
@@ -374,7 +374,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomDocumentType) base.Wrap(element);
         }
 
-        public new DomDocumentType Wrap(DomNode newParent) {
+        public new DomDocumentType Wrap(DomContainer newParent) {
             return (DomDocumentType) base.Wrap(newParent);
         }
 
@@ -430,7 +430,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomElement) base.Wrap(element);
         }
 
-        public new DomElement Wrap(DomNode newParent) {
+        public new DomElement Wrap(DomContainer newParent) {
             return (DomElement) base.Wrap(newParent);
         }
 
@@ -486,7 +486,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomEntity) base.Wrap(element);
         }
 
-        public new DomEntity Wrap(DomNode newParent) {
+        public new DomEntity Wrap(DomContainer newParent) {
             return (DomEntity) base.Wrap(newParent);
         }
 
@@ -542,7 +542,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomEntityReference) base.Wrap(element);
         }
 
-        public new DomEntityReference Wrap(DomNode newParent) {
+        public new DomEntityReference Wrap(DomContainer newParent) {
             return (DomEntityReference) base.Wrap(newParent);
         }
 
@@ -598,7 +598,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomNotation) base.Wrap(element);
         }
 
-        public new DomNotation Wrap(DomNode newParent) {
+        public new DomNotation Wrap(DomContainer newParent) {
             return (DomNotation) base.Wrap(newParent);
         }
 
@@ -654,7 +654,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomProcessingInstruction) base.Wrap(element);
         }
 
-        public new DomProcessingInstruction Wrap(DomNode newParent) {
+        public new DomProcessingInstruction Wrap(DomContainer newParent) {
             return (DomProcessingInstruction) base.Wrap(newParent);
         }
 
@@ -710,7 +710,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomText) base.Wrap(element);
         }
 
-        public new DomText Wrap(DomNode newParent) {
+        public new DomText Wrap(DomContainer newParent) {
             return (DomText) base.Wrap(newParent);
         }
 

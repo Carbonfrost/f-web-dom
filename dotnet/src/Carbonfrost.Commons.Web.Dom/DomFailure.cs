@@ -131,5 +131,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         public static ArgumentException NotValidNameForThisContext(string argName, IDomNameApiConventions name) {
             return Failure.Prepare(new ArgumentException(SR.NotValidNameForThisContext(name.Name), argName));
         }
+
+        public static Exception ExpectedToBeLinked() {
+            return Failure.Prepare(new InvalidOperationException(SR.ExpectedToBeLinked()));
+        }
     }
 }

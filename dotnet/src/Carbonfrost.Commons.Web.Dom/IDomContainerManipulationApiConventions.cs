@@ -43,7 +43,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         TResult RemoveChildNodes();
         TResult RemoveSelf();
         TResult SetName(string name);
-        TResult Wrap(DomNode newParent);
+        TResult Wrap(DomContainer newParent);
         TResult Wrap(string element);
     }
 }

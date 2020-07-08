@@ -358,6 +358,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var e = doc.AppendElement("a").AppendElement("b").AppendElement("c");
             Assert.Equal(3, e.NodeDepth);
         }
+
     }
 }
 

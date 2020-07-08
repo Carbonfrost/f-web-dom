@@ -7,3 +7,10 @@ output: >
     <root>
       <this><target /></this>
     </root>
+---
+case: Wrap root element
+parseAs: document
+input: >
+    <target />
+output: >
+    <this><target /></this>

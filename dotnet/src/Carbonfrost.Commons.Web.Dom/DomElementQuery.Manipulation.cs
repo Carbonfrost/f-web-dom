@@ -136,7 +136,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Query(m => m.Wrap(element));
         }
 
-        public DomElementQuery Wrap(DomNode newParent) {
+        public DomElementQuery Wrap(DomContainer newParent) {
             if (newParent == null) {
                 throw new ArgumentNullException(nameof(newParent));
             }

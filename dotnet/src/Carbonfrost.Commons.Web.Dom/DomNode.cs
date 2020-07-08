@@ -303,6 +303,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             return ParentNode;
         }
 
+        private void RequireLinked() {
+            if (IsUnlinked) {
+                throw DomFailure.ExpectedToBeLinked();
+            }
+        }
+
         public DomNode Clone() {
             return CloneCore();
         }

@@ -471,11 +471,20 @@ namespace Carbonfrost.Commons.Web.Dom {
             return result;
         }
 
-        public DomNode Wrap(DomNode newParent) {
+        public DomNode Wrap(DomContainer newParent) {
             if (newParent == null) {
                 throw new ArgumentNullException(nameof(newParent));
             }
-            if (ParentNode != null && !newParent.IsDocumentFragment) {
+
+            if (OwnerDocument.DocumentElement == this) {
+                // This is the document element, so we have to ensure that we
+                // replace in such a way that there is only one document element
+                // at a time
+                RemoveSelf();
+                OwnerDocument.Append(newParent);
+                newParent.Append(this);
+
+            } else if (ParentNode != null && !newParent.IsDocumentFragment) {
                 After(newParent);
             }
             newParent.Append(this);

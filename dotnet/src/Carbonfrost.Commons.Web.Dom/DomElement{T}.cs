@@ -119,7 +119,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (TElement) base.SetName(name);
         }
 
-        public new TElement Wrap(DomNode newParent) {
+        public new TElement Wrap(DomContainer newParent) {
             return (TElement) base.Wrap(newParent);
         }
 

@@ -27,9 +27,8 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [FixtureData("DomObjectQuery-{operation}.fixture")]
         public void Applying_operation_should_equal_expected_output(DomObjectQueryFixture f) {
             var doc = new DomDocument();
-            var input = doc.CreateDocumentFragment();
+            var input = f.LoadDocOrFragment(doc, f.Input);
             var expectedOutput = doc.CreateDocumentFragment();
-            input.LoadXml(f.Input);
             expectedOutput.LoadXml(f.Output);
 
             f.Action(
@@ -55,6 +54,9 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         public string To { get; set; } // For operations that change a name
         public string Data { get; set; } // For operations with data
         public string With { get; set; } // For operations with a node
+        public ParseAsType ParseAs { get; set; }
+
+        public enum ParseAsType { Fragment, Document, }
 
         public Action<DomObjectQuery> Action {
             get {
@@ -69,6 +71,17 @@ namespace Carbonfrost.UnitTests.Web.Dom {
                 }
                 return result;
             }
+        }
+
+        internal DomContainer LoadDocOrFragment(DomDocument doc, string xml) {
+            if (ParseAs == ParseAsType.Document) {
+                doc.LoadXml(xml);
+                return doc;
+            }
+
+            var frag = doc.CreateDocumentFragment();
+            frag.LoadXml(xml);
+            return frag;
         }
 
         private Action<DomObjectQuery> NiladicOperation() {
@@ -136,7 +149,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         private Action<DomObjectQuery> NodeOperation() {
             switch (Operation) {
                 case "wrapUsingNode":
-                    return e => e.Wrap(Nodes[0]);
+                    return e => e.Wrap((DomContainer) Nodes[0]);
                 case "prepend":
                     return e => e.Prepend(With);
                 case "append":
@@ -153,10 +166,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
         private DomNode[] Nodes {
             get {
-                var doc = new DomDocument();
-                var frag = doc.CreateDocumentFragment();
-                frag.LoadXml(With);
-                return frag.ChildNodes.ToArray();
+                return LoadDocOrFragment(new DomDocument(), With).ChildNodes.ToArray();
             }
         }
 

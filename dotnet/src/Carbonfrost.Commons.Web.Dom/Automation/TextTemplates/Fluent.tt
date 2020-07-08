@@ -81,7 +81,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (<#= type #>) base.Wrap(element);
         }
 
-        public new <#= type #> Wrap(DomNode newParent) {
+        public new <#= type #> Wrap(DomContainer newParent) {
             return (<#= type #>) base.Wrap(newParent);
         }
 
