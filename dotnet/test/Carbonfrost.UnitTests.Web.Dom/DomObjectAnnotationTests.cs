@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright 2014, 2019-2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@ using System.Linq;
 
 namespace Carbonfrost.UnitTests.Web.Dom {
 
-    public class AnnotationListTests {
+    public class DomObjectAnnotationTests {
 
         class AnnotationClass {
             internal static readonly AnnotationClass Value = new AnnotationClass();
@@ -44,19 +44,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             DomDocument d = new DomDocument();
             d.AddAnnotations(new object [] { AnnotationClass.Value, Glob.Anything, string.Empty });
             Assert.SetEqual(new object [] { AnnotationClass.Value, Glob.Anything, string.Empty }, d.Annotations());
-        }
-
-        [Theory]
-        [InlineData(0, typeof(EmptyAnnotationList))]
-        [InlineData(1, typeof(SingletonAnnotationList))]
-        [InlineData(2, typeof(DefaultAnnotationList))]
-        public void AnnotationList_should_have_correct_type(int count, Type expected) {
-            DomDocument d = new DomDocument();
-            for (int i = 0; i < count; i++) {
-                d.AddAnnotation(new AnnotationClass());
-            }
-
-            Assert.IsInstanceOf(expected, d.AnnotationList);
         }
 
         [Fact]

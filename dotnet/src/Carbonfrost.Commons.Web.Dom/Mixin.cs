@@ -67,11 +67,16 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key) {
-            TValue value;
-            if (source.TryGetValue(key, out value))
-                return value;
+            return GetValueOrDefault(source, key, default(TValue));
+        }
 
-            return default(TValue);
+        public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, TValue defaultValue) {
+            TValue value;
+            if (source.TryGetValue(key, out value)) {
+                return value;
+            }
+
+            return defaultValue;
         }
     }
 }

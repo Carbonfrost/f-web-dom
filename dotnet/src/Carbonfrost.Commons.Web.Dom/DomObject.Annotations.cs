@@ -22,10 +22,10 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     partial class DomObject {
 
-        private AnnotationList _annotations = AnnotationList.Empty;
+        private FrugalList<object> _annotations = FrugalList<object>.Empty;
 
         // Only for tests
-        internal AnnotationList AnnotationList {
+        internal FrugalList<object> AnnotationList {
             get {
                 return _annotations;
             }
@@ -108,7 +108,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return this;
         }
 
-        internal void CopyAnnotationsFrom(AnnotationList other) {
+        internal void CopyAnnotationsFrom(FrugalList<object> other) {
             _annotations = other.Clone();
         }
 
