@@ -58,6 +58,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             return attr == null ? null : attr.Value;
         }
 
+        public string Attribute(DomName name) {
+            if (name == null) {
+                throw new ArgumentNullException(nameof(name));
+            }
+            if (Attributes == null) {
+                Traceables.IgnoredAttributes();
+                return null;
+            }
+            var attr = Attributes[name];
+            return attr == null ? null : attr.Value;
+        }
+
         public bool HasClass(string name) {
             var list = Attribute<DomStringTokenList>("class");
             if (list == null) {
@@ -397,6 +409,5 @@ namespace Carbonfrost.Commons.Web.Dom {
                 }
             }
         }
-
     }
 }

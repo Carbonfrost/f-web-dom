@@ -24,11 +24,17 @@ namespace Carbonfrost.UnitTests.Web.Dom {
     static class TestExtensions {
 
         public static IEnumerable<string> NodeNames(this DomNodeCollection source) {
-            return source.Select(n => n.NodeName);
+            if (source == null) {
+                return Enumerable.Empty<string>();
+            }
+            return source.Select(n => n == null ? "<null>" : n.NodeName);
         }
 
         public static IEnumerable<string> NodeNames(this DomElementCollection source) {
-            return source.Select(n => n.NodeName);
+            if (source == null) {
+                return Enumerable.Empty<string>();
+            }
+            return source.Select(n => n == null ? "<null>" : n.NodeName);
         }
 
         internal static void CollapseWS(this DomNode node) {

@@ -27,12 +27,15 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public abstract partial class DomContainer : DomNode, IDomContainerManipulationApiConventions<DomContainer> {
 
+        private readonly MutationBatchStack _batch;
+
         protected DomContainer() : this(false) {
             // TODO Replace with linked list (performance)
         }
 
         internal DomContainer(bool useLL) {
             content = new DomNodeCollectionApi(this, NewNodeStorage(useLL));
+            _batch = new MutationBatchStack(this);
         }
 
         protected override DomNodeCollection DomChildNodes {
@@ -186,8 +189,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomContainer AddRange(params object[] content) {
-            foreach (var o in content) {
-                Add(o);
+            using (NewMutationBatch()) {
+                foreach (var o in content) {
+                    Add(o);
+                }
             }
             return this;
         }
@@ -197,11 +202,15 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomContainer AddRange(object content1, object content2) {
-            return Add(content1).Add(content2);
+            using (NewMutationBatch()) {
+                return Add(content1).Add(content2);
+            }
         }
 
         public DomContainer AddRange(object content1, object content2, object content3) {
-            return Add(content1).Add(content2).Add(content3);
+            using (NewMutationBatch()) {
+                return Add(content1).Add(content2).Add(content3);
+            }
         }
 
         public DomContainer Add(object content) {
@@ -224,18 +233,22 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return (DomContainer) Append(a);
             }
 
-            var array = content as object[];
-            if (array != null) {
-                foreach (object item in array)
-                    Add(item);
-                return this;
-            }
+            using (NewMutationBatch()) {
+                var array = content as object[];
+                if (array != null) {
+                    foreach (object item in array) {
+                        Add(item);
+                    }
+                    return this;
+                }
 
-            var enumerable = content as IEnumerable;
-            if (enumerable != null) {
-                foreach (object item in enumerable)
-                    Add(item);
-                return this;
+                var enumerable = content as IEnumerable;
+                if (enumerable != null) {
+                    foreach (object item in enumerable) {
+                        Add(item);
+                    }
+                    return this;
+                }
             }
 
             return AddString(Utility.ConvertToString(content));
@@ -349,8 +362,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         private void QueueChildren(Queue<DomElement> queue) {
-            foreach (var child in Elements)
+            foreach (var child in Elements) {
                 queue.Enqueue(child);
+            }
         }
 
         private IEnumerable<DomElement> GetAncestorsCore(bool self) {
@@ -415,6 +429,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             } else {
                 return new ListDomNodeCollection();
             }
+        }
+
+        internal void ChildNodeChanged(DomMutation mut, DomNode node, DomNode prev, DomNode next) {
+            _batch.Add(mut, node, prev, next);
         }
     }
 

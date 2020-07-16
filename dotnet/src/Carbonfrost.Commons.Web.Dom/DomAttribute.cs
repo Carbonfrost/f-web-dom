@@ -51,23 +51,27 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomAttribute PreviousAttribute {
             get {
-                if (SiblingAttributes == null)
+                if (SiblingAttributes == null) {
                     return null;
-                if (AttributePosition == 0)
+                }
+                if (AttributePosition == 0) {
                     return null;
-                else
-                    return SiblingAttributes[AttributePosition - 1];
+                }
+
+                return SiblingAttributes[AttributePosition - 1];
             }
         }
 
         public DomAttribute NextAttribute {
             get {
-                if (SiblingAttributes == null)
+                if (SiblingAttributes == null) {
                     return null;
-                if (AttributePosition == SiblingAttributes.Count - 1)
+                }
+                if (AttributePosition == SiblingAttributes.Count - 1) {
                     return null;
-                else
-                    return SiblingAttributes[AttributePosition + 1];
+                }
+
+                return SiblingAttributes[AttributePosition + 1];
             }
         }
 
@@ -89,7 +93,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public override string NodeValue { get { return Value; } }
+        public override string NodeValue {
+            get {
+                return Value;
+            }
+        }
 
         public override DomNodeType NodeType {
             get {
@@ -98,8 +106,12 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override string TextContent {
-            get { return Value; }
-            set { Value = value; }
+            get {
+                return Value;
+            }
+            set {
+                Value = value;
+            }
         }
 
         internal IDomValue DomValue {
@@ -108,14 +120,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
             set {
                 ((IDomValue) this.content).Detaching();
-                this.content = value;
+                InvalidatingValue(() => this.content = value);
                 value.Attaching(this);
             }
         }
 
         public string Value {
-            get { return DomValue.Value; }
-            set { DomValue.Value = value; }
+            get {
+                return DomValue.Value;
+            }
+            set {
+                InvalidatingValue(() => DomValue.Value = value);
+            }
         }
 
         public DomAttributeDefinition AttributeDefinition {
@@ -168,8 +184,11 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomAttribute ReplaceWith(DomAttribute other) {
             if (other == null) {
-                return RemoveSelf();
+                RemoveSelf();
+                NotifyValueChanged(Value);
+                return this;
             }
+
             OwnerElement.Attributes[SiblingIndex] = other;
             return other;
         }
@@ -187,7 +206,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 DomValue = tdv;
                 return this;
             }
-            DomValue.TypedValue = value;
+            InvalidatingValue(() => DomValue.TypedValue = value);
             return this;
         }
 
@@ -209,7 +228,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomAttribute AppendValue(object value) {
-            DomValue.AppendValue(value);
+            InvalidatingValue(() => DomValue.AppendValue(value));
             return this;
         }
 
@@ -247,6 +266,21 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override string ToString() {
             return NodeName;
+        }
+
+        private void InvalidatingValue(Action action) {
+            string oldValue = Value;
+            action();
+            if (oldValue != Value) {
+                NotifyValueChanged(oldValue);
+            }
+        }
+
+        private void NotifyValueChanged(string oldValue) {
+            if (OwnerDocument == null) {
+                return;
+            }
+            OwnerDocument.AttributeValueChanged(this, OwnerElement, oldValue);
         }
     }
 }

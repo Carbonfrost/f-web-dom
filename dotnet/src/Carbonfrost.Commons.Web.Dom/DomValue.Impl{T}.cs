@@ -129,7 +129,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
 
             protected virtual string ConvertBack(T value) {
-                return value.ToString();
+                return System.Convert.ToString(value);
             }
 
             protected virtual T Convert(string text) {

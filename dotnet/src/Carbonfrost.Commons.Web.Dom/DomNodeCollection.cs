@@ -26,13 +26,28 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         internal static readonly DomNodeCollection Empty = new EmptyDomNodeCollectionImpl();
 
-        public abstract DomNode this[int index] { get; set; }
+        public abstract DomNode this[int index] {
+            get;
+            set;
+        }
 
-        public abstract int Count { get; }
+        public abstract int Count {
+            get;
+        }
+
         public virtual bool IsReadOnly {
             get {
                 return false;
             }
+        }
+
+        internal static DomNodeCollection Create(IEnumerable<DomNode> nodes) {
+            if (nodes == null) {
+                return Empty;
+            }
+            var result = new ListDomNodeCollection();
+            result.AddRange(nodes);
+            return result;
         }
 
         internal abstract DomNode GetNextSibling(DomNode other);

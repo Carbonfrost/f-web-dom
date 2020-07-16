@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -39,6 +40,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return _items[index];
             }
             set {
+                string oldValue = _items[index].Value;
                 _items[index].Unlink();
                 value.Link(this);
 
@@ -52,6 +54,12 @@ namespace Carbonfrost.Commons.Web.Dom {
                         index--;
                     }
                 }
+
+                // Detect whether the value of the attribute effectively changed
+                if (existing >= 0 && oldValue != value.Value) {
+                    NotifyAttributeChanged(value, oldValue);
+                }
+
                 _items[index] = value;
             }
         }
@@ -79,7 +87,14 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override void Clear() {
             this.UnlinkAll(_items);
+
+            // We send notifications after the collection has been cleared to ensure
+            // that the notifications contain the current value of an attribute (which is null)
+            var notify = _items.ToList();
             _items.Clear();
+            foreach (var attr in notify) {
+                NotifyAttributeChanged(attr, attr.Value);
+            }
         }
 
         public override bool Contains(DomAttribute item) {
@@ -109,7 +124,8 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(item));
             }
             item.Unlink();
-            return _items.Remove(item);
+
+            return _items.Remove(item) && NotifyAttributeChanged(item, item.Value);
         }
 
         public override void RemoveAt(int index) {
@@ -117,6 +133,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             var item = this[index];
             item.Unlink();
             _items.RemoveAt(index);
+            NotifyAttributeChanged(item, item.Value);
         }
 
         bool IDomNodeCollection.Remove(DomObject node) {
@@ -144,6 +161,12 @@ namespace Carbonfrost.Commons.Web.Dom {
         private bool FastContains(DomAttribute item) {
             return item.SiblingAttributes == this;
         }
+
+        private bool NotifyAttributeChanged(DomAttribute item, string oldValue) {
+            item.OwnerDocument.AttributeValueChanged(item, OwnerElement, oldValue);
+            return true;
+        }
+
     }
 }
 

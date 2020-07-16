@@ -296,10 +296,14 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomObject SetName(string name) {
+            return SetNameCore(DomName.Create(name));
+        }
+
+        public DomObject SetName(DomName name) {
             return SetNameCore(name);
         }
 
-        protected virtual DomObject SetNameCore(string name) {
+        protected virtual DomObject SetNameCore(DomName name) {
             throw DomFailure.CannotSetName();
         }
 

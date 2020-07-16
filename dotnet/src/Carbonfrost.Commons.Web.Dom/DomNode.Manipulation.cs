@@ -61,33 +61,45 @@ namespace Carbonfrost.Commons.Web.Dom {
             return attr.GetValue<TValue>();
         }
 
+        public TValue Attribute<TValue>(DomName name) {
+            var attr = Attributes[name];
+            if (attr == null) {
+                return default(TValue);
+            }
+            return attr.GetValue<TValue>();
+        }
+
         public DomNode AddClass(string classNames) {
-            ApplyClass(l => l.AddRange(DomStringTokenList.Parse(classNames)));
-            return this;
+            return ApplyClass(l => l.AddRange(DomStringTokenList.Parse(classNames)));
+        }
+
+        public DomNode AddClass(params string[] classNames) {
+            return ApplyClass(l => l.AddRange(classNames));
         }
 
         public DomNode RemoveClass(string classNames) {
-            ApplyClass(l => l.RemoveRange(DomStringTokenList.Parse(classNames)));
-            return this;
+            return ApplyClass(l => l.RemoveRange(DomStringTokenList.Parse(classNames)));
         }
 
-        private void ApplyClass(Action<DomStringTokenList> action) {
+        private DomNode ApplyClass(Action<DomStringTokenList> action) {
             var list = DomStringTokenList.Parse(Attribute("class"));
             action(list);
-            Attribute("class", list.ToString());
+            return Attribute("class", list.ToString());
         }
 
         public DomNode Before(DomNode node) {
-            if (node == null)
+            if (node == null) {
                 throw new ArgumentNullException(nameof(node));
+            }
 
             RequireParent().ChildNodes.Insert(this.NodePosition, node);
             return this;
         }
 
         public DomNode After(DomNode node) {
-            if (node == null)
+            if (node == null) {
                 throw new ArgumentNullException(nameof(node));
+            }
 
             RequireParent().ChildNodes.Insert(this.NodePosition + 1, node);
             return this;
@@ -170,8 +182,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode Append(DomNode child) {
-            if (child == null)
+            if (child == null) {
                 return this;
+            }
 
             if (ChildNodes.IsReadOnly) {
                 throw DomFailure.CannotAppendChildNode();
@@ -182,12 +195,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode Append(DomObject child) {
-            if (child == null)
+            if (child == null) {
                 return this;
+            }
 
-            if (child.NodeType == DomNodeType.Attribute)
+            if (child.NodeType == DomNodeType.Attribute) {
                 Attributes.Add((DomAttribute) child);
-            else {
+            } else {
                 Append((DomNode) child);
             }
 
@@ -251,8 +265,12 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomElement AppendElement(string name) {
-            var e = this.OwnerDocumentOrSelf.CreateElement(name);
-            this.Append(e);
+            return AppendElement(CreateDomName(name));
+        }
+
+        public DomElement AppendElement(DomName name) {
+            var e = OwnerDocumentOrSelf.CreateElement(name);
+            Append(e);
             return e;
         }
 
@@ -305,6 +323,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomElement PrependElement(string name) {
+            return PrependElement(CreateDomName(name));
+        }
+
+        public DomElement PrependElement(DomName name) {
             var e = OwnerDocumentOrSelf.CreateElement(name);
             Prepend(e);
             return e;
@@ -331,8 +353,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode RemoveAttributes() {
-            if (this.Attributes != null)
-                this.Attributes.Clear();
+            if (Attributes != null) {
+                Attributes.Clear();
+            }
 
             return this;
         }
@@ -372,8 +395,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode Prepend(DomNode child) {
-            if (child != null)
+            if (child != null) {
                 ChildNodes.Insert(0, child);
+            }
 
             return this;
         }
@@ -411,8 +435,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode PrependTo(DomNode parent) {
-            if (parent == null)
+            if (parent == null) {
                 throw new ArgumentNullException(nameof(parent));
+            }
 
             parent.Prepend(this);
             return this;
@@ -422,7 +447,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomNode) base.SetName(name);
         }
 
+        public new DomNode SetName(DomName name) {
+            return (DomNode) base.SetName(name);
+        }
+
         public DomNode Wrap(string element) {
+            return Wrap(CreateDomName(element));
+        }
+
+        public DomNode Wrap(DomName element) {
             return Wrap(OwnerDocument.CreateElement(element));
         }
 

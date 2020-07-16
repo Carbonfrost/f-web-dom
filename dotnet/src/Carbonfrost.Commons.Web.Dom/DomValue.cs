@@ -49,7 +49,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         object IDomObjectReferenceLifecycle.Clone() {
             return Clone();
         }
-        
+
         public virtual DomValue Clone() {
             return new DomValue { Value = Value };
         }

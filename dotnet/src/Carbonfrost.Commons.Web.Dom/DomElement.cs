@@ -248,6 +248,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomElement) base.Attribute(name, value);
         }
 
+        public new DomElement Attribute(DomName name, object value) {
+            return (DomElement) base.Attribute(name, value);
+        }
+
         public new DomElement Append(DomNode child) {
             return (DomElement) base.Append(child);
         }
@@ -276,7 +280,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomElement) base.RemoveClass(className);
         }
 
-        protected override DomObject SetNameCore(string name) {
+        protected override DomObject SetNameCore(DomName name) {
             var newElement = OwnerDocument.CreateElement(name);
             newElement.Append(ChildNodes.ToList());
             newElement.Attributes.AddRange(Attributes.ToList());
