@@ -14,14 +14,16 @@
 // limitations under the License.
 //
 
+using System;
 using System.Collections.Generic;
 using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract partial class DomObserver : DisposableObject {
+    public abstract partial class DomObserver : DisposableObject, IObserver<DomEvent> {
 
         public static readonly DomObserver Empty = new EmptyImpl();
+        private IDisposable _lifetime = DisposableObject.Null;
 
         [DomNodeFactoryUsage]
         public static DomObserver Compose(params DomObserver[] items) {
@@ -34,26 +36,56 @@ namespace Carbonfrost.Commons.Web.Dom {
             );
         }
 
+        internal void SetLifetime(IDisposable lifetime) {
+            _lifetime = lifetime;
+        }
+
+        protected virtual void OnError(Exception error) {
+        }
+
+        protected virtual void OnMutationEvent(DomMutationEvent value) {
+        }
+
+        protected virtual void OnAttributeEvent(DomAttributeEvent value) {
+        }
+
+        protected virtual void OnEvent(DomEvent value) {
+            if (IsDisposed) {
+                return;
+            }
+
+            switch (value) {
+                case DomAttributeEvent attr:
+                    OnAttributeEvent(attr);
+                    break;
+
+                case DomMutationEvent mut:
+                    OnMutationEvent(mut);
+                    break;
+            }
+        }
+
+        protected override void Dispose(bool manualDispose) {
+            if (manualDispose) {
+                _lifetime.Dispose();
+            }
+            base.Dispose(manualDispose);
+        }
+
+        void IObserver<DomEvent>.OnCompleted() {
+        }
+
+        void IObserver<DomEvent>.OnError(Exception error) {
+            OnError(error);
+        }
+
+        void IObserver<DomEvent>.OnNext(DomEvent value) {
+            OnEvent(value);
+        }
+
         sealed class EmptyImpl : DomObserver {
         }
 
-        class CompositeObserver : DomObserver {
-
-            private readonly DomObserver[] _items;
-
-            public CompositeObserver(DomObserver[] items) {
-                _items = items;
-            }
-
-            protected override void Dispose(bool manualDispose) {
-                foreach (var i in _items) {
-                    try {
-                        i.Dispose();
-                    } catch {
-                    }
-                }
-            }
-        }
     }
 
 }

@@ -42,7 +42,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             get {
                 return new Action<DomElement>[] {
                     e => e.RemoveAttribute("attr"),
-                    e => e.Attributes.Clear(), 
+                    e => e.Attributes.Clear(),
                     e => e.Attributes.RemoveAt(0),
                     e => e.Attributes.Remove("attr"),
                     e => e.Attributes.Remove(e.Attributes.First()),
@@ -134,14 +134,14 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             var element = doc.QuerySelector("e");
 
-            var evts = new EventRecorder<DomAttributeEvent>();
-            doc.ObserveAttributes(element, evts.Handler);
+            var evts = new TestActionDispatcher<DomAttributeEvent>(_ => {});
+            doc.ObserveAttributes(element, evts.Invoke);
 
             callback(element);
 
-            Assert.HasCount(1, evts);
-            Assert.Equal("oldValue", evts[0].OldValue);
-            Assert.Equal("attr", evts[0].LocalName);
+            Assert.Equal(1, evts.CallCount);
+            Assert.Equal("oldValue", evts.ArgsForCall(0).OldValue);
+            Assert.Equal("attr", evts.ArgsForCall(0).LocalName);
         }
 
         [Theory]
@@ -153,15 +153,31 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
             var element = doc.QuerySelector("root");
 
-            var evts = new EventRecorder<DomAttributeEvent>();
-            doc.ObserveAttributes(element, evts.Handler);
+            var evts = new TestActionDispatcher<DomAttributeEvent>(_ => {});
+            doc.ObserveAttributes(element, evts.Invoke);
 
             callback(element);
 
-            Assert.HasCount(1, evts);
-            Assert.Equal("root value", evts[0].OldValue);
-            Assert.Null(evts[0].Value);
-            Assert.Equal("attr", evts[0].LocalName);
+            Assert.Equal(1, evts.CallCount);
+            Assert.Equal("root value", evts.ArgsForCall(0).OldValue);
+            Assert.Null(evts.ArgsForCall(0).Value);
+            Assert.Equal("attr", evts.ArgsForCall(0).LocalName);
+        }
+
+
+        [Fact]
+        public void ObserveAttributes_should_invoke_optimized_registration() {
+            var doc = new DomDocument();
+            doc.AppendElement("hello").AppendElement("world");
+
+            var evts = new TestActionDispatcher<DomAttributeEvent>(_ => {});
+            var observer = doc.ObserveAttributes(doc.DocumentElement, "l", evts.Invoke, DomScope.TargetAndDescendants);
+
+            doc.QuerySelectorAll("*").Attribute("l", "k");
+            Assert.Equal(2, evts.CallCount);
+            Assert.Equal("hello", evts.ArgsForCall(0).Target.LocalName);
+            Assert.Equal("world", evts.ArgsForCall(1).Target.LocalName);
+            Assert.Equal("l", evts.ArgsForCall(1).LocalName);
         }
 
         [Fact]
@@ -204,18 +220,18 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             ");
 
             var element = doc.DocumentElement;
-            var evts = new EventRecorder<DomMutationEvent>();
+            var evts = new TestActionDispatcher<DomMutationEvent>(_ => {});
             var expected = data.Event(element);
-            doc.ObserveChildNodes(element, evts.Handler);
+            doc.ObserveChildNodes(element, evts.Invoke);
 
             data.Action(element);
             var actuallyAddedNodes = data.Event(element).AddedNodes;
 
-            Assert.HasCount(1, evts);
-            Assert.Equal(actuallyAddedNodes.NodeNames(), evts[0].AddedNodes.NodeNames());
-            Assert.Equal(expected.RemovedNodes.NodeNames(), evts[0].RemovedNodes.NodeNames());
-            Assert.Same(expected.NextSiblingNode, evts[0].NextSiblingNode);
-            Assert.Same(expected.PreviousSiblingNode, evts[0].PreviousSiblingNode);
+            Assert.Equal(1, evts.CallCount);
+            Assert.Equal(actuallyAddedNodes.NodeNames(), evts.ArgsForCall(0).AddedNodes.NodeNames());
+            Assert.Equal(expected.RemovedNodes.NodeNames(), evts.ArgsForCall(0).RemovedNodes.NodeNames());
+            Assert.Same(expected.NextSiblingNode, evts.ArgsForCall(0).NextSiblingNode);
+            Assert.Same(expected.PreviousSiblingNode, evts.ArgsForCall(0).PreviousSiblingNode);
         }
 
         [Theory]
@@ -226,11 +242,11 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             ");
 
             var element = doc.DocumentElement;
-            var evts = new EventRecorder<DomMutationEvent>();
-            doc.ObserveChildNodes(element, evts.Handler);
+            var evts = new TestActionDispatcher<DomMutationEvent>(_ => {});
+            doc.ObserveChildNodes(element, evts.Invoke);
             data.Action(element);
 
-            Assert.HasCount(0, evts);
+            Assert.Equal(0, evts.CallCount);
         }
 
         [Fact]
@@ -238,12 +254,12 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var doc = new DomDocument();
             var attr = doc.AppendElement("hello").AppendAttribute("a");
 
-            var evts = new EventRecorder<DomAttributeEvent>();
-            var observer = doc.ObserveAttributes(doc.DocumentElement, evts.Handler);
+            var evts = new TestActionDispatcher<DomAttributeEvent>(_ => {});
+            var observer = doc.ObserveAttributes(doc.DocumentElement, evts.Invoke);
             observer.Dispose();
 
             attr.Value = "changed";
-            Assert.Empty(evts.Events);
+            Assert.Equal(0, evts.CallCount);
         }
 
         internal static DomMutationEvent Added(DomElement e, string nodes, string previous = null, string next = null) {
@@ -262,39 +278,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
                 previous == null ? null : e.Element(previous),
                 next == null ? null : e.Element(next)
             );
-        }
-
-        class EventRecorder<T> : IReadOnlyList<T> {
-            public readonly Action<T> Handler;
-            public readonly List<T> Events = new List<T>();
-
-            public T this[int index] {
-                get {
-                    return Events[index];
-                }
-            }
-
-            public int Count {
-                get {
-                    return Events.Count;
-                }
-            }
-
-            public EventRecorder() {
-                Handler = _Handler;
-            }
-
-            private void _Handler(T value) {
-                Events.Add(value);
-            }
-
-            public IEnumerator<T> GetEnumerator() {
-                return Events.GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator() {
-                return GetEnumerator();
-            }
         }
 
         public struct MutationData {

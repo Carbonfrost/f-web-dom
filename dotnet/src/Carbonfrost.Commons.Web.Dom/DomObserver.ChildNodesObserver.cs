@@ -19,32 +19,21 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public abstract partial class DomObserver {
 
-        internal static DomObserverBase ChildNodes(DomNode target, DomScope scope, Action<DomMutationEvent> handler) {
-            return new ChildNodesObserver(target, scope, handler);
+        internal static DomObserver ChildNodes(Action<DomMutationEvent> handler) {
+            return new ChildNodesObserver(handler);
         }
 
-        sealed class ChildNodesObserver : DomObserverBase {
+        sealed class ChildNodesObserver : DomObserver {
 
-            private Action<DomMutationEvent> _handler;
+            private readonly Action<DomMutationEvent> _handler;
 
-            internal ChildNodesObserver(DomNode target, DomScope scope, Action<DomMutationEvent> handler) : base(target, scope) {
+            internal ChildNodesObserver(Action<DomMutationEvent> handler) {
                 _handler = handler;
             }
 
-            internal override void ChildNodesChanged(DomMutation mutation, DomNode parent, DomNode[] nodes, DomNode previous, DomNode next) {
-                if (IsDisposed) {
-                    return;
-                }
-
-                var evt = DomMutationEvent.Create(mutation, parent, nodes, previous, next);
-                _handler(evt);
-            }
-
-            protected override void Dispose(bool manualDispose) {
-                _handler = null;
-                base.Dispose(manualDispose);
+            protected override void OnMutationEvent(DomMutationEvent value) {
+                _handler(value);
             }
         }
     }
-
 }

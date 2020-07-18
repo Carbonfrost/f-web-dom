@@ -54,7 +54,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 _attributeName = name;
                 _func = func;
                 _observer = DomObserver.Compose(
-                    owner.ObserveAttributes(Handler),
+                    owner.ObserveAttributes(name, Handler),
                     owner.ObserveChildNodes(Handler)
                 );
 
@@ -64,9 +64,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
 
             private void Handler(DomAttributeEvent evt) {
-                if (evt.Name != _attributeName) {
-                    return;
-                }
                 Remove(evt.OldValue, evt.Target);
                 Add(evt.Value, evt.Target);
             }

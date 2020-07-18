@@ -19,31 +19,22 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public abstract partial class DomObserver {
 
-        internal static DomObserverBase Attributes(DomNode target, DomScope scope, Action<DomAttributeEvent> handler) {
-            return new AttributeObserver(target, scope, handler);
+        internal static DomObserver Attributes(Action<DomAttributeEvent> handler) {
+            return new AttributeObserver(handler);
         }
 
-        sealed class AttributeObserver : DomObserverBase {
+        sealed class AttributeObserver : DomObserver {
 
-            private Action<DomAttributeEvent> _handler;
+            private readonly Action<DomAttributeEvent> _handler;
 
-            internal AttributeObserver(DomNode target, DomScope scope, Action<DomAttributeEvent> handler) : base(target, scope) {
+            internal AttributeObserver(Action<DomAttributeEvent> handler) {
                 _handler = handler;
             }
 
-            internal override void AttributeValueChanged(DomAttribute attr, DomElement target, string oldValue) {
-                if (IsDisposed) {
-                    return;
-                }
-
-                var evt = new DomAttributeEvent(target, attr.Name, oldValue);
-                _handler(evt);
+            protected override void OnAttributeEvent(DomAttributeEvent value) {
+                _handler(value);
             }
 
-            protected override void Dispose(bool manualDispose) {
-                _handler = null;
-                base.Dispose(manualDispose);
-            }
         }
     }
 
