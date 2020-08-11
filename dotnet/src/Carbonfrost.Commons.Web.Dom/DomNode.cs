@@ -58,6 +58,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             return attr == null ? null : attr.Value;
         }
 
+        public string Attribute(DomName name) {
+            if (name == null) {
+                throw new ArgumentNullException(nameof(name));
+            }
+            if (Attributes == null) {
+                Traceables.IgnoredAttributes();
+                return null;
+            }
+            var attr = Attributes[name];
+            return attr == null ? null : attr.Value;
+        }
+
         public bool HasClass(string name) {
             var list = Attribute<DomStringTokenList>("class");
             if (list == null) {
@@ -87,7 +99,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             return HasAttributes && Attributes.Contains(name);
         }
 
+        public bool HasAttribute(DomName name) {
+            return HasAttributes && Attributes.Contains(name);
+        }
+
         public DomNode RemoveAttribute(string name) {
+            if (HasAttributes) {
+                Attributes.Remove(name);
+            }
+            return this;
+        }
+
+        public DomNode RemoveAttribute(DomName name) {
             if (HasAttributes) {
                 Attributes.Remove(name);
             }
@@ -114,13 +137,19 @@ namespace Carbonfrost.Commons.Web.Dom {
             get;
         }
 
-        public IEnumerable<DomNode> AncestorNodes {
+        public DomNodeCollection AncestorNodes {
             get {
-                return AncestorNodesAndSelf.Skip(1);
+                return new DefaultDomNodeCollection(this, e => e._AncestorNodesAndSelf.Skip(1));
             }
         }
 
-        public IEnumerable<DomNode> AncestorNodesAndSelf {
+        public DomNodeCollection AncestorNodesAndSelf {
+            get {
+                return new DefaultDomNodeCollection(this, e => e._AncestorNodesAndSelf);
+            }
+        }
+
+        private IEnumerable<DomNode> _AncestorNodesAndSelf {
             get {
                 var item = this;
 
@@ -131,15 +160,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public IEnumerable<DomNode> DescendantNodes {
+        public DomNodeCollection DescendantNodes {
             get {
-                return GetDescendantsNodesCore().Skip(1);
+                return new DefaultDomNodeCollection(this, e => e.GetDescendantsNodesCore().Skip(1));
             }
         }
 
-        public IEnumerable<DomNode> DescendantNodesAndSelf {
+        public DomNodeCollection DescendantNodesAndSelf {
             get {
-                return GetDescendantsNodesCore();
+                return new DefaultDomNodeCollection(this, e => e.GetDescendantsNodesCore());
             }
         }
 
@@ -195,12 +224,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public virtual string Prefix {
-            get {
-                return null;
-            }
-        }
-
         public virtual string OuterText {
             get {
                 return OuterTextWriter.ConvertToString(this);
@@ -227,16 +250,6 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public IReadOnlyList<DomNode> SiblingNodes {
-            get {
-                if (ParentNode == null) {
-                    return Array.Empty<DomNode>();
-                }
-
-                return (IReadOnlyList<DomNode>) _Siblings;
-            }
-        }
-
         public IEnumerable<DomNode> FollowingNodes {
             get {
                 var result = FollowingSiblingNodes.SelectMany(t => t.DescendantNodesAndSelf);
@@ -247,7 +260,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public IEnumerable<DomNode> FollowingSiblingNodes {
+        public DomNodeCollection FollowingSiblingNodes {
+            get {
+                return new DefaultDomNodeCollection(this, e => e._FollowingSiblingNodes);
+            }
+        }
+
+        private IEnumerable<DomNode> _FollowingSiblingNodes {
             get {
                 for (var sibling = NextSiblingNode; sibling != null; sibling = sibling.NextSiblingNode) {
                     yield return sibling;
@@ -255,7 +274,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public IEnumerable<DomNode> PrecedingSiblingNodes {
+        public DomNodeCollection PrecedingSiblingNodes {
+            get {
+                return new DefaultDomNodeCollection(this, e => e._PrecedingSiblingNodes);
+            }
+        }
+
+        private IEnumerable<DomNode> _PrecedingSiblingNodes {
             get {
                 if (ParentNode == null) {
                     yield break;
@@ -296,18 +321,24 @@ namespace Carbonfrost.Commons.Web.Dom {
             return ParentNode;
         }
 
+        private void RequireLinked() {
+            if (IsUnlinked) {
+                throw DomFailure.ExpectedToBeLinked();
+            }
+        }
+
         public DomNode Clone() {
             return CloneCore();
         }
 
-        protected virtual DomNode CloneCore() {
-            var clone = (DomNode) MemberwiseClone();
-            OwnerDocument.Track(clone);
-            return clone;
-        }
+        protected abstract DomNode CloneCore();
 
         internal static DomNode[] CloneAll(DomNode[] items) {
             return Array.ConvertAll(items, i => i.Clone());
+        }
+
+        internal static IEnumerable<DomNode> CloneAll(IEnumerable<DomNode> items) {
+            return items.Select(i => i.Clone());
         }
 
         // One day C# would support covariance here...
@@ -367,6 +398,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             return this;
         }
 
+        internal virtual void NotifyParentChanged() {
+        }
+
         private void MergeAdjacentText() {
             if (ChildNodes.Count == 0) {
                 return;
@@ -397,6 +431,5 @@ namespace Carbonfrost.Commons.Web.Dom {
                 }
             }
         }
-
     }
 }

@@ -147,6 +147,20 @@ namespace Carbonfrost.Commons.Web.Dom.Resources {
         return string.Format(Culture, ResourceFinder("CanReplaceOnlyWithAttribute") );
     }
 
+  /// <summary>Operation requires the node to be linked in the document</summary>
+    internal static string ExpectedToBeLinked(
+
+    ) {
+        return string.Format(Culture, ResourceFinder("ExpectedToBeLinked") );
+    }
+
+  /// <summary>Operation is valid due to the current state of the writer, `${state}`</summary>
+    internal static string InvalidWriteState(
+    object @state
+    ) {
+        return string.Format(Culture, ResourceFinder("InvalidWriteState") , @state);
+    }
+
   /// <summary>No item in the collection can contain whitespace</summary>
     internal static string NoItemCanContainWhitespace(
     
@@ -159,6 +173,13 @@ namespace Carbonfrost.Commons.Web.Dom.Resources {
 
     ) {
         return string.Format(Culture, ResourceFinder("NotValidLocalName") );
+    }
+
+  /// <summary>Name `${what}' cannot be used in this context</summary>
+    internal static string NotValidNameForThisContext(
+    object @what
+    ) {
+        return string.Format(Culture, ResourceFinder("NotValidNameForThisContext") , @what);
     }
 
   /// <summary>Node must have a parent for this operation.</summary>

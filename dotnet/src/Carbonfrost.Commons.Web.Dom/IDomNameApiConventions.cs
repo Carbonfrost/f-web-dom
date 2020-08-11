@@ -17,6 +17,11 @@
 namespace Carbonfrost.Commons.Web.Dom {
 
     interface IDomNameApiConventions {
+
+        string Prefix {
+            get;
+        }
+
         DomName Name {
             get;
         }

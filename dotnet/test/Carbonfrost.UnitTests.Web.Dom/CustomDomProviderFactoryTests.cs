@@ -52,13 +52,36 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
         public override bool IsProviderObject(Type providerObjectType) {
             // Notice that `DerivedCustomAttribute' isn't here, but its base class is
-            // which will allow GenerateDefaultName to be invoked
+            // which will allow default name to be generated
             return providerObjectType == typeof(CustomAttribute);
         }
 
     }
 
-    class CustomWriter : DomWriter {}
+    class CustomWriter : DomWriter {
+
+        public override DomWriteState WriteState {
+            get {
+                return DomWriteState.Content;
+            }
+        }
+
+        public override void WriteStartElement(DomName name) {}
+        public override void WriteStartAttribute(DomName name) {}
+        public override void WriteEndAttribute() {}
+        public override void WriteValue(string value) {}
+        public override void WriteEndDocument() {}
+        public override void WriteDocumentType(string name, string publicId, string systemId) {}
+        public override void WriteEntityReference(string name) {}
+        public override void WriteProcessingInstruction(string target, string data) {}
+        public override void WriteNotation() {}
+        public override void WriteComment(string data) {}
+        public override void WriteCDataSection(string data) {}
+        public override void WriteText(string data) {}
+        public override void WriteStartDocument() {}
+        public override void WriteEndElement() {}
+    }
+
     class CustomReader : DomReader {
         public override DomNodeType NodeType { get; }
         public override string Name { get; }

@@ -290,7 +290,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public Type GetAttributeNodeType(string name) {
-            return GetAttributeNodeType(DomName.Create(name));
+            return GetAttributeNodeType(CreateDomName(name));
         }
 
         public virtual Type GetElementNodeType(DomName name) {
@@ -298,7 +298,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public Type GetElementNodeType(string name) {
-            return GetElementNodeType(DomName.Create(name));
+            return GetElementNodeType(CreateDomName(name));
         }
 
         public virtual Type GetProcessingInstructionNodeType(string name) {
@@ -318,7 +318,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomAttribute CreateAttribute(string name) {
-            return CreateAttribute(DomName.Create(name));
+            return CreateAttribute(CreateDomName(name));
         }
 
         public DomAttribute CreateAttribute(DomName name) {
@@ -342,19 +342,22 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomAttribute CreateAttribute(string name, IDomValue value) {
-            return CreateAttribute(DomName.Create(name), value);
+            return CreateAttribute(CreateDomName(name), value);
         }
 
         public DomAttribute CreateAttribute(string name, string value) {
-            return CreateAttribute(DomName.Create(name), value);
+            return CreateAttribute(CreateDomName(name), value);
         }
 
         protected virtual DomAttribute CreateAttributeCore(DomName name) {
-            return ApplySchema(NodeFactory.CreateAttribute(name) ?? new DomAttribute(name));
+            return ApplyNameContext(
+                this,
+                ApplySchema(NodeFactory.CreateAttribute(name) ?? new DomAttribute(name))
+            );
         }
 
         public DomElement CreateElement(string name) {
-            return CreateElement(DomName.Create(name));
+            return CreateElement(CreateDomName(name));
         }
 
         public DomElement CreateElement(DomName name) {
@@ -363,7 +366,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected virtual DomElement CreateElementCore(DomName name) {
-            return ApplySchema(NodeFactory.CreateElement(name) ?? new DomElement(name));
+            return ApplyNameContext(
+                this,
+                ApplySchema(NodeFactory.CreateElement(name) ?? new DomElement(name))
+            );
         }
 
         public DomEntityReference CreateEntityReference(string name) {
@@ -415,7 +421,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return NodeFactory.CreateNotation(name);
         }
 
-        internal void UpdateElementIndex(string id, DomElement element) {
+        protected override DomNode CloneCore() {
+            var result = ProviderFactory.CreateDocument();
+            result.CopyAnnotationsFrom(AnnotationList);
+            Append(CloneAll(ChildNodes));
+            return result;
         }
 
         private T AddUnlinked<T>(T item) where T : DomObject {

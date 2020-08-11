@@ -24,14 +24,27 @@ namespace Carbonfrost.UnitTests.Web.Dom {
 
         const string MUSHROOM_KINGDOM = "http://ns.example.com/mushroom-kingdom";
 
+        [Theory]
+        [InlineData("{http://ns.example.com/mushroom-kingdom} Mario", "F")]
+        [InlineData("Mario", "S")]
+        [InlineData("http://ns.example.com/mushroom-kingdom", "N")]
+        [InlineData("Mario", "p")]
+        [InlineData("{http://ns.example.com/mushroom-kingdom}", "m")]
+        public void ToString_should_format(string expected, string format) {
+            DomName qn = DomName.Parse("{http://ns.example.com/mushroom-kingdom} Mario");
+            Assert.Equal(expected, qn.ToString(format));
+        }
+
         [Fact]
-        public void ToString_should_format() {
+        public void ToString_should_format_default() {
             DomName qn = DomName.Parse("{http://ns.example.com/mushroom-kingdom} Mario");
             Assert.Equal("{http://ns.example.com/mushroom-kingdom} Mario", qn.ToString());
-            Assert.Equal("{http://ns.example.com/mushroom-kingdom} Mario", qn.ToString("F"));
-            Assert.Equal("Mario", qn.ToString("S"));
-            Assert.Equal("http://ns.example.com/mushroom-kingdom", qn.ToString("N"));
-            Assert.Equal("{http://ns.example.com/mushroom-kingdom}", qn.ToString("m"));
+        }
+
+        [Fact]
+        public void ToString_should_format_prefix_binding() {
+            DomName qn = DomName.Parse("{http://ns.example.com/mushroom-kingdom} Mario").WithPrefix("mk");
+            Assert.Equal("mk:Mario", qn.ToString("P"));
         }
 
         [Fact]
@@ -56,6 +69,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         [Fact]
         public void Parse_should_throw_oninvalid_names() {
             Assert.Throws<ArgumentException>(() => { DomName.Parse("*&Ma^^rio"); });
+            Assert.Throws<ArgumentException>(() => { DomName.Parse("name whitespace"); });
             Assert.Throws<ArgumentException>(() => { DomName.Parse(""); });
         }
 
@@ -86,18 +100,28 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
-        public void ChangeNamespace_should_change_nominal() {
+        public void WithNamespace_should_change_nominal() {
             DomName n = DomName.Create(DomNamespace.Default, "default");
             DomNamespace nu = DomNamespace.Create("https://example.com");
-            n = n.ChangeNamespace(nu);
+            n = n.WithNamespace(nu);
             Assert.Same(nu, n.Namespace);
         }
 
         [Fact]
-        public void ChangeLocalName_should_change_nominal() {
+        public void WithLocalName_should_change_nominal() {
             DomName n = DomName.Create(DomNamespace.Default, "default");
-            n = n.ChangeLocalName("name");
+            n = n.WithLocalName("name");
             Assert.Same("name", n.LocalName);
+        }
+
+        [Fact]
+        public void Create_should_generate_xml_semantics() {
+            var dom = DomName.Create("xmlns:a");
+            Assert.Equal("xmlns:a", dom.LocalName);
+            Assert.Null(dom.Prefix);
+            Assert.Empty(dom.NamespaceUri);
+            Assert.Equal("xmlns", dom.TryXmlSemantics().Value.Prefix);
+            Assert.Equal("a", dom.TryXmlSemantics().Value.LocalName);
         }
     }
 }

@@ -17,11 +17,16 @@
 namespace Carbonfrost.Commons.Web.Dom {
     interface IDomNodeQuery<T> where T : IDomNodeQuery<T> {
         string Attribute(string name);
+        string Attribute(DomName name);
         TValue Attribute<TValue>(string name);
+        TValue Attribute<TValue>(DomName name);
         T Attribute(string name, object value);
+        T Attribute(DomName name, object value);
         T RemoveAttribute(string name);
+        T RemoveAttribute(DomName name);
 
         bool HasAttribute(string name);
+        bool HasAttribute(DomName name);
         bool HasClass(string name);
         DomElementQuery QuerySelectorAll(string selector);
         DomElement QuerySelector(string selector);

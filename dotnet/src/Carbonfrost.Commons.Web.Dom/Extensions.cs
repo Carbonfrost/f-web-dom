@@ -23,7 +23,7 @@ namespace Carbonfrost.Commons.Web.Dom {
     public static partial class Extensions {
 
         public static DomElementCollection Descendants(this DomContainer source, string name) {
-            return source.Descendants(DomName.Create(name));
+            return source.Descendants(source.CreateDomName(name));
         }
 
         public static DomElementCollection Descendants(this DomContainer source, DomName name) {
@@ -38,7 +38,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public static DomElementCollection Elements(this DomContainer source, string name) {
-            return source.Elements(DomName.Create(name));
+            return source.Elements(source.CreateDomName(name));
         }
 
         public static DomElementCollection Elements(this DomContainer source, DomName name) {
@@ -49,7 +49,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public static DomElementCollection FollowingSiblings(this DomElement source, string name) {
-            return source.FollowingSiblings(DomName.Create(name));
+            return source.FollowingSiblings(source.CreateDomName(name));
         }
 
         public static DomElementCollection FollowingSiblings(this DomElement source, DomName name) {

@@ -78,6 +78,13 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void RootNode_is_same_as_self() {
+            DomDocument doc = new DomDocument();
+            var html = doc.AppendElement("html");
+            Assert.Same(doc, html.RootNode);
+        }
+
+        [Fact]
         public void ToXmlString_domelement() {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html");
@@ -361,6 +368,16 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void Clone_will_clone_annotations_copied_to_new_node() {
+            var doc = new DomDocument();
+
+            var element = doc.CreateElement("a").AddAnnotation(new object());
+            var clone = element.Clone();
+
+            Assert.HasCount(1, clone.AnnotationList.OfType<object>());
+        }
+
+        [Fact]
         public void Unwrap_nominal() {
             DomDocument doc = new DomDocument();
             var e = doc.AppendElement("m").AppendElement("t");
@@ -470,6 +487,24 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             var dd = doc.CreateElement("html");
             Assert.Null(dd.NodeValue);
         }
-    }
 
+        [Fact]
+        public void ElementPosition_of_unlinked_node_is_negative_1() {
+            DomDocument doc = new DomDocument();
+            var dd = doc.CreateElement("html");
+            Assert.Equal(-1, dd.ElementPosition);
+        }
+
+        [Fact]
+        public void ElementPosition_depends_on_index_of_element() {
+            var dd = new DomDocument().AppendElement("a");
+            var a0 = dd.AppendElement("b");
+            var a1 = dd.AppendElement("b");
+            var a2 = dd.AppendElement("b");
+
+            Assert.Equal(0, a0.ElementPosition);
+            Assert.Equal(1, a1.ElementPosition);
+            Assert.Equal(2, a2.ElementPosition);
+        }
+    }
 }

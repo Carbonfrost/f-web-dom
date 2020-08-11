@@ -1,5 +1,5 @@
 //
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml;
 using Carbonfrost.Commons.Core;
 
@@ -45,6 +46,25 @@ namespace Carbonfrost.Commons.Web.Dom {
                 yield return type;
                 type = type.GetTypeInfo().BaseType;
             }
+        }
+
+        public static bool IsWhitespace(char c) {
+            return c == ' ' || c == '\t' || c == '\n' || c == '\f' || c == '\r';
+        }
+
+        public static bool IsAllWhitespace(string text) {
+            if (string.IsNullOrEmpty(text)) {
+                return true;
+            }
+
+            int l = text.Length;
+            foreach (char c in text) {
+                if (!IsWhitespace(c)) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public static string ConvertToString(object value) {

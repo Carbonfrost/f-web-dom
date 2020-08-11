@@ -71,7 +71,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public DomDocumentFragment Load(StreamContext input) {
             if (input == null) {
-                throw new ArgumentNullException("input");
+                throw new ArgumentNullException(nameof(input));
             }
 
             LoadText(input.OpenText());
@@ -105,6 +105,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         public DomDocumentFragment WithSchema(DomSchema schema) {
             var result = OwnerDocument.WithSchema(schema).CreateDocumentFragment();
             CopyContentsTo(result);
+            return result;
+        }
+
+        protected override DomNode CloneCore() {
+            var result = OwnerDocument.CreateDocumentFragment();
+            result.CopyAnnotationsFrom(AnnotationList);
+            Append(CloneAll(ChildNodes));
             return result;
         }
     }

@@ -14,14 +14,15 @@
 // limitations under the License.
 //
 
+using System;
 using System.Linq;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
     public partial class DomElement : DomContainer, IDomContainerManipulationApiConventions<DomElement> {
 
-        private readonly DomAttributeCollection _attributes;
-        private readonly DomName _name;
+        private readonly DomAttributeCollectionApi _attributes;
+        private DomName _name;
 
         public bool HasElements {
             get {
@@ -114,13 +115,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override DomName Name {
             get {
-                return _name;
-            }
-        }
-
-        public override DomNamespace Namespace {
-            get {
-                return _name.Namespace;
+                return _name.Resolve(NameContext);
             }
         }
 
@@ -144,21 +139,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public DomElementCollection Siblings {
-            get {
-                if (Parent == null) {
-                    return DomElementCollection.Empty;
-                }
-                return Parent.Elements;
-            }
-        }
-
         protected internal DomElement() {
             _name = CheckName(RequireFactoryGeneratedName(
                 GetType(),
                 (e, t) => e.GetElementName(t)
             ));
-            _attributes = new DomAttributeCollectionApi(this, new DomAttributeCollectionImpl());
+            _attributes = new DomAttributeCollectionApi(this);
         }
 
         protected internal DomElement(string name) : this(DomName.Create(name)) {
@@ -166,7 +152,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected internal DomElement(DomName name) {
             _name = CheckName(name);
-            _attributes = new DomAttributeCollectionApi(this, new DomAttributeCollectionImpl());
+            _attributes = new DomAttributeCollectionApi(this);
         }
 
         public override DomElementCollection DescendantsAndSelf {
@@ -180,7 +166,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override string NodeName {
             get {
-                return _name.LocalName;
+                return Name.LocalName;
             }
         }
 
@@ -200,15 +186,20 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected override DomNode CloneCore() {
-            DomElement result = OwnerDocument.CreateElement(this.Name);
-            foreach (var m in this.Attributes)
+            DomElement result = OwnerDocument.CreateElement(Name);
+            foreach (var m in Attributes) {
                 result.Attributes.Add(m.Clone());
-
+            }
             foreach (var m in ChildNodes) {
                 result.Append(m.Clone());
             }
+            result.CopyAnnotationsFrom(AnnotationList);
 
             return result;
+        }
+
+        public DomElementQuery AsQuery() {
+            return new DomElementQuery(this);
         }
 
         public new DomElement Clone() {
@@ -247,11 +238,19 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomElement) base.Attribute(name, value);
         }
 
+        public new DomElement Attribute(DomName name, object value) {
+            return (DomElement) base.Attribute(name, value);
+        }
+
         public new DomElement Append(DomNode child) {
             return (DomElement) base.Append(child);
         }
 
         public new DomElement RemoveAttribute(string name) {
+            return (DomElement) base.RemoveAttribute(name);
+        }
+
+        public new DomElement RemoveAttribute(DomName name) {
             return (DomElement) base.RemoveAttribute(name);
         }
 
@@ -271,14 +270,23 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomElement) base.AddClass(className);
         }
 
+        public new DomElement AddClass(params string[] classNames) {
+            return (DomElement) base.AddClass(classNames);
+        }
+
         public new DomElement RemoveClass(string className) {
             return (DomElement) base.RemoveClass(className);
         }
 
-        protected override DomObject SetNameCore(string name) {
+        public new DomElement RemoveClass(params string[] classNames) {
+            return (DomElement) base.RemoveClass(classNames);
+        }
+
+        protected override DomObject SetNameCore(DomName name) {
             var newElement = OwnerDocument.CreateElement(name);
             newElement.Append(ChildNodes.ToList());
             newElement.Attributes.AddRange(Attributes.ToList());
+            newElement.CopyAnnotationsFrom(AnnotationList);
             return ReplaceWith(newElement);
         }
 
@@ -286,6 +294,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (IsDocumentElement && Elements.Count > 1) {
                 throw DomFailure.CannotUnwrapWouldCreateMalformedDocument();
             }
+        }
+
+        internal override void NotifyNameContextChanged() {
+            _attributes.SetComparer(NameContext.Comparer);
+            base.NotifyNameContextChanged();
         }
 
         public override DomNodeType NodeType {

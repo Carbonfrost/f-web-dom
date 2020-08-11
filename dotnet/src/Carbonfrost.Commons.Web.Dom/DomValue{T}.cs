@@ -46,12 +46,19 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        protected virtual void Initialize(DomAttribute attribute) {
-            _impl.Initialize(attribute);
+        protected virtual void Attaching(DomAttribute attribute) {
+            _impl.SetAttribute(attribute);
         }
 
-        void IDomValue.Initialize(DomAttribute attribute) {
-            Initialize(attribute);
+        protected virtual void Detaching() {
+            _impl.SetAttribute(null);
+        }
+
+        void IDomObjectReferenceLifecycle.Attaching(DomObject instance) {
+            Attaching((DomAttribute) instance);
+        }
+
+        void IDomObjectReferenceLifecycle.Detaching() {
         }
 
         protected virtual string ConvertBack(T value) {
@@ -103,6 +110,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         IDomValue IDomValue.Clone() {
+            return Clone();
+        }
+
+        object IDomObjectReferenceLifecycle.Clone() {
             return Clone();
         }
     }

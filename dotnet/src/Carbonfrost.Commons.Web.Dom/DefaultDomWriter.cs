@@ -27,14 +27,20 @@ namespace Carbonfrost.Commons.Web.Dom {
         private readonly Stack<DomElementState> _elements = new Stack<DomElementState>();
         private readonly Dictionary<int, string> _indentStringCache = new Dictionary<int, string>();
 
-        private readonly string _spaceAfterAttributes = " ";
         private bool _needIndent;
         private readonly string _spaceAroundAttributeEqual;
         private readonly string _quoteChar;
+        private readonly DomWriterStateMachine _state;
 
         private int Depth {
             get {
                 return _elements.Count - 1;
+            }
+        }
+
+        public override DomWriteState WriteState {
+            get {
+                return _state.WriteState;
             }
         }
 
@@ -50,17 +56,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         public DefaultDomWriter(TextWriter writer, DomWriterSettings settings) : base(settings) {
             _writer = writer;
 
-            _spaceAfterAttributes = " ";
             _spaceAroundAttributeEqual = WriterSettings.Indent ? " " : "";
             _quoteChar = WriterSettings.QuoteAttributesCharacter.ToChar();
-
-            if (WriterSettings.Indent) {
-                // No space after attributes because we break lines
-                _spaceAfterAttributes = "";
-            }
+            _state = new DomWriterStateMachine();
         }
 
         public override void WriteStartElement(DomName name) {
+            _state.StartElement();
             ImpliesElementWithChildNodes();
 
             var element = new DomElementState(name.LocalName);
@@ -68,6 +70,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override void WriteStartAttribute(DomName name) {
+            _state.StartAttribute();
             Element.Attributes.Add(new DomAttributeState(name.LocalName, ""));
         }
 
@@ -83,9 +86,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override void WriteEndAttribute() {
+            _state.EndAttribute();
         }
 
         public override void WriteValue(string value) {
+            _state.Value();
             int last = Element.Attributes.Count - 1;
             Element.Attributes[last] = new DomAttributeState(
                 Element.Attributes[last].Name,
@@ -94,9 +99,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override void WriteEndDocument() {
+            _state.EndDocument();
         }
 
         public override void WriteDocumentType(string name, string publicId, string systemId) {
+            _state.DocumentType();
             Append("<!DOCTYPE ");
             Append(name);
 
@@ -116,9 +123,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override void WriteEntityReference(string name) {
+            _state.EntityReference();
         }
 
         public override void WriteProcessingInstruction(string target, string data) {
+            _state.ProcessingInstruction();
             Append("<?");
             Append(target);
             if (!string.IsNullOrEmpty(data)) {
@@ -129,30 +138,36 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public override void WriteNotation() {
+            _state.Notation();
         }
 
         public override void WriteComment(string data) {
+            _state.Comment();
             Append("<!--");
             Append(data);
             Append("-->");
         }
 
         public override void WriteCDataSection(string data) {
+            _state.CDataSection();
             Append("<![CDATA[");
             Append(data);
             Append("]]>");
         }
 
         public override void WriteText(string data) {
+            _state.Text();
             ImpliesElementWithChildNodes();
             Append(EscapeText(data));
             _needIndent = true;
         }
 
         public override void WriteStartDocument() {
+            _state.StartDocument();
         }
 
         public override void WriteEndElement() {
+            _state.EndElement();
             if (!Element.HasChildNodes) {
                 StartTag(Element, true);
                 _elements.Pop();

@@ -88,6 +88,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Failure.Prepare(new FormatException());
         }
 
+        public static Exception InvalidWriteState(DomWriteState s) {
+            return Failure.Prepare(new InvalidOperationException(SR.InvalidWriteState(s)));
+        }
+
         public static FormatException UnknownCombinator(char combinator) {
             return Failure.Prepare(new FormatException());
         }
@@ -122,6 +126,14 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public static ArgumentException NotValidLocalName(string argName) {
             return Failure.Prepare(new ArgumentException(SR.NotValidLocalName(), argName));
+        }
+
+        public static ArgumentException NotValidNameForThisContext(string argName, IDomNameApiConventions name) {
+            return Failure.Prepare(new ArgumentException(SR.NotValidNameForThisContext(name.Name), argName));
+        }
+
+        public static Exception ExpectedToBeLinked() {
+            return Failure.Prepare(new InvalidOperationException(SR.ExpectedToBeLinked()));
         }
     }
 }

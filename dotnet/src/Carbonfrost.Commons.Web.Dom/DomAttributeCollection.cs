@@ -46,6 +46,15 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        internal virtual IEqualityComparer<DomName> _Comparer {
+            get {
+                return null;
+            }
+        }
+
+        internal DomAttributeCollection() {
+        }
+
         public virtual void InsertRange(int index, IEnumerable<DomAttribute> items) {
             if (items == null) {
                 throw new ArgumentNullException(nameof(items));
@@ -96,15 +105,18 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public bool Remove(string name) {
-            var attr = IndexOf(name);
-            if (attr < 0) {
-                return false;
-            }
-            RemoveAt(attr);
-            return true;
+            return SafeRemoveAt(IndexOf(name));
+        }
+
+        public bool Remove(DomName name) {
+            return SafeRemoveAt(IndexOf(name));
         }
 
         public virtual bool Contains(string name) {
+            return IndexOf(name) >= 0;
+        }
+
+        public virtual bool Contains(DomName name) {
             return IndexOf(name) >= 0;
         }
 
@@ -121,6 +133,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        private bool SafeRemoveAt(int index) {
+            if (index < 0) {
+                return false;
+            }
+            RemoveAt(index);
+            return true;
+        }
 
         internal static DomName RequireName(DomName name) {
             if (name == null) {

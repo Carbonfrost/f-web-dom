@@ -20,68 +20,104 @@ namespace Carbonfrost.Commons.Web.Dom {
 
     public class DomNodeWriter : DomWriter {
 
-        // TODO Node reader/writer
-
-        private DomNode node;
+        private DomNode _current;
+        private DomAttribute _attribute;
+        private readonly DomWriterStateMachine _state;
 
         public DomNodeWriter(DomNode node) {
-            this.node = node;
+            if (node == null) {
+                throw new ArgumentNullException(nameof(node));
+            }
+
+            _current = node;
+            _state = new DomWriterStateMachine();
+
+            if (node.NodeType == DomNodeType.Element) {
+                _state.Transition(DomWriteState.Element);
+            }
+        }
+
+        public override DomWriteState WriteState {
+            get {
+                return _state.WriteState;
+            }
         }
 
         public override void WriteStartElement(DomName name) {
-            throw new NotImplementedException();
+            _state.StartElement();
+            _current = _current.AppendElement(name);
+            _attribute = null;
         }
 
         public override void WriteStartAttribute(DomName name) {
-            throw new NotImplementedException();
+            _state.StartAttribute();
+            _attribute = _current.AppendAttribute(name);
         }
 
         public override void WriteEndAttribute() {
-            throw new NotImplementedException();
+            _state.EndAttribute();
+            _attribute = null;
         }
 
         public override void WriteValue(string value) {
-            throw new NotImplementedException();
+            _state.Value();
+            if (_attribute != null) {
+                _attribute.AppendValue(value);
+            } else {
+                _current.AppendText(value);
+            }
         }
 
         public override void WriteEndDocument() {
-            throw new NotImplementedException();
+            _state.EndDocument();
+            _current = null;
+            _attribute = null;
         }
 
         public override void WriteDocumentType(string name, string publicId, string systemId) {
-            throw new NotImplementedException();
+            _state.DocumentType();
+            var doc = _current.AppendDocumentType(name);
+            doc.PublicId = publicId;
+            doc.SystemId = systemId;
         }
 
         public override void WriteEntityReference(string name) {
+            _state.EntityReference();
             throw new NotImplementedException();
         }
 
         public override void WriteProcessingInstruction(string target, string data) {
-            throw new NotImplementedException();
+            _state.ProcessingInstruction();
+            _current.AppendProcessingInstruction(target, data);
         }
 
         public override void WriteNotation() {
+            _state.Notation();
             throw new NotImplementedException();
         }
 
         public override void WriteComment(string data) {
-            throw new NotImplementedException();
+            _state.Comment();
+            _current.AppendComment(data);
         }
 
         public override void WriteCDataSection(string data) {
-            throw new NotImplementedException();
+            _state.CDataSection();
+            _current.AppendCDataSection(data);
         }
 
         public override void WriteText(string data) {
-            throw new NotImplementedException();
+            _state.Text();
+            _current.AppendText(data);
         }
 
         public override void WriteStartDocument() {
-            throw new NotImplementedException();
+            _state.StartDocument();
         }
 
         public override void WriteEndElement() {
-            throw new NotImplementedException();
+            _state.EndElement();
+            _current = _current.ParentNode;
         }
 
     }

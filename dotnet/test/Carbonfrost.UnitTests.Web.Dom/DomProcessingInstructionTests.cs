@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 
-using System;
 using System.Linq;
 using Carbonfrost.Commons.Spec;
 using Carbonfrost.Commons.Web.Dom;
@@ -22,6 +21,16 @@ using Carbonfrost.Commons.Web.Dom;
 namespace Carbonfrost.UnitTests.Web.Dom {
 
     public class DomProcessingInstructionTests {
+
+        [Fact]
+        public void Clone_will_clone_annotations_copied_to_new_node() {
+            var doc = new DomDocument();
+
+            var node = doc.CreateProcessingInstruction("a").AddAnnotation(new object());
+            var clone = node.Clone();
+
+            Assert.HasCount(1, clone.AnnotationList.OfType<object>());
+        }
 
         [Fact]
         public void CreateProcessingInstruction_nominal() {
@@ -34,6 +43,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Null(pi.Prefix);
             Assert.Null(pi.LocalName);
             Assert.Null(pi.NamespaceUri);
+            Assert.Null(pi.Name);
             Assert.Equal("hello", pi.NodeName);
             Assert.Equal(0, pi.ChildNodes.Count);
             Assert.Equal((DomNodeType) 7, pi.NodeType);

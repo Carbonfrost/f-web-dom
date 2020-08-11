@@ -16,11 +16,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
     class DomAttributeCollectionApi : DomAttributeCollection, IDomNodeCollection {
-        private readonly DomAttributeCollection _items;
+        private DomAttributeCollectionImpl _items;
         private readonly DomElement _owner;
 
         internal DomElement OwnerElement {
@@ -29,9 +30,9 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public DomAttributeCollectionApi(DomElement owner, DomAttributeCollection items) {
+        public DomAttributeCollectionApi(DomElement owner) {
             _owner = owner;
-            _items = items;
+            _items = new DomAttributeCollectionImpl(new List<DomAttribute>(), owner.NameContext.Comparer);
         }
 
         public override DomAttribute this[int index] {
@@ -39,6 +40,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return _items[index];
             }
             set {
+                string oldValue = _items[index].Value;
                 _items[index].Unlink();
                 value.Link(this);
 
@@ -52,6 +54,12 @@ namespace Carbonfrost.Commons.Web.Dom {
                         index--;
                     }
                 }
+
+                // Detect whether the value of the attribute effectively changed
+                if (existing >= 0 && oldValue != value.Value) {
+                    NotifyAttributeChanged(value, oldValue);
+                }
+
                 _items[index] = value;
             }
         }
@@ -59,6 +67,12 @@ namespace Carbonfrost.Commons.Web.Dom {
         public override DomAttribute this[DomName name] {
             get {
                 return _items[name];
+            }
+        }
+
+        internal override IEqualityComparer<DomName> _Comparer {
+            get {
+                return _items._Comparer;
             }
         }
 
@@ -79,7 +93,14 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override void Clear() {
             this.UnlinkAll(_items);
+
+            // We send notifications after the collection has been cleared to ensure
+            // that the notifications contain the current value of an attribute (which is null)
+            var notify = _items.ToList();
             _items.Clear();
+            foreach (var attr in notify) {
+                NotifyAttributeChanged(attr, attr.Value);
+            }
         }
 
         public override bool Contains(DomAttribute item) {
@@ -109,7 +130,8 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(item));
             }
             item.Unlink();
-            return _items.Remove(item);
+
+            return _items.Remove(item) && NotifyAttributeChanged(item, item.Value);
         }
 
         public override void RemoveAt(int index) {
@@ -117,6 +139,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             var item = this[index];
             item.Unlink();
             _items.RemoveAt(index);
+            NotifyAttributeChanged(item, item.Value);
         }
 
         bool IDomNodeCollection.Remove(DomObject node) {
@@ -143,6 +166,20 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         private bool FastContains(DomAttribute item) {
             return item.SiblingAttributes == this;
+        }
+
+        private bool NotifyAttributeChanged(DomAttribute item, string oldValue) {
+            item.OwnerDocument.AttributeValueChanged(item, OwnerElement, oldValue);
+            return true;
+        }
+
+        internal void SetComparer(DomNameComparer comparer) {
+            _items = _items.SetComparer(
+                comparer, attr => {
+                    attr.Unlink();
+                    NotifyAttributeChanged(attr, attr.Value);
+                }
+            );
         }
     }
 }

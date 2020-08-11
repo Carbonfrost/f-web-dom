@@ -14,7 +14,7 @@ dotnet/generate:
 dotnet/test: dotnet/publish -dotnet/test
 
 -dotnet/test:
-	$(Q) fspec -i dotnet/test/Carbonfrost.UnitTests.Web.Dom/Content \
+	$(Q) fspec $(FSPEC_OPTIONS) -i dotnet/test/Carbonfrost.UnitTests.Web.Dom/Content \
 		dotnet/test/Carbonfrost.UnitTests.Web.Dom/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.UnitTests.Web.Dom.dll
 
 ## Run unit tests with code coverage

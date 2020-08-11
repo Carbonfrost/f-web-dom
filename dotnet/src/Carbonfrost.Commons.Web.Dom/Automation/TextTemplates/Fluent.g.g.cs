@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-// File generated at 06/11/2020 23:32:41
+// File generated at 07/07/2020 23:30:04
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -35,6 +35,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public new DomAttribute SetName(string name) {
+            return (DomAttribute) base.SetName(name);
+        }
+
+        public new DomAttribute SetName(DomName name) {
             return (DomAttribute) base.SetName(name);
         }
 
@@ -73,6 +77,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomCDataSection) base.SetName(name);
         }
 
+        public new DomCDataSection SetName(DomName name) {
+            return (DomCDataSection) base.SetName(name);
+        }
+
     
         public new DomCDataSection CompressWhitespace() {
             return (DomCDataSection) base.CompressWhitespace();
@@ -82,7 +90,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomCDataSection) base.Wrap(element);
         }
 
-        public new DomCDataSection Wrap(DomNode newParent) {
+        public new DomCDataSection Wrap(DomName element) {
+            return (DomCDataSection) base.Wrap(element);
+        }
+
+        public new DomCDataSection Wrap(DomContainer newParent) {
             return (DomCDataSection) base.Wrap(newParent);
         }
 
@@ -121,6 +133,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomComment) base.SetName(name);
         }
 
+        public new DomComment SetName(DomName name) {
+            return (DomComment) base.SetName(name);
+        }
+
     
         public new DomComment CompressWhitespace() {
             return (DomComment) base.CompressWhitespace();
@@ -130,7 +146,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomComment) base.Wrap(element);
         }
 
-        public new DomComment Wrap(DomNode newParent) {
+        public new DomComment Wrap(DomName element) {
+            return (DomComment) base.Wrap(element);
+        }
+
+        public new DomComment Wrap(DomContainer newParent) {
             return (DomComment) base.Wrap(newParent);
         }
 
@@ -169,6 +189,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomContainer) base.SetName(name);
         }
 
+        public new DomContainer SetName(DomName name) {
+            return (DomContainer) base.SetName(name);
+        }
+
     
         public new DomContainer CompressWhitespace() {
             return (DomContainer) base.CompressWhitespace();
@@ -178,7 +202,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomContainer) base.Wrap(element);
         }
 
-        public new DomContainer Wrap(DomNode newParent) {
+        public new DomContainer Wrap(DomName element) {
+            return (DomContainer) base.Wrap(element);
+        }
+
+        public new DomContainer Wrap(DomContainer newParent) {
             return (DomContainer) base.Wrap(newParent);
         }
 
@@ -217,6 +245,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomDocument) base.SetName(name);
         }
 
+        public new DomDocument SetName(DomName name) {
+            return (DomDocument) base.SetName(name);
+        }
+
     
         public new DomDocument CompressWhitespace() {
             return (DomDocument) base.CompressWhitespace();
@@ -226,7 +258,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomDocument) base.Wrap(element);
         }
 
-        public new DomDocument Wrap(DomNode newParent) {
+        public new DomDocument Wrap(DomName element) {
+            return (DomDocument) base.Wrap(element);
+        }
+
+        public new DomDocument Wrap(DomContainer newParent) {
             return (DomDocument) base.Wrap(newParent);
         }
 
@@ -265,6 +301,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomDocumentFragment) base.SetName(name);
         }
 
+        public new DomDocumentFragment SetName(DomName name) {
+            return (DomDocumentFragment) base.SetName(name);
+        }
+
     
         public new DomDocumentFragment CompressWhitespace() {
             return (DomDocumentFragment) base.CompressWhitespace();
@@ -274,7 +314,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomDocumentFragment) base.Wrap(element);
         }
 
-        public new DomDocumentFragment Wrap(DomNode newParent) {
+        public new DomDocumentFragment Wrap(DomName element) {
+            return (DomDocumentFragment) base.Wrap(element);
+        }
+
+        public new DomDocumentFragment Wrap(DomContainer newParent) {
             return (DomDocumentFragment) base.Wrap(newParent);
         }
 
@@ -313,6 +357,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomDocumentType) base.SetName(name);
         }
 
+        public new DomDocumentType SetName(DomName name) {
+            return (DomDocumentType) base.SetName(name);
+        }
+
     
         public new DomDocumentType CompressWhitespace() {
             return (DomDocumentType) base.CompressWhitespace();
@@ -322,7 +370,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomDocumentType) base.Wrap(element);
         }
 
-        public new DomDocumentType Wrap(DomNode newParent) {
+        public new DomDocumentType Wrap(DomName element) {
+            return (DomDocumentType) base.Wrap(element);
+        }
+
+        public new DomDocumentType Wrap(DomContainer newParent) {
             return (DomDocumentType) base.Wrap(newParent);
         }
 
@@ -361,6 +413,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomElement) base.SetName(name);
         }
 
+        public new DomElement SetName(DomName name) {
+            return (DomElement) base.SetName(name);
+        }
+
     
         public new DomElement CompressWhitespace() {
             return (DomElement) base.CompressWhitespace();
@@ -370,7 +426,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomElement) base.Wrap(element);
         }
 
-        public new DomElement Wrap(DomNode newParent) {
+        public new DomElement Wrap(DomName element) {
+            return (DomElement) base.Wrap(element);
+        }
+
+        public new DomElement Wrap(DomContainer newParent) {
             return (DomElement) base.Wrap(newParent);
         }
 
@@ -409,6 +469,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomEntity) base.SetName(name);
         }
 
+        public new DomEntity SetName(DomName name) {
+            return (DomEntity) base.SetName(name);
+        }
+
     
         public new DomEntity CompressWhitespace() {
             return (DomEntity) base.CompressWhitespace();
@@ -418,7 +482,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomEntity) base.Wrap(element);
         }
 
-        public new DomEntity Wrap(DomNode newParent) {
+        public new DomEntity Wrap(DomName element) {
+            return (DomEntity) base.Wrap(element);
+        }
+
+        public new DomEntity Wrap(DomContainer newParent) {
             return (DomEntity) base.Wrap(newParent);
         }
 
@@ -457,6 +525,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomEntityReference) base.SetName(name);
         }
 
+        public new DomEntityReference SetName(DomName name) {
+            return (DomEntityReference) base.SetName(name);
+        }
+
     
         public new DomEntityReference CompressWhitespace() {
             return (DomEntityReference) base.CompressWhitespace();
@@ -466,7 +538,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomEntityReference) base.Wrap(element);
         }
 
-        public new DomEntityReference Wrap(DomNode newParent) {
+        public new DomEntityReference Wrap(DomName element) {
+            return (DomEntityReference) base.Wrap(element);
+        }
+
+        public new DomEntityReference Wrap(DomContainer newParent) {
             return (DomEntityReference) base.Wrap(newParent);
         }
 
@@ -505,6 +581,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomNotation) base.SetName(name);
         }
 
+        public new DomNotation SetName(DomName name) {
+            return (DomNotation) base.SetName(name);
+        }
+
     
         public new DomNotation CompressWhitespace() {
             return (DomNotation) base.CompressWhitespace();
@@ -514,7 +594,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomNotation) base.Wrap(element);
         }
 
-        public new DomNotation Wrap(DomNode newParent) {
+        public new DomNotation Wrap(DomName element) {
+            return (DomNotation) base.Wrap(element);
+        }
+
+        public new DomNotation Wrap(DomContainer newParent) {
             return (DomNotation) base.Wrap(newParent);
         }
 
@@ -553,6 +637,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomProcessingInstruction) base.SetName(name);
         }
 
+        public new DomProcessingInstruction SetName(DomName name) {
+            return (DomProcessingInstruction) base.SetName(name);
+        }
+
     
         public new DomProcessingInstruction CompressWhitespace() {
             return (DomProcessingInstruction) base.CompressWhitespace();
@@ -562,7 +650,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomProcessingInstruction) base.Wrap(element);
         }
 
-        public new DomProcessingInstruction Wrap(DomNode newParent) {
+        public new DomProcessingInstruction Wrap(DomName element) {
+            return (DomProcessingInstruction) base.Wrap(element);
+        }
+
+        public new DomProcessingInstruction Wrap(DomContainer newParent) {
             return (DomProcessingInstruction) base.Wrap(newParent);
         }
 
@@ -601,6 +693,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomText) base.SetName(name);
         }
 
+        public new DomText SetName(DomName name) {
+            return (DomText) base.SetName(name);
+        }
+
     
         public new DomText CompressWhitespace() {
             return (DomText) base.CompressWhitespace();
@@ -610,7 +706,11 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomText) base.Wrap(element);
         }
 
-        public new DomText Wrap(DomNode newParent) {
+        public new DomText Wrap(DomName element) {
+            return (DomText) base.Wrap(element);
+        }
+
+        public new DomText Wrap(DomContainer newParent) {
             return (DomText) base.Wrap(newParent);
         }
 

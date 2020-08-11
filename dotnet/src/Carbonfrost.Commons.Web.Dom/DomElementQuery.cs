@@ -103,6 +103,18 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Each(e => e.Attribute(name, value));
         }
 
+        public string Attribute(DomName name) {
+            return QueryFirstOrDefault(e => e.Attribute(name));
+        }
+
+        public TValue Attribute<TValue>(DomName name) {
+            return QueryFirstOrDefault(e => e.Attribute<TValue>(name));
+        }
+
+        public DomElementQuery Attribute(DomName name, object value) {
+            return Each(e => e.Attribute(name, value));
+        }
+
         public DomObjectQuery ChildNode(int index) {
             return Query(e => e.ChildNode(index));
         }
@@ -123,6 +135,10 @@ namespace Carbonfrost.Commons.Web.Dom {
             return QueryFirstOrDefault(e => e.HasAttribute(name));
         }
 
+        public bool HasAttribute(DomName name) {
+            return QueryFirstOrDefault(e => e.HasAttribute(name));
+        }
+
         public bool HasClass(string name) {
             return QueryFirstOrDefault(e => e.HasClass(name));
         }
@@ -138,6 +154,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomElementQuery RemoveAttribute(string name) {
+            Each(e => e.RemoveAttribute(name));
+            return this;
+        }
+
+        public DomElementQuery RemoveAttribute(DomName name) {
             Each(e => e.RemoveAttribute(name));
             return this;
         }

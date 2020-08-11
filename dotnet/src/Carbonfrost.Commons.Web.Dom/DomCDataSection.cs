@@ -58,5 +58,11 @@ namespace Carbonfrost.Commons.Web.Dom {
         public new DomCDataSection SplitText(Regex pattern) {
             return (DomCDataSection) base.SplitText(pattern);
         }
+
+        protected override DomNode CloneCore() {
+            var result = OwnerDocument.CreateCDataSection(Data);
+            result.CopyAnnotationsFrom(AnnotationList);
+            return result;
+        }
     }
 }

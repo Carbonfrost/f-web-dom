@@ -1,5 +1,5 @@
 //
-// Copyright 2013, 2019 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2019-2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -59,6 +59,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             get {
                 return DomNodeType.Comment;
             }
+        }
+
+        protected override DomNode CloneCore() {
+            var result = OwnerDocument.CreateComment(Data);
+            result.CopyAnnotationsFrom(AnnotationList);
+            return result;
         }
     }
 }

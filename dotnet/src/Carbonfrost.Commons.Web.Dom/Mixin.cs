@@ -29,6 +29,29 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        internal static List<T> DistinctWithEvents<T>(this ICollection<T> self, IEqualityComparer<T> comparer, Action<T> onRejected) {
+            var newItems = new List<T>(self.Count);
+            var hash = new HashSet<T>(comparer);
+            foreach (var item in self) {
+                if (hash.Add(item)) {
+                    newItems.Add(item);
+                } else {
+                    onRejected(item);
+                }
+            }
+            return newItems;
+        }
+
+        internal static IEnumerable<TOutput> TrySelect<TInput, TOutput>(this IEnumerable<TInput> self, TransformPredicate<TInput, TOutput> pred) {
+            foreach (var s in self) {
+                if (pred(s, out TOutput result)) {
+                    yield return result;
+                }
+            }
+        }
+
+        internal delegate bool TransformPredicate<TInput, TOutput>(TInput t, out TOutput o);
+
         public static object InvokeWithUnwrap(this MethodInfo method, object instance, object[] args) {
             try {
                 return method.Invoke(instance, args);
@@ -67,11 +90,16 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key) {
-            TValue value;
-            if (source.TryGetValue(key, out value))
-                return value;
+            return GetValueOrDefault(source, key, default(TValue));
+        }
 
-            return default(TValue);
+        public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, TValue defaultValue) {
+            TValue value;
+            if (source.TryGetValue(key, out value)) {
+                return value;
+            }
+
+            return defaultValue;
         }
     }
 }

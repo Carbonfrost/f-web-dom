@@ -68,7 +68,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         protected override DomNode CloneCore() {
-            return OwnerDocument.CreateText(Data);
+            var result = OwnerDocument.CreateText(Data);
+            result.CopyAnnotationsFrom(AnnotationList);
+            return result;
         }
     }
 }

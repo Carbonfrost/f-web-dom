@@ -308,6 +308,44 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         }
 
         [Fact]
+        public void NameContext_set_should_use_Value() {
+            var doc = new DomDocument();
+            var e = doc.AppendElement("e");
+            e.NameContext = DomNameContext.Html;
+            Assert.Same(DomNameContext.Html, e.NameContext);
+        }
+
+        [Fact]
+        public void NameContext_inherits_from_owner_node() {
+            var doc = new DomDocument();
+            var e = doc.AppendElement("e");
+            e.NameContext = DomNameContext.Html;
+
+            var f = e.AppendElement("ff");
+            Assert.Same(DomNameContext.Html, f.NameContext);
+        }
+
+        [Fact]
+        public void NameContext_inherits_from_owner_document() {
+            var doc = new DomDocument();
+            doc.NameContext = DomNameContext.Html;
+
+            var e = doc.AppendElement("e");
+            var f = e.AppendElement("ff");
+            Assert.Same(DomNameContext.Html, f.NameContext);
+        }
+
+        [Fact]
+        public void NameContext_should_copy_on_clone() {
+            var doc = new DomDocument();
+            var e = doc.AppendElement("e");
+            e.NameContext = DomNameContext.Html;
+
+            Assert.Same(DomNameContext.Html, e.SetName("xx").NameContext);
+            Assert.Same(DomNameContext.Html, e.Clone().NameContext);
+        }
+
+        [Fact]
         public void NodeDepth_should_be_zero_outside_document() {
             DomDocument doc = new DomDocument();
             var e = doc.CreateElement("e");
@@ -319,6 +357,26 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             DomDocument doc = new DomDocument();
             var e = doc.AppendElement("a").AppendElement("b").AppendElement("c");
             Assert.Equal(3, e.NodeDepth);
+        }
+
+        [Fact]
+        public void AncestorNodesAndSelf_should_provide_expected_access() {
+            DomDocument doc = new DomDocument();
+            var e = doc.AppendElement("a").AppendElement("b").AppendElement("c").AppendElement("d");
+            Assert.HasCount(5, e.AncestorNodesAndSelf);
+            Assert.Equal("d", e.AncestorNodesAndSelf[0].LocalName);
+            Assert.Equal("a", e.AncestorNodesAndSelf[3].LocalName);
+            Assert.Equal("#document", e.AncestorNodesAndSelf.Last().LocalName);
+        }
+
+        [Fact]
+        public void AncestorNodes_should_provide_expected_access() {
+            DomDocument doc = new DomDocument();
+            var e = doc.AppendElement("a").AppendElement("b").AppendElement("c").AppendElement("d");
+            Assert.HasCount(4, e.AncestorNodes);
+            Assert.Equal("c", e.AncestorNodes[0].LocalName);
+            Assert.Equal("a", e.AncestorNodes[2].LocalName);
+            Assert.Equal("#document", e.AncestorNodes.Last().LocalName);
         }
     }
 }

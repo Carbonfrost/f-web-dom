@@ -24,5 +24,6 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         protected DomAttribute() : base() {}
         protected DomAttribute(string name) : base(name) {}
+        protected DomAttribute(DomName name) : base(name) {}
     }
 }

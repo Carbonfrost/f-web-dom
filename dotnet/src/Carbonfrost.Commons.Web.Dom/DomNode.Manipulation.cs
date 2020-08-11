@@ -40,7 +40,7 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode Attribute(string name, object value) {
-            return Attribute(DomName.Create(name), value);
+            return Attribute(CreateDomName(name), value);
         }
 
         public DomNode Attribute(DomName name, object value) {
@@ -61,33 +61,49 @@ namespace Carbonfrost.Commons.Web.Dom {
             return attr.GetValue<TValue>();
         }
 
+        public TValue Attribute<TValue>(DomName name) {
+            var attr = Attributes[name];
+            if (attr == null) {
+                return default(TValue);
+            }
+            return attr.GetValue<TValue>();
+        }
+
         public DomNode AddClass(string classNames) {
-            ApplyClass(l => l.AddRange(DomStringTokenList.Parse(classNames)));
-            return this;
+            return ApplyClass(l => l.AddRange(DomStringTokenList.Parse(classNames)));
+        }
+
+        public DomNode AddClass(params string[] classNames) {
+            return ApplyClass(l => l.AddRange(classNames));
         }
 
         public DomNode RemoveClass(string classNames) {
-            ApplyClass(l => l.RemoveRange(DomStringTokenList.Parse(classNames)));
-            return this;
+            return ApplyClass(l => l.RemoveRange(DomStringTokenList.Parse(classNames)));
         }
 
-        private void ApplyClass(Action<DomStringTokenList> action) {
+        public DomNode RemoveClass(params string[] classNames) {
+            return ApplyClass(l => l.RemoveRange(classNames));
+        }
+
+        private DomNode ApplyClass(Action<DomStringTokenList> action) {
             var list = DomStringTokenList.Parse(Attribute("class"));
             action(list);
-            Attribute("class", list.ToString());
+            return Attribute("class", list.ToString());
         }
 
         public DomNode Before(DomNode node) {
-            if (node == null)
+            if (node == null) {
                 throw new ArgumentNullException(nameof(node));
+            }
 
             RequireParent().ChildNodes.Insert(this.NodePosition, node);
             return this;
         }
 
         public DomNode After(DomNode node) {
-            if (node == null)
+            if (node == null) {
                 throw new ArgumentNullException(nameof(node));
+            }
 
             RequireParent().ChildNodes.Insert(this.NodePosition + 1, node);
             return this;
@@ -170,8 +186,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode Append(DomNode child) {
-            if (child == null)
+            if (child == null) {
                 return this;
+            }
 
             if (ChildNodes.IsReadOnly) {
                 throw DomFailure.CannotAppendChildNode();
@@ -182,12 +199,13 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode Append(DomObject child) {
-            if (child == null)
+            if (child == null) {
                 return this;
+            }
 
-            if (child.NodeType == DomNodeType.Attribute)
+            if (child.NodeType == DomNodeType.Attribute) {
                 Attributes.Add((DomAttribute) child);
-            else {
+            } else {
                 Append((DomNode) child);
             }
 
@@ -218,25 +236,45 @@ namespace Carbonfrost.Commons.Web.Dom {
             return this;
         }
 
+        public DomAttribute AppendAttribute(string name) {
+            return AttributeByNameOrCreate(CreateDomName(name));
+        }
+
+        public DomAttribute AppendAttribute(DomName name) {
+            return AttributeByNameOrCreate(name);
+        }
+
         public DomAttribute AppendAttribute(string name, object value) {
-            return AppendAttribute(DomName.Create(name), value);
+            return AppendAttribute(CreateDomName(name), value);
         }
 
         public DomAttribute AppendAttribute(DomName name, object value) {
-            return AttributeByNameOrCreate(name).AppendValue(value);
+            return AppendAttribute(name).AppendValue(value);
+        }
+
+        public DomAttribute PrependAttribute(string name) {
+            return PrependAttribute(CreateDomName(name));
+        }
+
+        public DomAttribute PrependAttribute(DomName name) {
+            return AttributeByNameOrCreate(name, true);
         }
 
         public DomAttribute PrependAttribute(string name, object value) {
-            return PrependAttribute(DomName.Create(name), value);
+            return PrependAttribute(CreateDomName(name), value);
         }
 
         public DomAttribute PrependAttribute(DomName name, object value) {
-            return AttributeByNameOrCreate(name, true).AppendValue(value);
+            return PrependAttribute(name).AppendValue(value);
         }
 
         public DomElement AppendElement(string name) {
-            var e = this.OwnerDocumentOrSelf.CreateElement(name);
-            this.Append(e);
+            return AppendElement(CreateDomName(name));
+        }
+
+        public DomElement AppendElement(DomName name) {
+            var e = OwnerDocumentOrSelf.CreateElement(name);
+            Append(e);
             return e;
         }
 
@@ -289,6 +327,10 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomElement PrependElement(string name) {
+            return PrependElement(CreateDomName(name));
+        }
+
+        public DomElement PrependElement(DomName name) {
             var e = OwnerDocumentOrSelf.CreateElement(name);
             Prepend(e);
             return e;
@@ -315,8 +357,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode RemoveAttributes() {
-            if (this.Attributes != null)
-                this.Attributes.Clear();
+            if (Attributes != null) {
+                Attributes.Clear();
+            }
 
             return this;
         }
@@ -356,8 +399,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode Prepend(DomNode child) {
-            if (child != null)
+            if (child != null) {
                 ChildNodes.Insert(0, child);
+            }
 
             return this;
         }
@@ -395,8 +439,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         }
 
         public DomNode PrependTo(DomNode parent) {
-            if (parent == null)
+            if (parent == null) {
                 throw new ArgumentNullException(nameof(parent));
+            }
 
             parent.Prepend(this);
             return this;
@@ -406,15 +451,40 @@ namespace Carbonfrost.Commons.Web.Dom {
             return (DomNode) base.SetName(name);
         }
 
-        public DomNode Wrap(string element) {
-            return Wrap(OwnerDocument.CreateElement(element));
+        public new DomNode SetName(DomName name) {
+            return (DomNode) base.SetName(name);
         }
 
-        public DomNode Wrap(DomNode newParent) {
+        public DomNode Wrap(string element) {
+            return Wrap(CreateDomName(element));
+        }
+
+        public DomNode Wrap(DomName element) {
+            var result = Wrap(OwnerDocument.CreateElement(element));
+
+            // HACK Copy XMLNS attribute (this should be possible via the name context)
+            foreach (var attr in Attributes) {
+                if (attr.Prefix == "xmlns" || attr.LocalName.StartsWith("xmlns:")) {
+                    result.Attribute(attr.Name, attr.Value);
+                }
+            }
+            return result;
+        }
+
+        public DomNode Wrap(DomContainer newParent) {
             if (newParent == null) {
                 throw new ArgumentNullException(nameof(newParent));
             }
-            if (ParentNode != null && !newParent.IsDocumentFragment) {
+
+            if (OwnerDocument.DocumentElement == this) {
+                // This is the document element, so we have to ensure that we
+                // replace in such a way that there is only one document element
+                // at a time
+                RemoveSelf();
+                OwnerDocument.Append(newParent);
+                newParent.Append(this);
+
+            } else if (ParentNode != null && !newParent.IsDocumentFragment) {
                 After(newParent);
             }
             newParent.Append(this);

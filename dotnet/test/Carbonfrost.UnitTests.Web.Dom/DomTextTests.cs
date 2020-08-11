@@ -25,6 +25,16 @@ namespace Carbonfrost.UnitTests.Web.Dom {
     public class DomTextTests {
 
         [Fact]
+        public void Clone_will_clone_annotations_copied_to_new_node() {
+            var doc = new DomDocument();
+
+            var node = doc.CreateText("a").AddAnnotation(new object());
+            var clone = node.Clone();
+
+            Assert.HasCount(1, clone.AnnotationList.OfType<object>());
+        }
+
+        [Fact]
         public void CompressWhitespace_should_delete_extra_spaces() {
             DomDocument doc = new DomDocument();
             var html = doc.AppendElement("html").AppendText("  \t\t   ");
@@ -55,6 +65,14 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             Assert.Equal(ws, html.TextContent);
             Assert.Equal(ws, html.Data);
             Assert.Equal(ws, html.NodeValue);
+        }
+
+        [Fact]
+        public void IsWhitespace_nominal() {
+            DomDocument doc = new DomDocument();
+            string ws = "  ";
+            var text = doc.AppendElement("html").AppendText(ws);
+            Assert.True(text.IsWhitespace);
         }
 
         [Fact]

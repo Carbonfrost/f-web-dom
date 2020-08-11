@@ -21,7 +21,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         // Can append/prepend all except notation, entity, entity reference, fragment
 
         DomElement AppendElement(string name);
+        DomElement AppendElement(DomName name);
         DomAttribute AppendAttribute(string name, object value);
+        DomAttribute AppendAttribute(DomName name, object value);
         DomText AppendText(string data);
         DomCDataSection AppendCDataSection(string data);
         DomProcessingInstruction AppendProcessingInstruction(string target, string data);
@@ -29,7 +31,9 @@ namespace Carbonfrost.Commons.Web.Dom {
         DomDocumentType AppendDocumentType(string name);
 
         DomElement PrependElement(string name);
+        DomElement PrependElement(DomName name);
         DomAttribute PrependAttribute(string name, object value);
+        DomAttribute PrependAttribute(DomName name, object value);
         DomText PrependText(string data);
         DomCDataSection PrependCDataSection(string data);
         DomProcessingInstruction PrependProcessingInstruction(string target, string data);

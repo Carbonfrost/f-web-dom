@@ -15,7 +15,6 @@
 //
 
 using System;
-using System.Linq;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
@@ -45,6 +44,19 @@ namespace Carbonfrost.Commons.Web.Dom {
             get {
                 return "#notation";
             }
+        }
+
+        public override DomNameContext NameContext {
+            get {
+                return ParentElement.NameContext;
+            }
+            set {
+                throw new NotSupportedException();
+            }
+        }
+
+        protected override DomNode CloneCore() {
+            throw new NotImplementedException();
         }
     }
 

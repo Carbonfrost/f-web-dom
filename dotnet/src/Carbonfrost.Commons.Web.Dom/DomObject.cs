@@ -17,14 +17,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Carbonfrost.Commons.Core.Runtime.Expressions;
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public abstract class DomObject : IDomNameApiConventions {
+    public abstract partial class DomObject : IDomNameApiConventions {
 
-        private AnnotationList _annotations = AnnotationList.Empty;
         private IDomNodeCollection _siblingsContent;
 
         // Purely for the sake of reducing memory required by DomNode
@@ -32,13 +30,6 @@ namespace Carbonfrost.Commons.Web.Dom {
         //   DomCharacterData => string
         //   DomContainer = > DomNodeCollection corresponding to children
         internal object content;
-
-        // Only for tests
-        internal AnnotationList AnnotationList {
-            get {
-                return _annotations;
-            }
-        }
 
         public virtual string LocalName {
             get {
@@ -52,6 +43,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
+        public virtual string Prefix {
+            get {
+                return Name.Prefix;
+            }
+        }
+
         public string NamespaceUri {
             get {
                 if (Namespace == null) {
@@ -61,9 +58,12 @@ namespace Carbonfrost.Commons.Web.Dom {
             }
         }
 
-        public virtual DomNamespace Namespace {
+        public DomNamespace Namespace {
             get {
-                return null;
+                if (Name == null) {
+                    return null;
+                }
+                return Name.Namespace;
             }
         }
 
@@ -214,11 +214,7 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public Uri BaseUri {
             get {
-                var uc = Annotation<BaseUriAnnotation>();
-                if (uc == null) {
-                    return ParentNode == null ? null: ParentNode.BaseUri;
-                }
-                return uc.uri;
+                return AnnotationRecursive(BaseUriAnnotation.Empty).uri;
             }
             set {
                 RemoveAnnotations<BaseUriAnnotation>();
@@ -226,6 +222,11 @@ namespace Carbonfrost.Commons.Web.Dom {
                     AddAnnotation(new BaseUriAnnotation(value));
                 }
             }
+        }
+
+        public abstract DomNameContext NameContext {
+            get;
+            set;
         }
 
         public DomDocument OwnerDocument {
@@ -256,6 +257,15 @@ namespace Carbonfrost.Commons.Web.Dom {
                     return null;
                 else
                     return owner;
+            }
+        }
+
+        public virtual DomNode RootNode {
+            get {
+                if (ParentNode == null) {
+                    return (DomNode) this;
+                }
+                return ParentNode.RootNode;
             }
         }
 
@@ -295,84 +305,54 @@ namespace Carbonfrost.Commons.Web.Dom {
             throw DomFailure.CannotGenerateName(inputType);
         }
 
-        public DomObject AddAnnotation(object annotation) {
-            if (annotation == null) {
-                throw new ArgumentNullException(nameof(annotation));
+        public DomPath GetDomPath(DomPathGenerator generator) {
+            if (!(NodeType == DomNodeType.Element || NodeType == DomNodeType.Attribute)) {
+                throw new NotSupportedException();
             }
 
-            _annotations = _annotations.Add(annotation);
-            return this;
-        }
+            generator = generator ?? DomPathGenerator.Default;
+            IEnumerable<DomElement> ancestors;
 
-        public bool HasAnnotation<T>() where T : class {
-            return _annotations.OfType<T>().Any();
-        }
-
-        public bool HasAnnotation(object instance) {
-            return _annotations.Contains(instance);
-        }
-
-        public T Annotation<T>() where T : class {
-            return _annotations.OfType<T>().FirstOrDefault();
-        }
-
-        public object Annotation(Type type) {
-            if (type == null) {
-                throw new ArgumentNullException(nameof(type));
+            if (this is DomElement node) {
+                ancestors = node.AncestorsAndSelf;
+            } else {
+                ancestors = ((DomElement) OwnerNode).AncestorsAndSelf;
             }
 
-            return _annotations.OfType(type).FirstOrDefault();
-        }
-
-        public DomObject AddAnnotations(IEnumerable<object> annotations) {
-            if (annotations != null) {
-                foreach (var anno in annotations) {
-                    AddAnnotation(anno);
+            var path = DomPath.Root;
+            foreach (var e in ancestors.Reverse()) {
+                if (!string.IsNullOrEmpty(e.Id) && generator.KeepElementId(e)) {
+                    path = DomPath.Root.Id(e.Id);
+                    continue;
                 }
-            }
-            return this;
-        }
 
-        public IEnumerable<object> Annotations() {
-            return Annotations<object>();
-        }
-
-        public IEnumerable<T> Annotations<T>() where T : class {
-            return _annotations.OfType<T>();
-        }
-
-        public IEnumerable<object> Annotations(Type type) {
-            return _annotations.OfType(type);
-        }
-
-        public DomObject RemoveAnnotations<T>() where T : class {
-            _annotations = _annotations.RemoveOfType(typeof(T));
-            return this;
-        }
-
-        public DomObject RemoveAnnotations(Type type) {
-            if (type == null) {
-                throw new ArgumentNullException(nameof(type));
+                int index = generator.KeepElementIndex(e) ? e.ElementPosition : -1;
+                path = path.Element(e.Name, index);
             }
 
-            _annotations = _annotations.RemoveOfType(type);
-            return this;
+            if (NodeType == DomNodeType.Attribute) {
+                path = path.Attribute(Name);
+            }
+            return path;
         }
 
-        public DomObject RemoveAnnotation(object value) {
-            if (value == null) {
-                throw new ArgumentNullException(nameof(value));
-            }
+        public DomPath GetDomPath() {
+            return GetDomPath(null);
+        }
 
-            _annotations = _annotations.Remove(value);
-            return this;
+        public DomObjectQuery AsObjectQuery() {
+            return new DomObjectQuery(this);
         }
 
         public DomObject SetName(string name) {
+            return SetNameCore(DomName.Create(name));
+        }
+
+        public DomObject SetName(DomName name) {
             return SetNameCore(name);
         }
 
-        protected virtual DomObject SetNameCore(string name) {
+        protected virtual DomObject SetNameCore(DomName name) {
             throw DomFailure.CannotSetName();
         }
 
@@ -414,7 +394,13 @@ namespace Carbonfrost.Commons.Web.Dom {
             return this;
         }
 
+        internal DomName CreateDomName(string name) {
+            return NameContext.GetName(name);
+        }
+
         private sealed class BaseUriAnnotation {
+
+            internal static readonly BaseUriAnnotation Empty = new BaseUriAnnotation(null);
 
             public readonly Uri uri;
 

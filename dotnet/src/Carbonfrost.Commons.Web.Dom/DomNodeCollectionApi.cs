@@ -101,6 +101,7 @@ namespace Carbonfrost.Commons.Web.Dom {
             // HACK Linked list needs to maintain the connection to the
             // unsafe items list so it has to clear before unlinking
             bool shouldClearBeforeUnlinking = _items is LinkedDomNodeList;
+            var allItems = _items.ToArray();
 
             if (shouldClearBeforeUnlinking) {
                 var unlink = _items.ToArray();
@@ -110,6 +111,7 @@ namespace Carbonfrost.Commons.Web.Dom {
                 this.UnlinkAll(_items);
                 _items.Clear();
             }
+            _owner.OwnerDocumentOrSelf.ChildNodesChanged(DomMutation.Remove, _owner, allItems, null, null);
         }
 
         public override bool Contains(DomNode item) {
@@ -128,15 +130,22 @@ namespace Carbonfrost.Commons.Web.Dom {
             if (item == null) {
                 throw new ArgumentNullException(nameof(item));
             }
-            if (Contains(item)) {
+            int currentIndex = IndexOf(item);
+            if (currentIndex == index) {
+                return;
+            }
+
+            if (currentIndex >= 0) {
                 _items.Remove(item);
-                index--;
+                index = Math.Max(0, index - 1);
             }
             if (item.IsDocumentFragment) {
-                InsertRange(index, item.ChildNodes.ToList());
+                InsertRange(index, item.ChildNodes);
             } else {
                 Entering(item, null);
                 _items.Insert(index, item);
+                item.NotifyParentChanged();
+                _owner.ChildNodeChanged(DomMutation.Add, item, GetPreviousSibling(item), GetNextSibling(item));
             }
         }
 
@@ -145,8 +154,11 @@ namespace Carbonfrost.Commons.Web.Dom {
                 throw new ArgumentNullException(nameof(item));
             }
 
+            var prev = GetPreviousSibling(item);
+            var next = GetNextSibling(item);
             if (_items.Remove(item)) {
                 item.Unlink();
+                _owner.ChildNodeChanged(DomMutation.Remove, item, prev, next);
                 return true;
             }
 
@@ -156,7 +168,12 @@ namespace Carbonfrost.Commons.Web.Dom {
         public override void RemoveAt(int index) {
             CheckIndex(index);
             this[index].Unlink();
+
+            var prev = _items.ElementAtOrDefault(index - 1);
+            var next = _items.ElementAtOrDefault(index + 1);
+            var item = _items[index];
             _items.RemoveAt(index);
+            _owner.ChildNodeChanged(DomMutation.Remove, item, prev, next);
         }
 
         bool IDomNodeCollection.Remove(DomObject node) {
@@ -170,6 +187,26 @@ namespace Carbonfrost.Commons.Web.Dom {
                 return IndexOf(dn);
             }
             return -1;
+        }
+
+        public override void InsertRange(int index, IEnumerable<DomNode> items) {
+            if (items == null || !items.Any()) {
+                return;
+            }
+
+            using (_owner.NewMutationBatch()) {
+                base.InsertRange(index, items);
+            }
+        }
+
+        public override void AddRange(IEnumerable<DomNode> items) {
+            if (items == null || !items.Any()) {
+                return;
+            }
+
+            using (_owner.NewMutationBatch()) {
+                base.AddRange(items);
+            }
         }
 
         private void Entering(DomNode item, DomNode willReplace) {

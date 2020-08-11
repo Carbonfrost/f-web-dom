@@ -16,13 +16,12 @@
 
 namespace Carbonfrost.Commons.Web.Dom {
 
-    public interface IDomValue  {
+    public interface IDomValue : IDomObjectReferenceLifecycle {
         bool IsReadOnly { get; }
         string Value { get; set; }
         object TypedValue { get; set; }
-        void Initialize(DomAttribute attribute);
         void AppendValue(object value);
-        IDomValue Clone();
+        new IDomValue Clone();
     }
 
     public interface IDomValue<T> : IDomValue {

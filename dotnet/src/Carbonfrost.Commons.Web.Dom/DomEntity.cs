@@ -14,6 +14,8 @@
 // limitations under the License.
 //
 
+using System;
+
 namespace Carbonfrost.Commons.Web.Dom {
 
     public partial class DomEntity : DomNode {
@@ -43,6 +45,19 @@ namespace Carbonfrost.Commons.Web.Dom {
             get {
                 return "#entity";
             }
+        }
+
+        public override DomNameContext NameContext {
+            get {
+                return ParentElement.NameContext;
+            }
+            set {
+                throw new NotSupportedException();
+            }
+        }
+
+        protected override DomNode CloneCore() {
+            throw new NotImplementedException();
         }
     }
 }

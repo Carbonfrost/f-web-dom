@@ -46,15 +46,26 @@ namespace Carbonfrost.Commons.Web.Dom {
             return Clone();
         }
 
+        object IDomObjectReferenceLifecycle.Clone() {
+            return Clone();
+        }
+
         public virtual DomValue Clone() {
             return new DomValue { Value = Value };
         }
 
-        protected virtual void Initialize(DomAttribute attribute) {
+        protected virtual void Attaching(DomAttribute attribute) {
         }
 
-        void IDomValue.Initialize(DomAttribute attribute) {
-            Initialize(attribute);
+        protected virtual void Detaching() {
+        }
+
+        void IDomObjectReferenceLifecycle.Attaching(DomObject instance) {
+            Attaching((DomAttribute) instance);
+        }
+
+        void IDomObjectReferenceLifecycle.Detaching() {
+            Detaching();
         }
     }
 }

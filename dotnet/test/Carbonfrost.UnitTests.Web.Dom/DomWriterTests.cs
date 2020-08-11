@@ -20,7 +20,7 @@ using Carbonfrost.Commons.Web.Dom;
 
 namespace Carbonfrost.UnitTests.Web.Dom {
 
-    public class DomWriterTests {
+    public partial class DomWriterTests {
 
         [Fact]
         public void Create_should_create_writer_for_XML_by_default() {

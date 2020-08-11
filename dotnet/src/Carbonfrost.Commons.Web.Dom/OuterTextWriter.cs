@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -22,6 +23,12 @@ namespace Carbonfrost.Commons.Web.Dom {
     class OuterTextWriter : DomWriter {
 
         private readonly StringBuilder _buffer;
+
+        public override DomWriteState WriteState {
+            get {
+                throw new NotSupportedException();
+            }
+        }
 
         public OuterTextWriter(StringBuilder buffer) {
             _buffer = buffer;
@@ -49,6 +56,39 @@ namespace Carbonfrost.Commons.Web.Dom {
 
         public override void WriteText(string data) {
             _buffer.Append(data);
+        }
+
+        public override void WriteStartElement(DomName name) {
+        }
+
+        public override void WriteStartAttribute(DomName name) {
+        }
+
+        public override void WriteEndAttribute() {
+        }
+
+        public override void WriteValue(string value) {
+        }
+
+        public override void WriteEndDocument() {
+        }
+
+        public override void WriteDocumentType(string name, string publicId, string systemId) {
+        }
+
+        public override void WriteProcessingInstruction(string target, string data) {
+        }
+
+        public override void WriteNotation() {
+        }
+
+        public override void WriteComment(string data) {
+        }
+
+        public override void WriteStartDocument() {
+        }
+
+        public override void WriteEndElement() {
         }
     }
 }

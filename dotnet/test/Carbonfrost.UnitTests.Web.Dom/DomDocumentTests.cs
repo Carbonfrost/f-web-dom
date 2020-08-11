@@ -65,8 +65,6 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             DomDocument doc = new DomDocument();
 
             Assert.Null(doc.Attributes);
-
-            // TODO Review this behavior: should it be an error?
             Assert.Same(doc, doc.Attribute("s", "s"));
             Assert.Null(doc.Attribute("s"));
         }
@@ -99,6 +97,12 @@ namespace Carbonfrost.UnitTests.Web.Dom {
             const string xml = "<html> <head> </head> <body a=\"false\"> </body> </html>";
             d.LoadXml(xml);
             Assert.Equal(xml, d.InnerXml);
+        }
+
+        [Fact]
+        public void RootNode_is_same_as_self() {
+            var d = new DomDocument();
+            Assert.Same(d, d.RootNode);
         }
 
         [Fact]
@@ -137,7 +141,7 @@ namespace Carbonfrost.UnitTests.Web.Dom {
         public void CreateAttribute_requires_name_argument() {
             DomDocument doc = new DomDocument();
             Assert.Throws<ArgumentNullException>(() => doc.CreateAttribute((DomName) null));
-            Assert.Throws<ArgumentNullException>(() => doc.CreateAttribute((string) null));
+            Assert.Throws<ArgumentException>(() => doc.CreateAttribute((string) null));
         }
 
         [Fact]
